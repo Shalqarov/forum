@@ -11,21 +11,25 @@ type Forum struct {
 	DB *sql.DB
 }
 
-// AddUser - new user
-func (m *Forum) AddUser(login, email string) (int64, error) {
-	statement := "INSERT INTO users (Login, Email) values(?,?)"
+// CreateUser - new user
+func (m *Forum) CreateUser(user *models.User) error {
+	stmt := `INSERT INTO users"(
+		"login",
+		"email"
+	) VALUES (?, ?)`
 
-	result, err := m.DB.Exec(statement, login, email)
+	_, err := m.DB.Exec(stmt, user.Login, user.Email)
 	if err != nil {
-		return 0, err
+		return err
 	}
-	return result.LastInsertId()
+
+	return nil
 }
 
-// GetUserInfo ...
-func (m *Forum) GetUserInfo(id int) (*models.User, error) {
-	statement := "SELECT ID,Login,Email FROM Users WHERE ID = ?"
-	row := m.DB.QueryRow(statement, id)
+// GetUserInfo...
+func (m *Forum) GetUserInfo(login string) (*models.User, error) {
+	statement := "SELECT * FROM users WHERE login = ?"
+	row := m.DB.QueryRow(statement, login)
 	u := &models.User{}
 	err := row.Scan(&u.ID, &u.Login, &u.Email)
 	if err != nil {
@@ -35,4 +39,27 @@ func (m *Forum) GetUserInfo(id int) (*models.User, error) {
 		return nil, err
 	}
 	return u, nil
+}
+
+func (m *Forum) GetAllUsers() ([]*models.User, error) {
+	statement := "SELECT * FROM users"
+	rows, err := m.DB.Query(statement)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	users := []*models.User{}
+	for rows.Next() {
+		u := models.User{}
+		err := rows.Scan(&u.ID, &u.Login, &u.Email)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, &u)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return users, nil
 }
