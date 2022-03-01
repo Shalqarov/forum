@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Shalqarov/forum/pkg"
+	"github.com/Shalqarov/forum/pkg/models/sqlite"
 	"github.com/Shalqarov/forum/web"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -35,6 +36,7 @@ func main() {
 		ErrorLog:      errorLog,
 		InfoLog:       infoLog,
 		TemplateCache: templateCache,
+		Forum:         &sqlite.Forum{DB: db},
 	}
 	srv := &http.Server{
 		Addr:         *addr,

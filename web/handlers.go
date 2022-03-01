@@ -11,6 +11,7 @@ func (app *Application) home(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+
 	switch r.Method {
 	case http.MethodGet:
 		app.render(w, r, "home.page.html", &templateData{})
@@ -27,6 +28,8 @@ func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	switch r.Method {
+	case http.MethodGet:
+		app.render(w, r, "register.page.html", &templateData{})
 	case http.MethodPost:
 		user := models.User{
 			Email: r.FormValue("email"),
@@ -38,8 +41,6 @@ func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		http.Redirect(w, r, "/", http.StatusSeeOther)
-	case http.MethodGet:
-		app.render(w, r, "register.page.html", &templateData{})
 	default:
 		w.Header().Set("Allow", http.MethodPost)
 		w.Header().Set("Allow", http.MethodGet)
