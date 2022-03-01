@@ -6,16 +6,22 @@ import (
 	"fmt"
 
 	"github.com/Shalqarov/forum/pkg/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // CreateUser - new user
 func (m *Forum) CreateUser(user *models.User) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
+	if err != nil {
+		return err
+	}
 	stmt := `INSERT INTO "main"."users"(
 		"login",
-		"email"
-	) VALUES (?, ?)`
+		"email",
+		"password"
+	) VALUES (?, ?, ?)`
 
-	_, err := m.DB.Exec(stmt, user.Login, user.Email)
+	_, err = m.DB.Exec(stmt, user.Login, user.Email, hashedPassword)
 	fmt.Println(user)
 	if err != nil {
 		return err

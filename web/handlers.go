@@ -32,8 +32,9 @@ func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 		app.render(w, r, "register.page.html", &templateData{})
 	case http.MethodPost:
 		user := models.User{
-			Email: r.FormValue("email"),
-			Login: r.FormValue("login"),
+			Email:    r.FormValue("email"),
+			Login:    r.FormValue("login"),
+			Password: r.FormValue("password"),
 		}
 		err := app.Forum.CreateUser(&user)
 		if err != nil {
