@@ -54,5 +54,5 @@ func (app *Application) registered(w http.ResponseWriter, r *http.Request) {
 	data := &templateData{
 		Users: users,
 	}
-	app.render(w, r, "test.layout.html", data)
+	app.render(w, r, "test.page.html", data)
 }
