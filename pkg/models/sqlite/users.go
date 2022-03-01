@@ -32,10 +32,10 @@ func (m *Forum) CreateUser(user *models.User) error {
 
 // GetUserInfo...
 func (m *Forum) GetUserInfo(login string) (*models.User, error) {
-	statement := "SELECT * FROM users WHERE login = ?"
-	row := m.DB.QueryRow(statement, login)
+	statement := "SELECT * FROM users WHERE \"login\" = ? OR \"email\" = ?"
+	row := m.DB.QueryRow(statement, login, login)
 	u := &models.User{}
-	err := row.Scan(&u.ID, &u.Login, &u.Email)
+	err := row.Scan(&u.ID, &u.Login, &u.Email, &u.Password)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, models.ErrNoRecord

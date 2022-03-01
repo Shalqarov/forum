@@ -1,9 +1,11 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Shalqarov/forum/pkg/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (app *Application) home(w http.ResponseWriter, r *http.Request) {
@@ -47,6 +49,32 @@ func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Allow", http.MethodGet)
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
+	}
+}
+
+func (app *Application) login(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/login" {
+		app.notFound(w)
+		return
+	}
+	switch r.Method {
+	case http.MethodGet:
+		app.render(w, r, "login.page.html", &templateData{})
+	case http.MethodPost:
+		info := r.FormValue("email")
+		password := r.FormValue("password")
+		user, err := app.Forum.GetUserInfo(info)
+		if err != nil {
+			// ДОДЕЛАТЬ
+			app.render(w, r, "login.page.html", &templateData{})
+		}
+		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+		if err != nil {
+			// ДОДЕЛАТЬ
+			app.render(w, r, "login.page.html", &templateData{})
+		}
+
+		fmt.Println("success")
 	}
 }
 
