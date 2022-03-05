@@ -3,7 +3,6 @@ package sqlite
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/Shalqarov/forum/pkg/models"
 	"golang.org/x/crypto/bcrypt"
@@ -22,7 +21,6 @@ func (m *Forum) CreateUser(user *models.User) error {
 	) VALUES (?, ?, ?)`
 
 	_, err = m.DB.Exec(stmt, user.Login, user.Email, hashedPassword)
-	fmt.Println(user)
 	if err != nil {
 		return err
 	}

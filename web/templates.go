@@ -9,7 +9,7 @@ import (
 
 type templateData struct {
 	User  *models.User
-	Users []*models.User
+	Error bool
 }
 
 func NewTemplateCache(dir string) (map[string]*template.Template, error) {

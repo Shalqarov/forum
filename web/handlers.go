@@ -3,6 +3,7 @@ package web
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/Shalqarov/forum/pkg/models"
 	"golang.org/x/crypto/bcrypt"
@@ -40,6 +41,12 @@ func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 		}
 		err := app.Forum.CreateUser(&user)
 		if err != nil {
+			if strings.Contains(err.Error(), "UNIQUE") {
+				app.render(w, r, "register.page.html", &templateData{
+					Error: true,
+				})
+				return
+			}
 			app.serverError(w, err)
 			return
 		}
@@ -76,12 +83,4 @@ func (app *Application) login(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Println("success")
 	}
-}
-
-func (app *Application) registered(w http.ResponseWriter, r *http.Request) {
-	users, _ := app.Forum.GetAllUsers()
-	data := &templateData{
-		Users: users,
-	}
-	app.render(w, r, "test.page.html", data)
 }
