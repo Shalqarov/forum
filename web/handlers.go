@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/Shalqarov/forum/pkg/models"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func (app *Application) home(w http.ResponseWriter, r *http.Request) {
@@ -25,8 +24,8 @@ func (app *Application) home(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *Application) register(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/register" {
+func (app *Application) signup(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/signup" {
 		app.notFound(w)
 		return
 	}
@@ -59,8 +58,8 @@ func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *Application) login(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/login" {
+func (app *Application) signin(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/signin" {
 		app.notFound(w)
 		return
 	}
@@ -70,17 +69,13 @@ func (app *Application) login(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		info := r.FormValue("email")
 		password := r.FormValue("password")
-		user, err := app.Forum.GetUserInfo(info)
+		err := app.Forum.PasswordCompare(info, password)
 		if err != nil {
-			// ДОДЕЛАТЬ
+			w.WriteHeader(http.StatusUnauthorized)
 			app.render(w, r, "login.page.html", &templateData{})
+			return
 		}
-		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-		if err != nil {
-			// ДОДЕЛАТЬ
-			app.render(w, r, "login.page.html", &templateData{})
-		}
-
 		fmt.Println("success")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }

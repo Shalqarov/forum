@@ -28,6 +28,26 @@ func (m *Forum) CreateUser(user *models.User) error {
 	return nil
 }
 
+// PasswordCompare - compares entered password with a user password.
+// if password is correct, returns nil err
+func (m *Forum) PasswordCompare(login, password string) error {
+	s := `SELECT "password" FROM "users" 
+	WHERE "login"=? OR "email"=?`
+	row := m.DB.QueryRow(s, login, login)
+	u := &models.User{}
+	err := row.Scan(&u.ID, &u.Login, &u.Email, &u.Password)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.ErrNoRecord
+		}
+		return err
+	}
+	if err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetUserInfo...
 func (m *Forum) GetUserInfo(login string) (*models.User, error) {
 	statement := "SELECT * FROM users WHERE \"login\" = ? OR \"email\" = ?"
@@ -41,27 +61,4 @@ func (m *Forum) GetUserInfo(login string) (*models.User, error) {
 		return nil, err
 	}
 	return u, nil
-}
-
-func (m *Forum) GetAllUsers() ([]*models.User, error) {
-	statement := "SELECT * FROM users"
-	rows, err := m.DB.Query(statement)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	users := []*models.User{}
-	for rows.Next() {
-		u := models.User{}
-		err := rows.Scan(&u.ID, &u.Login, &u.Email)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, &u)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-	return users, nil
 }
