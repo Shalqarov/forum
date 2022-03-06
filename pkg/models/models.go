@@ -7,7 +7,7 @@ var ErrNoRecord = errors.New("models: подходящей записи не н�
 // User - struct have basic user fields
 type User struct {
 	ID       int
-	Login    string
+	Username string
 	Email    string
 	Password string
 }

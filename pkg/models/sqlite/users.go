@@ -15,12 +15,12 @@ func (m *Forum) CreateUser(user *models.User) error {
 		return err
 	}
 	stmt := `INSERT INTO "main"."users"(
-		"login",
+		"username",
 		"email",
 		"password"
 	) VALUES (?, ?, ?)`
 
-	_, err = m.DB.Exec(stmt, user.Login, user.Email, hashedPassword)
+	_, err = m.DB.Exec(stmt, user.Username, user.Email, hashedPassword)
 	if err != nil {
 		return err
 	}
@@ -32,10 +32,10 @@ func (m *Forum) CreateUser(user *models.User) error {
 // if password is correct, returns nil err
 func (m *Forum) PasswordCompare(login, password string) error {
 	s := `SELECT "password" FROM "users" 
-	WHERE "login"=? OR "email"=?`
+	WHERE "username"=? OR "email"=?`
 	row := m.DB.QueryRow(s, login, login)
 	u := &models.User{}
-	err := row.Scan(&u.ID, &u.Login, &u.Email, &u.Password)
+	err := row.Scan(&u.Password)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.ErrNoRecord
@@ -50,10 +50,10 @@ func (m *Forum) PasswordCompare(login, password string) error {
 
 // GetUserInfo...
 func (m *Forum) GetUserInfo(login string) (*models.User, error) {
-	statement := "SELECT * FROM users WHERE \"login\" = ? OR \"email\" = ?"
+	statement := "SELECT * FROM users WHERE \"username\" = ? OR \"email\" = ?"
 	row := m.DB.QueryRow(statement, login, login)
 	u := &models.User{}
-	err := row.Scan(&u.ID, &u.Login, &u.Email, &u.Password)
+	err := row.Scan(&u.ID, &u.Username, &u.Email, &u.Password)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, models.ErrNoRecord
