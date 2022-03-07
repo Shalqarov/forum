@@ -27,8 +27,8 @@ func (app *Application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) signup(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/signup" {
-		app.notFound(w)
+	if isSession(r) {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 	switch r.Method {

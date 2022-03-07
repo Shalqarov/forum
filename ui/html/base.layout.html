@@ -1,0 +1,17 @@
+{{ define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forum</title>
+</head>
+<body>
+    {{ template "navbar" .}}
+    <main>
+        {{ template "main" .}}
+    </main>
+    {{template "footer" .}}
+</body>
+</html>
+
+{{end}}
