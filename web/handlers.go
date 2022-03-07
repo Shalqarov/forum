@@ -35,7 +35,7 @@ func (app *Application) signup(w http.ResponseWriter, r *http.Request) {
 
 	case http.MethodGet:
 		app.render(w, r, "register.page.html", &templateData{})
-
+		return
 	case http.MethodPost:
 
 		user := models.User{

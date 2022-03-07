@@ -3,6 +3,7 @@ package sqlite
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/Shalqarov/forum/pkg/models"
 	"golang.org/x/crypto/bcrypt"
@@ -22,14 +23,13 @@ func (m *Forum) CreateUser(user *models.User) error {
 
 	_, err = m.DB.Exec(stmt, user.Username, user.Email, hashedPassword)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
 	return nil
 }
 
-// PasswordCompare - compares entered password with a user password.
-// if password is correct, returns nil err
 func (m *Forum) PasswordCompare(login, password string) error {
 	s := `SELECT "password" FROM "users" 
 	WHERE "username"=? OR "email"=?`
