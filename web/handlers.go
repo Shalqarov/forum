@@ -115,32 +115,49 @@ func (app *Application) signin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (app *Application) logout(w http.ResponseWriter, r *http.Request) {
+	c, err := r.Cookie("session_token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			app.clientError(w, http.StatusUnauthorized)
+			return
+		}
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	sessionToken := c.Value
+	delete(sessions, sessionToken)
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    "session_token",
+		Value:   "",
+		Expires: time.Now(),
+	})
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
 func (app *Application) welcome(w http.ResponseWriter, r *http.Request) {
 	c, err := r.Cookie("session_token")
 	if err != nil {
 		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
+			app.clientError(w, http.StatusUnauthorized)
 			return
 		}
-		w.WriteHeader(http.StatusBadRequest)
+		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 	sessionToken := c.Value
 	userSession, exists := sessions[sessionToken]
 	if !exists {
-		// If the session token is not present in session map, return an unauthorized error
-		w.WriteHeader(http.StatusUnauthorized)
+		app.clientError(w, http.StatusUnauthorized)
 		return
 	}
-	// If the session is present, but has expired, we can delete the session, and return
-	// an unauthorized status
 	if userSession.isExpired() {
 		delete(sessions, sessionToken)
-		w.WriteHeader(http.StatusUnauthorized)
+		app.clientError(w, http.StatusUnauthorized)
 		return
 	}
 
 	app.render(w, r, "welcome.page.html", &templateData{})
-	// If the session is valid, return the welcome message to the user
 	w.Write([]byte(fmt.Sprintf("Welcome %s!", userSession.username)))
 }

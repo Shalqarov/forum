@@ -8,6 +8,7 @@ func (app *Application) Routes() *http.ServeMux {
 	mux.HandleFunc("/", app.home)
 	mux.HandleFunc("/signup", app.signup)
 	mux.HandleFunc("/signin", app.signin)
+	mux.HandleFunc("/logout", app.logout)
 	mux.HandleFunc("/welcome", app.welcome)
 	return mux
 }
