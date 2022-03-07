@@ -10,7 +10,7 @@ import (
 type templateData struct {
 	User      *models.User
 	Error     bool
-	isSession bool
+	IsSession bool
 }
 
 func NewTemplateCache(dir string) (map[string]*template.Template, error) {

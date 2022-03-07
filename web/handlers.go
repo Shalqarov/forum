@@ -18,7 +18,9 @@ func (app *Application) home(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		app.render(w, r, "home.page.html", &templateData{})
+		app.render(w, r, "home.page.html", &templateData{
+			IsSession: isSession(r),
+		})
 	default:
 		w.Header().Set("Allow", http.MethodGet)
 		app.clientError(w, http.StatusMethodNotAllowed)
@@ -105,7 +107,7 @@ func (app *Application) signin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		http.SetCookie(w, &http.Cookie{
-			Name:    "session_token",
+			Name:    cookieName,
 			Value:   sessionToken,
 			Expires: expiresAt,
 		})
@@ -116,7 +118,7 @@ func (app *Application) signin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) logout(w http.ResponseWriter, r *http.Request) {
-	c, err := r.Cookie("session_token")
+	c, err := r.Cookie(cookieName)
 	if err != nil {
 		if err == http.ErrNoCookie {
 			app.clientError(w, http.StatusUnauthorized)
@@ -129,7 +131,7 @@ func (app *Application) logout(w http.ResponseWriter, r *http.Request) {
 	delete(sessions, sessionToken)
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session_token",
+		Name:    cookieName,
 		Value:   "",
 		Expires: time.Now(),
 	})
@@ -137,7 +139,7 @@ func (app *Application) logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) welcome(w http.ResponseWriter, r *http.Request) {
-	c, err := r.Cookie("session_token")
+	c, err := r.Cookie(cookieName)
 	if err != nil {
 		if err == http.ErrNoCookie {
 			app.clientError(w, http.StatusUnauthorized)

@@ -2,13 +2,12 @@ package web
 
 import (
 	"net/http"
-	"sync"
 	"time"
 )
 
 var sessions = map[string]session{}
 
-var cookie sync.Map
+// var cookie sync.Map
 
 const cookieName string = "forum_session"
 
@@ -25,7 +24,7 @@ func isSession(r *http.Request) bool {
 	c, err := r.Cookie(cookieName)
 	var ok bool
 	if err == nil {
-		_, ok = cookie.Load(c.Value)
+		_, ok = sessions[c.Value]
 	}
 	return ok
 }
