@@ -12,5 +12,5 @@ CREATE TABLE IF NOT EXISTS "post" (
     "user_id" INTEGER NOT NULL,
     "title" TEXT NOT NULL UNIQUE,
     "content" TEXT NOT NULL,
-    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES user(id)
+    FOREIGN KEY (user_id) REFERENCES user(id)
 );
