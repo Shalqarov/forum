@@ -138,6 +138,21 @@ func (app *Application) logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+func (app *Application) createPost(w http.ResponseWriter, r *http.Request) {
+	if !isSession(r) {
+		http.Redirect(w, r, "/signin", http.StatusSeeOther)
+		return
+	}
+	switch r.Method {
+
+	case http.MethodGet:
+		app.render(w, r, "login.page.html", &templateData{})
+
+	case http.MethodPost:
+
+	}
+}
+
 func (app *Application) welcome(w http.ResponseWriter, r *http.Request) {
 	c, err := r.Cookie(cookieName)
 	if err != nil {
