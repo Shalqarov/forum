@@ -142,7 +142,7 @@ func (app *Application) welcome(w http.ResponseWriter, r *http.Request) {
 	c, err := r.Cookie(cookieName)
 	if err != nil {
 		if err == http.ErrNoCookie {
-			app.clientError(w, http.StatusUnauthorized)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
 		app.clientError(w, http.StatusBadRequest)
@@ -156,7 +156,7 @@ func (app *Application) welcome(w http.ResponseWriter, r *http.Request) {
 	}
 	if userSession.isExpired() {
 		delete(sessions, sessionToken)
-		app.clientError(w, http.StatusUnauthorized)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
