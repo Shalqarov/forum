@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"log"
 
-	"github.com/Shalqarov/forum/pkg/models/sqlite"
+	"github.com/Shalqarov/forum/repository/sqlite"
 )
 
 // Application - web application dependencies

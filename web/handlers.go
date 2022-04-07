@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Shalqarov/forum/pkg/models"
+	models "github.com/Shalqarov/forum/domain"
 	uuid "github.com/satori/go.uuid"
 )
 

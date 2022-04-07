@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/Shalqarov/forum/domain"
 	models "github.com/Shalqarov/forum/domain"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -38,7 +39,7 @@ func (m *Forum) PasswordCompare(login, password string) error {
 	err := row.Scan(&u.Password)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.ErrNoRecord
+			return domain.ErrNotFound
 		}
 		return err
 	}
@@ -56,7 +57,7 @@ func (m *Forum) GetUserInfo(login string) (*models.User, error) {
 	err := row.Scan(&u.ID, &u.Username, &u.Email, &u.Password)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, models.ErrNoRecord
+			return nil, domain.ErrNotFound
 		}
 		return nil, err
 	}
