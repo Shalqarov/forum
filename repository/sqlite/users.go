@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Shalqarov/forum/pkg/models"
+	models "github.com/Shalqarov/forum/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 
