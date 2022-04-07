@@ -45,12 +45,12 @@ func (u *sqliteUserRepo) GetByID(ctx context.Context, id int) (*domain.User, err
 	return &user, nil
 }
 
-func (u *sqliteUserRepo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+func (u *sqliteUserRepo) GetByEmail(ctx context.Context, user *domain.User) (*domain.User, error) {
 	stmt := `SELECT * FROM "user" WHERE "email"=?`
-	user := domain.User{}
-	err := u.db.QueryRowContext(ctx, stmt, email).Scan(&user.ID, &user.Username, &user.Email, &user.Password)
+	searchedUser := domain.User{}
+	err := u.db.QueryRowContext(ctx, stmt, user.Email).Scan(&user.ID, &user.Username, &user.Email, &user.Password)
 	if err != nil {
 		return nil, domain.ErrNotFound
 	}
-	return &user, nil
+	return &searchedUser, nil
 }
