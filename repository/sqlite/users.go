@@ -1,65 +1,56 @@
 package sqlite
 
 import (
+	"context"
 	"database/sql"
-	"errors"
-	"fmt"
 
 	"github.com/Shalqarov/forum/domain"
-	models "github.com/Shalqarov/forum/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// CreateUser - new user
-func (m *Forum) CreateUser(user *models.User) error {
+type sqliteUserRepo struct {
+	db *sql.DB
+}
+
+func NewSqliteUserRepo(db *sql.DB) domain.UserRepo {
+	return &sqliteUserRepo{db: db}
+}
+
+func (u *sqliteUserRepo) Create(ctx context.Context, user *domain.User) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 	if err != nil {
 		return err
 	}
-	stmt := `INSERT INTO "main"."users"(
+	stmt := `INSERT INTO "user"(
 		"username",
 		"email",
 		"password"
 	) VALUES (?, ?, ?)`
 
-	_, err = m.DB.Exec(stmt, user.Username, user.Email, hashedPassword)
+	_, err = u.db.ExecContext(ctx, stmt, user.Username, user.Email, hashedPassword)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		return domain.ErrConflict
 	}
 
 	return nil
 }
 
-func (m *Forum) PasswordCompare(login, password string) error {
-	s := `SELECT "password" FROM "users" 
-	WHERE "username"=? OR "email"=?`
-	row := m.DB.QueryRow(s, login, login)
-	u := &models.User{}
-	err := row.Scan(&u.Password)
+func (u *sqliteUserRepo) GetByID(ctx context.Context, id int) (*domain.User, error) {
+	stmt := `SELECT * FROM "user" WHERE "id"=?`
+	user := domain.User{}
+	err := u.db.QueryRowContext(ctx, stmt, id).Scan(&user.ID, &user.Username, &user.Email, &user.Password)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return domain.ErrNotFound
-		}
-		return err
+		return nil, domain.ErrNotFound
 	}
-	if err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
-		return err
-	}
-	return nil
+	return &user, nil
 }
 
-// GetUserInfo...
-func (m *Forum) GetUserInfo(login string) (*models.User, error) {
-	statement := "SELECT * FROM users WHERE \"username\" = ? OR \"email\" = ?"
-	row := m.DB.QueryRow(statement, login, login)
-	u := &models.User{}
-	err := row.Scan(&u.ID, &u.Username, &u.Email, &u.Password)
+func (u *sqliteUserRepo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+	stmt := `SELECT * FROM "user" WHERE "email"=?`
+	user := domain.User{}
+	err := u.db.QueryRowContext(ctx, stmt, email).Scan(&user.ID, &user.Username, &user.Email, &user.Password)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, domain.ErrNotFound
-		}
-		return nil, err
+		return nil, domain.ErrNotFound
 	}
-	return u, nil
+	return &user, nil
 }

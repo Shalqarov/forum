@@ -1,5 +1,5 @@
 -- users TABLE --
-CREATE TABLE IF NOT EXISTS "users" (
+CREATE TABLE IF NOT EXISTS "user" (
     "id" INTEGER NOT NULL UNIQUE,
     "username" TEXT NOT NULL UNIQUE,
     "email" TEXT NOT NULL UNIQUE,

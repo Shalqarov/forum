@@ -24,7 +24,7 @@ func OpenDB(dsn string) (*sql.DB, error) {
 }
 
 func setup(db *sql.DB) error {
-	query, err := ioutil.ReadFile("./pkg/setup.sql")
+	query, err := ioutil.ReadFile("./repository/sqlite/setup.sql")
 	if err != nil {
 		return fmt.Errorf("setup: %s", err)
 	}
