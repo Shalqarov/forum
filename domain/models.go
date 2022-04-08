@@ -1,23 +1,21 @@
 package domain
 
-import "context"
-
 // User - struct have basic user fields
 type User struct {
 	ID       int
-	Username string
-	Email    string
-	Password string
+	Username string `json:"username,omitempty"`
+	Email    string `json:"email,omitempty"`
+	Password string `json:"password,omitempty"`
 }
 
 type UserUsecase interface {
-	Create(ctx context.Context, user *User) error
-	GetByID(ctx context.Context, id int) (*User, error)
-	GetByEmail(ctx context.Context, user *User) (*User, error)
+	Create(user *User) error
+	GetByID(id int) (*User, error)
+	GetByEmail(user *User) (*User, error)
 }
 
 type UserRepo interface {
-	Create(ctx context.Context, user *User) error
-	GetByID(ctx context.Context, id int) (*User, error)
-	GetByEmail(ctx context.Context, user *User) (*User, error)
+	Create(user *User) error
+	GetByID(id int) (*User, error)
+	GetByEmail(user *User) (*User, error)
 }

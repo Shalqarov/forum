@@ -7,7 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/Shalqarov/forum/repository/sqlite"
+	repository "github.com/Shalqarov/forum/repository/sqlite"
+	"github.com/Shalqarov/forum/usecase"
 	"github.com/Shalqarov/forum/web"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -20,27 +21,33 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	db, err := sqlite.OpenDB(*dsn)
+	dbConn, err := repository.OpenDB(*dsn)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-	defer db.Close()
+	err = dbConn.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		err := dbConn.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	templateCache, err := web.NewTemplateCache("./ui/html/")
 	if err != nil {
 		errorLog.Fatal(err)
 	}
 
-	app := &web.Application{
-		ErrorLog:      errorLog,
-		InfoLog:       infoLog,
-		TemplateCache: templateCache,
-		Forum:         &sqlite.Forum{DB: db},
-	}
+	userRepository := repository.NewSqliteUserRepo(dbConn)
+	userUseCase := usecase.NewUserUsecase(userRepository)
+
 	srv := &http.Server{
 		Addr:         *addr,
 		ErrorLog:     errorLog,
-		Handler:      app.Routes(),
+		Handler:      web.NewUserHandler(userUseCase, templateCache),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
