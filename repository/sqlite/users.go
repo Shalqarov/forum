@@ -46,7 +46,7 @@ func (u *sqliteUserRepo) GetByID(id int) (*domain.User, error) {
 func (u *sqliteUserRepo) GetByEmail(user *domain.User) (*domain.User, error) {
 	stmt := `SELECT * FROM "user" WHERE "email"=?`
 	searchedUser := domain.User{}
-	err := u.db.QueryRow(stmt, user.Email).Scan(&user.ID, &user.Username, &user.Email, &user.Password)
+	err := u.db.QueryRow(stmt, user.Email).Scan(&searchedUser.ID, &searchedUser.Username, &searchedUser.Email, &searchedUser.Password)
 	if err != nil {
 		return nil, domain.ErrNotFound
 	}

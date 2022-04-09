@@ -1,0 +1,11 @@
+bind_addr = ":8080"
+
+host_db = "localhost"
+port_db = ":5432"
+name_db = "forum"
+user_db = "sqlite3"
+password_db = "sqlforum"
+
+cache_host = "localhost"
+cache_password = "sqlforum"
+cache_addr = ":6379"

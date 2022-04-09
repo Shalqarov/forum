@@ -41,5 +41,5 @@ func (u *userUsecase) GetByEmail(user *domain.User) (*domain.User, error) {
 	if err = bcrypt.CompareHashAndPassword([]byte(searchedUser.Password), []byte(user.Password)); err != nil {
 		return nil, domain.ErrBadParamInput
 	}
-	return nil, nil
+	return searchedUser, nil
 }
