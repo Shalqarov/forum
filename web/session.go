@@ -2,18 +2,28 @@ package web
 
 import (
 	"net/http"
+	"sync"
 	"time"
 )
 
 var sessions = map[string]session{}
 
-// var cookie sync.Map
+var cookie sync.Map
 
 const cookieName string = "forum_session"
+
+func interfaceToStruct(object interface{}) session {
+	session, ok := object.(session)
+	if ok {
+		return session
+	}
+	return session
+}
 
 type session struct {
 	username string
 	expiry   time.Time
+	mu       sync.Mutex
 }
 
 func (s session) isExpired() bool {
@@ -22,9 +32,20 @@ func (s session) isExpired() bool {
 
 func isSession(r *http.Request) bool {
 	c, err := r.Cookie(cookieName)
-	var ok bool
-	if err == nil {
-		_, ok = sessions[c.Value]
+	if err != nil {
+		return false
 	}
+	userSession, ok := cookie.Load(c.Value)
+	if !ok {
+		return false
+	}
+	userSessionStruct := interfaceToStruct(userSession)
+	userSessionStruct.mu.Lock()
+	if userSessionStruct.isExpired() {
+		cookie.Delete(c.Value)
+		userSessionStruct.mu.Unlock()
+		return false
+	}
+	userSessionStruct.mu.Unlock()
 	return ok
 }

@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/Shalqarov/forum/domain"
-	models "github.com/Shalqarov/forum/domain"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -64,7 +63,7 @@ func (app *UserHandler) signup(w http.ResponseWriter, r *http.Request) {
 		return
 	case http.MethodPost:
 
-		user := models.User{
+		user := domain.User{
 			Email:    r.FormValue("email"),
 			Username: r.FormValue("login"),
 			Password: r.FormValue("password"),
