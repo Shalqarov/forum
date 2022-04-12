@@ -53,6 +53,7 @@ func main() {
 	}
 
 	infoLog.Printf("Starting server on %s\n", *addr)
+	go web.ExpiredSessionsDeletion()
 	err = srv.ListenAndServe()
 	errorLog.Fatalln(err)
 }

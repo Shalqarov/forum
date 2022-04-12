@@ -3,9 +3,9 @@ package domain
 // User - struct have basic user fields
 type User struct {
 	ID       int
-	Username string `json:"username,omitempty"`
-	Email    string `json:"email,omitempty"`
-	Password string `json:"password,omitempty"`
+	Username string
+	Email    string
+	Password string
 }
 
 type UserUsecase interface {

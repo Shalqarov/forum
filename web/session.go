@@ -1,51 +1,93 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
-)
 
-var sessions = map[string]session{}
+	uuid "github.com/satori/go.uuid"
+)
 
 var cookie sync.Map
 
 const cookieName string = "forum_session"
 
-func interfaceToStruct(object interface{}) session {
-	session, ok := object.(session)
-	if ok {
-		return session
+type duration struct {
+	expiry map[interface{}]time.Time
+	mu     sync.Mutex
+}
+
+var sessionDuration = duration{expiry: make(map[interface{}]time.Time)}
+
+func addCookie(w http.ResponseWriter, r *http.Request, login string) {
+	sessionDuration.mu.Lock()
+	defer sessionDuration.mu.Unlock()
+
+	u := uuid.NewV4().String()
+	deleteExistingCookie(login, u)
+
+	cookie.Store(u, login)
+	expire := time.Now().AddDate(0, 0, 1)
+	sessionDuration.expiry[u] = expire
+
+	session := &http.Cookie{
+		Name:     cookieName,
+		Value:    u,
+		Path:     "/",
+		HttpOnly: true,
+		Expires:  expire,
 	}
-	return session
+	http.SetCookie(w, session)
 }
 
-type session struct {
-	username string
-	expiry   time.Time
-	mu       sync.Mutex
+func deleteCookie(w http.ResponseWriter, r *http.Request) {
+	c, _ := r.Cookie(cookieName)
+	http.SetCookie(w, &http.Cookie{
+		Name:     cookieName,
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Expires:  time.Unix(0, 0),
+	})
+	cookie.Delete(c.Value)
 }
 
-func (s session) isExpired() bool {
-	return s.expiry.Before(time.Now())
+func deleteExistingCookie(login, uuid string) {
+	cookie.Range(func(key, value interface{}) bool {
+		if login == fmt.Sprint(value) {
+			cookie.Delete(key)
+		}
+		return true
+	})
 }
 
 func isSession(r *http.Request) bool {
 	c, err := r.Cookie(cookieName)
-	if err != nil {
-		return false
+	var ok bool
+	if err == nil {
+		_, ok = cookie.Load(c.Value)
 	}
-	userSession, ok := cookie.Load(c.Value)
-	if !ok {
-		return false
-	}
-	userSessionStruct := interfaceToStruct(userSession)
-	userSessionStruct.mu.Lock()
-	if userSessionStruct.isExpired() {
-		cookie.Delete(c.Value)
-		userSessionStruct.mu.Unlock()
-		return false
-	}
-	userSessionStruct.mu.Unlock()
 	return ok
+}
+
+func getUserNameByCookie(r *http.Request) string {
+	c, _ := r.Cookie(cookieName)
+	value, _ := cookie.Load(c.Value)
+	userName := fmt.Sprint(value)
+	return userName
+}
+
+func ExpiredSessionsDeletion() {
+	for {
+		cookie.Range(func(key, value interface{}) bool {
+			sessionDuration.mu.Lock()
+			if time.Now().Unix() > sessionDuration.expiry[key].Unix() {
+				cookie.Delete(key)
+			}
+			sessionDuration.mu.Unlock()
+			return true
+		})
+		time.Sleep(time.Second * 5)
+	}
 }

@@ -6,10 +6,8 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/Shalqarov/forum/domain"
-	uuid "github.com/satori/go.uuid"
 )
 
 type UserHandler struct {
@@ -114,27 +112,15 @@ func (app *UserHandler) signin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		sessionToken := uuid.NewV4().String()
-		expiresAt := time.Now().Add(120 * time.Second)
+		addCookie(w, r, user.Username)
 
-		sessions[sessionToken] = session{
-			username: user.Username,
-			expiry:   expiresAt,
-		}
-
-		http.SetCookie(w, &http.Cookie{
-			Name:    cookieName,
-			Value:   sessionToken,
-			Expires: expiresAt,
-		})
-
-		fmt.Println("success")
+		log.Println("success signin - ", user.Username)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }
 
 func (app *UserHandler) logout(w http.ResponseWriter, r *http.Request) {
-	c, err := r.Cookie(cookieName)
+	_, err := r.Cookie(cookieName)
 	if err != nil {
 		if err == http.ErrNoCookie {
 			app.clientError(w, http.StatusUnauthorized)
@@ -143,14 +129,8 @@ func (app *UserHandler) logout(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	sessionToken := c.Value
-	delete(sessions, sessionToken)
+	deleteCookie(w, r)
 
-	http.SetCookie(w, &http.Cookie{
-		Name:    cookieName,
-		Value:   "",
-		Expires: time.Now(),
-	})
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -170,7 +150,11 @@ func (app *UserHandler) createPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *UserHandler) welcome(w http.ResponseWriter, r *http.Request) {
-	c, err := r.Cookie(cookieName)
+	if !isSession(r) {
+		http.Redirect(w, r, "/signin", http.StatusSeeOther)
+		return
+	}
+	_, err := r.Cookie(cookieName)
 	if err != nil {
 		if err == http.ErrNoCookie {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -179,18 +163,8 @@ func (app *UserHandler) welcome(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	sessionToken := c.Value
-	userSession, exists := sessions[sessionToken]
-	if !exists {
-		app.clientError(w, http.StatusUnauthorized)
-		return
-	}
-	if userSession.isExpired() {
-		delete(sessions, sessionToken)
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
-	}
+	userName := getUserNameByCookie(r)
 
 	app.render(w, r, "welcome.page.html", &templateData{})
-	w.Write([]byte(fmt.Sprintf("Welcome %s!", userSession.username)))
+	w.Write([]byte(fmt.Sprintf("Welcome %s!", userName)))
 }
