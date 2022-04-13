@@ -11,7 +11,7 @@ type sqliteUserRepo struct {
 	db *sql.DB
 }
 
-func NewSqliteUserRepo(db *sql.DB) domain.UserRepo {
+func NewSqliteUserRepo(db *sql.DB) domain.Repo {
 	return &sqliteUserRepo{db: db}
 }
 
@@ -33,7 +33,7 @@ func (u *sqliteUserRepo) CreateUser(user *domain.User) error {
 	return nil
 }
 
-func (u *sqliteUserRepo) GetByID(id int) (*domain.User, error) {
+func (u *sqliteUserRepo) GetUserByID(id int) (*domain.User, error) {
 	stmt := `SELECT * FROM "user" WHERE "id"=?`
 	user := domain.User{}
 	err := u.db.QueryRow(stmt, id).Scan(&user.ID, &user.Username, &user.Email, &user.Password)
@@ -43,7 +43,7 @@ func (u *sqliteUserRepo) GetByID(id int) (*domain.User, error) {
 	return &user, nil
 }
 
-func (u *sqliteUserRepo) GetByEmail(user *domain.User) (*domain.User, error) {
+func (u *sqliteUserRepo) GetUserByEmail(user *domain.User) (*domain.User, error) {
 	stmt := `SELECT * FROM "user" WHERE "email"=?`
 	searchedUser := domain.User{}
 	err := u.db.QueryRow(stmt, user.Email).Scan(&searchedUser.ID, &searchedUser.Username, &searchedUser.Email, &searchedUser.Password)
@@ -51,4 +51,16 @@ func (u *sqliteUserRepo) GetByEmail(user *domain.User) (*domain.User, error) {
 		return nil, domain.ErrNotFound
 	}
 	return &searchedUser, nil
+}
+
+func (u *sqliteUserRepo) CreatePost(post *domain.Post) error {
+	return nil
+}
+
+func (u *sqliteUserRepo) GetPostByID(id int) (*domain.Post, error) {
+	return nil, nil
+}
+
+func (u *sqliteUserRepo) GetPostByTitle(title string) (*domain.Post, error) {
+	return nil, nil
 }

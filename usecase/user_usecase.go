@@ -8,10 +8,10 @@ import (
 )
 
 type userUsecase struct {
-	userRepo domain.UserRepo
+	userRepo domain.Repo
 }
 
-func NewUserUsecase(userRepo domain.UserRepo) domain.UserUsecase {
+func NewUserUsecase(userRepo domain.Repo) domain.Usecase {
 	return &userUsecase{
 		userRepo: userRepo,
 	}
@@ -25,16 +25,16 @@ func (u *userUsecase) CreateUser(user *domain.User) error {
 	return u.userRepo.CreateUser(user)
 }
 
-func (u *userUsecase) GetByID(id int) (*domain.User, error) {
-	user, err := u.userRepo.GetByID(id)
+func (u *userUsecase) GetUserByID(id int) (*domain.User, error) {
+	user, err := u.userRepo.GetUserByID(id)
 	if err != nil {
 		return nil, domain.ErrNotFound
 	}
 	return user, nil
 }
 
-func (u *userUsecase) GetByEmail(user *domain.User) (*domain.User, error) {
-	searchedUser, err := u.userRepo.GetByEmail(user)
+func (u *userUsecase) GetUserByEmail(user *domain.User) (*domain.User, error) {
+	searchedUser, err := u.userRepo.GetUserByEmail(user)
 	if err != nil {
 		return nil, domain.ErrNotFound
 	}
@@ -42,4 +42,16 @@ func (u *userUsecase) GetByEmail(user *domain.User) (*domain.User, error) {
 		return nil, domain.ErrBadParamInput
 	}
 	return searchedUser, nil
+}
+
+func (u *userUsecase) CreatePost(post *domain.Post) error {
+	return nil
+}
+
+func (u *userUsecase) GetPostByID(id int) (*domain.Post, error) {
+	return nil, nil
+}
+
+func (u *userUsecase) GetPostByTitle(title string) (*domain.Post, error) {
+	return nil, nil
 }

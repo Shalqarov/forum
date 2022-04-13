@@ -8,14 +8,28 @@ type User struct {
 	Password string
 }
 
-type UserUsecase interface {
-	CreateUser(user *User) error
-	GetByID(id int) (*User, error)
-	GetByEmail(user *User) (*User, error)
+type Post struct {
+	ID      int
+	Title   string
+	Content string
 }
 
-type UserRepo interface {
+type Usecase interface {
 	CreateUser(user *User) error
-	GetByID(id int) (*User, error)
-	GetByEmail(user *User) (*User, error)
+	GetUserByID(id int) (*User, error)
+	GetUserByEmail(user *User) (*User, error)
+
+	CreatePost(post *Post) error
+	GetPostByID(id int) (*Post, error)
+	GetPostByTitle(title string) (*Post, error)
+}
+
+type Repo interface {
+	CreateUser(user *User) error
+	GetUserByID(id int) (*User, error)
+	GetUserByEmail(user *User) (*User, error)
+
+	CreatePost(post *Post) error
+	GetPostByID(id int) (*Post, error)
+	GetPostByTitle(title string) (*Post, error)
 }

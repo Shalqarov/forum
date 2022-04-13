@@ -11,13 +11,13 @@ import (
 )
 
 type UserHandler struct {
-	userUsecase   domain.UserUsecase
+	userUsecase   domain.Usecase
 	TemplateCache map[string]*template.Template
 	ErrorLog      *log.Logger
 	InfoLog       *log.Logger
 }
 
-func NewUserHandler(userUsecase domain.UserUsecase, template map[string]*template.Template) *http.ServeMux {
+func NewUserHandler(userUsecase domain.Usecase, template map[string]*template.Template) *http.ServeMux {
 	handler := &UserHandler{
 		userUsecase:   userUsecase,
 		TemplateCache: template,
@@ -54,6 +54,7 @@ func (app *UserHandler) signup(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
+
 	switch r.Method {
 	case http.MethodGet:
 		app.render(w, r, "register.page.html", &templateData{})
@@ -97,7 +98,7 @@ func (app *UserHandler) signin(w http.ResponseWriter, r *http.Request) {
 			Password: r.FormValue("password"),
 		}
 
-		user, err := app.userUsecase.GetByEmail(info)
+		user, err := app.userUsecase.GetUserByEmail(info)
 		if err != nil {
 			fmt.Println("wrong login or password")
 			w.WriteHeader(http.StatusUnauthorized)
