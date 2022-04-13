@@ -17,12 +17,12 @@ func NewUserUsecase(userRepo domain.UserRepo) domain.UserUsecase {
 	}
 }
 
-func (u *userUsecase) Create(user *domain.User) error {
+func (u *userUsecase) CreateUser(user *domain.User) error {
 	if strings.TrimSpace(user.Username) == "" || strings.TrimSpace(user.Password) == "" || strings.TrimSpace(user.Email) == "" {
 		return domain.ErrBadParamInput
 	}
 
-	return u.userRepo.Create(user)
+	return u.userRepo.CreateUser(user)
 }
 
 func (u *userUsecase) GetByID(id int) (*domain.User, error) {

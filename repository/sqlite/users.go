@@ -15,7 +15,7 @@ func NewSqliteUserRepo(db *sql.DB) domain.UserRepo {
 	return &sqliteUserRepo{db: db}
 }
 
-func (u *sqliteUserRepo) Create(user *domain.User) error {
+func (u *sqliteUserRepo) CreateUser(user *domain.User) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 	if err != nil {
 		return err

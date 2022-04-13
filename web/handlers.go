@@ -55,19 +55,16 @@ func (app *UserHandler) signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	switch r.Method {
-
 	case http.MethodGet:
 		app.render(w, r, "register.page.html", &templateData{})
 		return
 	case http.MethodPost:
-
 		user := domain.User{
 			Email:    r.FormValue("email"),
 			Username: r.FormValue("login"),
 			Password: r.FormValue("password"),
 		}
-
-		err := app.userUsecase.Create(&user)
+		err := app.userUsecase.CreateUser(&user)
 		if err != nil {
 			if strings.Contains(err.Error(), "UNIQUE") {
 				app.render(w, r, "register.page.html", &templateData{
@@ -79,10 +76,7 @@ func (app *UserHandler) signup(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		http.Redirect(w, r, "/", http.StatusSeeOther)
-
 	default:
-		w.Header().Set("Allow", http.MethodPost)
-		w.Header().Set("Allow", http.MethodGet)
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
@@ -97,7 +91,6 @@ func (app *UserHandler) signin(w http.ResponseWriter, r *http.Request) {
 
 	case http.MethodGet:
 		app.render(w, r, "login.page.html", &templateData{})
-
 	case http.MethodPost:
 		info := &domain.User{
 			Email:    r.FormValue("email"),

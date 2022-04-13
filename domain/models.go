@@ -9,13 +9,13 @@ type User struct {
 }
 
 type UserUsecase interface {
-	Create(user *User) error
+	CreateUser(user *User) error
 	GetByID(id int) (*User, error)
 	GetByEmail(user *User) (*User, error)
 }
 
 type UserRepo interface {
-	Create(user *User) error
+	CreateUser(user *User) error
 	GetByID(id int) (*User, error)
 	GetByEmail(user *User) (*User, error)
 }
