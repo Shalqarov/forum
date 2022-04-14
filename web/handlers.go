@@ -17,7 +17,7 @@ type Handler struct {
 	InfoLog       *log.Logger
 }
 
-func NewUserHandler(usecase domain.Usecase, template map[string]*template.Template) *http.ServeMux {
+func NewHandler(usecase domain.Usecase, template map[string]*template.Template) *http.ServeMux {
 	handler := &Handler{
 		usecase:       usecase,
 		TemplateCache: template,

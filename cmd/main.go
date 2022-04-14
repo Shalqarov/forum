@@ -47,7 +47,7 @@ func main() {
 	srv := &http.Server{
 		Addr:         *addr,
 		ErrorLog:     errorLog,
-		Handler:      web.NewUserHandler(useCase, templateCache),
+		Handler:      web.NewHandler(useCase, templateCache),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
