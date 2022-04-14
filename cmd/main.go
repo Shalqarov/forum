@@ -41,7 +41,7 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
-	userRepository := repository.NewSqliteUserRepo(dbConn)
+	userRepository := repository.NewSqliteRepo(dbConn)
 	userUseCase := usecase.NewUserUsecase(userRepository)
 
 	srv := &http.Server{

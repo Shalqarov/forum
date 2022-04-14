@@ -10,6 +10,7 @@ type User struct {
 
 type Post struct {
 	ID      int
+	UserID  int
 	Title   string
 	Content string
 }
@@ -20,7 +21,7 @@ type Usecase interface {
 	GetUserByEmail(user *User) (*User, error)
 
 	CreatePost(post *Post) error
-	GetPostByID(id int) (*Post, error)
+	GetPostByUserID(id int) (*Post, error)
 	GetPostByTitle(title string) (*Post, error)
 }
 
@@ -30,6 +31,6 @@ type Repo interface {
 	GetUserByEmail(user *User) (*User, error)
 
 	CreatePost(post *Post) error
-	GetPostByID(id int) (*Post, error)
+	GetPostByUserID(id int) (*Post, error)
 	GetPostByTitle(title string) (*Post, error)
 }

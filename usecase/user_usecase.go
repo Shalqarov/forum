@@ -48,7 +48,7 @@ func (u *userUsecase) CreatePost(post *domain.Post) error {
 	return nil
 }
 
-func (u *userUsecase) GetPostByID(id int) (*domain.Post, error) {
+func (u *userUsecase) GetPostByUserID(id int) (*domain.Post, error) {
 	return nil, nil
 }
 
