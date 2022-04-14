@@ -12,5 +12,6 @@ CREATE TABLE IF NOT EXISTS "post" (
     "user_id" INTEGER NOT NULL,
     "title" TEXT NOT NULL UNIQUE,
     "content" TEXT NOT NULL,
+    "category" TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(id)
 );

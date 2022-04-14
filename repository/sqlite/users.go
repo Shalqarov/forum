@@ -33,6 +33,16 @@ func (u *sqliteRepo) CreateUser(user *domain.User) error {
 	return nil
 }
 
+func (u *sqliteRepo) GetUserIDByUsername(username string) (int, error) {
+	stmt := `SELECT "id" FROM "user" WHERE "username"=?`
+	user := domain.User{}
+	err := u.db.QueryRow(stmt, username).Scan(&user.ID)
+	if err != nil {
+		return -1, domain.ErrNotFound
+	}
+	return user.ID, nil
+}
+
 func (u *sqliteRepo) GetUserByID(id int) (*domain.User, error) {
 	stmt := `SELECT * FROM "user" WHERE "id"=?`
 	user := domain.User{}
@@ -51,37 +61,4 @@ func (u *sqliteRepo) GetUserByEmail(user *domain.User) (*domain.User, error) {
 		return nil, domain.ErrNotFound
 	}
 	return &searchedUser, nil
-}
-
-func (u *sqliteRepo) CreatePost(post *domain.Post) error {
-	stmt := `INSERT INTO "post"(
-		"user_id",
-		"title",
-		"content"
-		) VALUES(?,?,?)`
-	_, err := u.db.Exec(stmt, post.UserID, post.Title, post.Content)
-	if err != nil {
-		return domain.ErrConflict
-	}
-	return nil
-}
-
-func (u *sqliteRepo) GetPostByUserID(id int) (*domain.Post, error) {
-	stmt := `SELECT * FROM "post" WHERE "user_id" = ?`
-	post := domain.Post{}
-	err := u.db.QueryRow(stmt, id).Scan(&post.ID, &post.UserID, &post.Title, &post.Content)
-	if err != nil {
-		return nil, domain.ErrNotFound
-	}
-	return &post, nil
-}
-
-func (u *sqliteRepo) GetPostByTitle(title string) (*domain.Post, error) {
-	stmt := `SELECT * FROM "post" WHERE "title" = ?`
-	post := domain.Post{}
-	err := u.db.QueryRow(stmt, title).Scan(&post.ID, &post.UserID, &post.Title, &post.Content)
-	if err != nil {
-		return nil, domain.ErrNotFound
-	}
-	return &post, nil
 }

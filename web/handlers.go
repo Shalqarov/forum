@@ -10,16 +10,16 @@ import (
 	"github.com/Shalqarov/forum/domain"
 )
 
-type UserHandler struct {
-	userUsecase   domain.Usecase
+type Handler struct {
+	usecase       domain.Usecase
 	TemplateCache map[string]*template.Template
 	ErrorLog      *log.Logger
 	InfoLog       *log.Logger
 }
 
-func NewUserHandler(userUsecase domain.Usecase, template map[string]*template.Template) *http.ServeMux {
-	handler := &UserHandler{
-		userUsecase:   userUsecase,
+func NewUserHandler(usecase domain.Usecase, template map[string]*template.Template) *http.ServeMux {
+	handler := &Handler{
+		usecase:       usecase,
 		TemplateCache: template,
 	}
 	mux := http.NewServeMux()
@@ -32,7 +32,7 @@ func NewUserHandler(userUsecase domain.Usecase, template map[string]*template.Te
 	return mux
 }
 
-func (app *UserHandler) home(w http.ResponseWriter, r *http.Request) {
+func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
@@ -49,7 +49,7 @@ func (app *UserHandler) home(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *UserHandler) signup(w http.ResponseWriter, r *http.Request) {
+func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 	if isSession(r) {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
@@ -65,7 +65,7 @@ func (app *UserHandler) signup(w http.ResponseWriter, r *http.Request) {
 			Username: r.FormValue("login"),
 			Password: r.FormValue("password"),
 		}
-		err := app.userUsecase.CreateUser(&user)
+		err := app.usecase.CreateUser(&user)
 		if err != nil {
 			if strings.Contains(err.Error(), "UNIQUE") {
 				app.render(w, r, "register.page.html", &templateData{
@@ -83,7 +83,7 @@ func (app *UserHandler) signup(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *UserHandler) signin(w http.ResponseWriter, r *http.Request) {
+func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/signin" {
 		app.notFound(w)
 		return
@@ -98,7 +98,7 @@ func (app *UserHandler) signin(w http.ResponseWriter, r *http.Request) {
 			Password: r.FormValue("password"),
 		}
 
-		user, err := app.userUsecase.GetUserByEmail(info)
+		user, err := app.usecase.GetUserByEmail(info)
 		if err != nil {
 			fmt.Println("wrong login or password")
 			w.WriteHeader(http.StatusUnauthorized)
@@ -113,7 +113,7 @@ func (app *UserHandler) signin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *UserHandler) logout(w http.ResponseWriter, r *http.Request) {
+func (app *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	_, err := r.Cookie(cookieName)
 	if err != nil {
 		if err == http.ErrNoCookie {
@@ -128,7 +128,7 @@ func (app *UserHandler) logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func (app *UserHandler) createPost(w http.ResponseWriter, r *http.Request) {
+func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 	if !isSession(r) {
 		http.Redirect(w, r, "/signin", http.StatusSeeOther)
 		return
@@ -136,14 +136,31 @@ func (app *UserHandler) createPost(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 
 	case http.MethodGet:
-		app.render(w, r, "login.page.html", &templateData{})
-
+		app.render(w, r, "createpost.page.html", &templateData{})
 	case http.MethodPost:
+		userID, err := app.usecase.GetUserIDByUsername(getUserNameByCookie(r))
+		if err != nil {
+			app.clientError(w, http.StatusBadRequest)
+			return
+		}
 
+		postInfo := &domain.Post{
+			Title:    r.FormValue("title"),
+			Content:  r.FormValue("content"),
+			UserID:   userID,
+			Category: r.FormValue("category"),
+		}
+		fmt.Println(postInfo)
+		err = app.usecase.CreatePost(postInfo)
+		if err != nil {
+			app.clientError(w, http.StatusBadRequest)
+			return
+		}
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }
 
-func (app *UserHandler) welcome(w http.ResponseWriter, r *http.Request) {
+func (app *Handler) welcome(w http.ResponseWriter, r *http.Request) {
 	if !isSession(r) {
 		http.Redirect(w, r, "/signin", http.StatusSeeOther)
 		return

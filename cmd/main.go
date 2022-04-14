@@ -41,13 +41,13 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
-	userRepository := repository.NewSqliteRepo(dbConn)
-	userUseCase := usecase.NewUserUsecase(userRepository)
+	repository := repository.NewSqliteRepo(dbConn)
+	useCase := usecase.NewUsecase(repository)
 
 	srv := &http.Server{
 		Addr:         *addr,
 		ErrorLog:     errorLog,
-		Handler:      web.NewUserHandler(userUseCase, templateCache),
+		Handler:      web.NewUserHandler(useCase, templateCache),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}

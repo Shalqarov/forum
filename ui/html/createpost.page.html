@@ -7,6 +7,14 @@
     <title>Document</title>
 </head>
 <body>
-    
+    <form action="/createpost" method="POST">
+        title: <input type="text" name="title" required /><br /><br />
+        content: <textarea name="content" required ></textarea> <br /><br />
+        <select name="category" id="">
+            <option value="other" selected>other</option>
+        </select>
+
+        <button type="submit">press</button>
+    </form>
 </body>
 </html>
