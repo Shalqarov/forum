@@ -27,6 +27,7 @@ func NewHandler(usecase domain.Usecase, template map[string]*template.Template) 
 	mux.HandleFunc("/signup", handler.signup)
 	mux.HandleFunc("/signin", handler.signin)
 	mux.HandleFunc("/logout", handler.logout)
+	mux.HandleFunc("/profile/", handler.profile)
 	mux.HandleFunc("/welcome", handler.welcome)
 	mux.HandleFunc("/createpost", handler.createPost)
 	return mux
@@ -41,6 +42,31 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		app.render(w, r, "home.page.html", &templateData{
 			IsSession: isSession(r),
+		})
+	default:
+		w.Header().Set("Allow", http.MethodGet)
+		app.clientError(w, http.StatusMethodNotAllowed)
+		return
+	}
+}
+
+func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		userID, err := app.usecase.GetUserIDByUsername(getUserNameByCookie(r))
+		if err != nil {
+			app.clientError(w, http.StatusBadRequest)
+			return
+		}
+		user, err := app.usecase.GetUserByID(userID)
+		if err != nil {
+			app.clientError(w, http.StatusBadRequest)
+			return
+		}
+		fmt.Println(user)
+		app.render(w, r, "profile.page.html", &templateData{
+			IsSession: isSession(r),
+			User:      *user,
 		})
 	default:
 		w.Header().Set("Allow", http.MethodGet)
@@ -133,31 +159,29 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/signin", http.StatusSeeOther)
 		return
 	}
-	switch r.Method {
-
-	case http.MethodGet:
+	if r.Method != http.MethodPost {
 		app.render(w, r, "createpost.page.html", &templateData{})
-	case http.MethodPost:
-		userID, err := app.usecase.GetUserIDByUsername(getUserNameByCookie(r))
-		if err != nil {
-			app.clientError(w, http.StatusBadRequest)
-			return
-		}
-
-		postInfo := &domain.Post{
-			Title:    r.FormValue("title"),
-			Content:  r.FormValue("content"),
-			UserID:   userID,
-			Category: r.FormValue("category"),
-		}
-		fmt.Println(postInfo)
-		err = app.usecase.CreatePost(postInfo)
-		if err != nil {
-			app.clientError(w, http.StatusBadRequest)
-			return
-		}
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
+
+	userID, err := app.usecase.GetUserIDByUsername(getUserNameByCookie(r))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	postInfo := &domain.Post{
+		Title:    r.FormValue("title"),
+		Content:  r.FormValue("content"),
+		UserID:   userID,
+		Category: r.FormValue("category"),
+	}
+	err = app.usecase.CreatePost(postInfo)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (app *Handler) welcome(w http.ResponseWriter, r *http.Request) {

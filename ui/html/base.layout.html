@@ -8,6 +8,7 @@
 </head>
 
 <body>
+    
     {{ template "navbar" .}}
     <main>
         {{ template "main" .}}
@@ -17,3 +18,19 @@
 </html>
 
 {{end}}
+
+
+{{ define "navbar" }}
+<nav>
+    {{ if eq .IsSession false}}
+        <a href="/signup">signup</a>
+        <a href="/signin">signin</a>
+    {{ else }}
+        <a href="/welcome">cookie test</a>
+        <a href="/profile">profile</a>
+        <a href="/logout">logout</a>
+        <a href="/createpost">create post</a>
+    {{end}}
+</nav>
+
+{{ end }}

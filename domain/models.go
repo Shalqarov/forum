@@ -22,7 +22,7 @@ type Usecase interface {
 	GetUserByEmail(user *User) (*User, error)
 
 	CreatePost(post *Post) error
-	GetPostByUserID(id int) (*Post, error)
+	GetPostsByUserID(id int) ([]*Post, error)
 	GetPostByTitle(title string) (*Post, error)
 	GetPostsByCategory(category string) ([]*Post, error)
 }
@@ -34,7 +34,7 @@ type Repo interface {
 	GetUserByEmail(user *User) (*User, error)
 
 	CreatePost(post *Post) error
-	GetPostByUserID(id int) (*Post, error)
+	GetPostsByUserID(id int) ([]*Post, error)
 	GetPostByTitle(title string) (*Post, error)
 	GetPostsByCategory(category string) ([]*Post, error)
 }

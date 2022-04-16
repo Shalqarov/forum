@@ -8,9 +8,10 @@ import (
 )
 
 type templateData struct {
-	User      *models.User
+	User      models.User
 	Error     bool
 	IsSession bool
+	Posts     []models.Post
 }
 
 func NewTemplateCache(dir string) (map[string]*template.Template, error) {

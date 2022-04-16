@@ -13,7 +13,7 @@ func (u *usecase) CreatePost(post *domain.Post) error {
 	return u.repo.CreatePost(post)
 }
 
-func (u *usecase) GetPostByUserID(id int) (*domain.Post, error) {
+func (u *usecase) GetPostsByUserID(id int) ([]*domain.Post, error) {
 	return nil, nil
 }
 

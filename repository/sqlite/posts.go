@@ -16,14 +16,24 @@ func (u *sqliteRepo) CreatePost(post *domain.Post) error {
 	return nil
 }
 
-func (u *sqliteRepo) GetPostByUserID(id int) (*domain.Post, error) {
+func (u *sqliteRepo) GetPostsByUserID(id int) ([]*domain.Post, error) {
 	stmt := `SELECT * FROM "post" WHERE "user_id" = ?`
-	post := domain.Post{}
-	err := u.db.QueryRow(stmt, id).Scan(&post.ID, &post.UserID, &post.Title, &post.Content)
+	rows, err := u.db.Query(stmt)
 	if err != nil {
 		return nil, domain.ErrNotFound
 	}
-	return &post, nil
+	defer rows.Close()
+	post := domain.Post{}
+	posts := []domain.Post{}
+
+	for rows.Next() {
+		err = rows.Scan(&post.ID, &post.Title, &post.Content, &post.Category)
+		if err != nil {
+		}
+
+	}
+
+	return nil, nil
 }
 
 func (u *sqliteRepo) GetPostByTitle(title string) (*domain.Post, error) {
