@@ -50,9 +50,14 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 		userID, _ := app.usecase.GetUserIDByUsername(username)
 		user.ID = userID
 	}
+	posts, err := app.usecase.GetAllPosts()
+	if err != nil {
+		log.Println(err)
+	}
 	app.render(w, r, "home.page.html", &templateData{
 		IsSession: isSession(r),
 		User:      user,
+		Posts:     posts,
 	})
 }
 

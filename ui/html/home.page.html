@@ -3,6 +3,10 @@
 
 {{define "main"}}
     <p>FORUM ABOBA</p>
+    <p>POSTS:</p>
+    {{range .Posts}}
+    <p>{{.}}</p>
+    {{end}}
 {{end}}
 
 

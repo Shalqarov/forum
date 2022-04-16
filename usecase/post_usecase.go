@@ -24,3 +24,7 @@ func (u *usecase) GetPostByTitle(title string) (*domain.Post, error) {
 func (u *usecase) GetPostsByCategory(category string) ([]*domain.Post, error) {
 	return nil, nil
 }
+
+func (u *usecase) GetAllPosts() ([]*domain.Post, error) {
+	return u.repo.GetAllPosts()
+}

@@ -10,6 +10,7 @@ type User struct {
 type Post struct {
 	ID        int
 	UserID    int
+	Author    string
 	Title     string
 	Content   string
 	Category  string
@@ -26,6 +27,7 @@ type Usecase interface {
 	GetPostsByUserID(id int) ([]*Post, error)
 	GetPostByTitle(title string) (*Post, error)
 	GetPostsByCategory(category string) ([]*Post, error)
+	GetAllPosts() ([]*Post, error)
 }
 
 type Repo interface {
@@ -38,4 +40,5 @@ type Repo interface {
 	GetPostsByUserID(id int) ([]*Post, error)
 	GetPostByTitle(title string) (*Post, error)
 	GetPostsByCategory(category string) ([]*Post, error)
+	GetAllPosts() ([]*Post, error)
 }
