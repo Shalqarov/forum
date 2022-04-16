@@ -6,7 +6,11 @@
     <p>Email: {{.User.Email}}</p>
 
     <p>User posts:</p>
-    {{range }}
+    {{if .Posts }}
+    {{range .Posts}}
+    {{.}}<br>
+    {{end}}
+    {{else}} {{.User.Username}} has not created any posts{{end}}
 {{end}}
 
 

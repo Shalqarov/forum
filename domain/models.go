@@ -8,11 +8,12 @@ type User struct {
 }
 
 type Post struct {
-	ID       int
-	UserID   int
-	Title    string
-	Content  string
-	Category string
+	ID        int
+	UserID    int
+	Title     string
+	Content   string
+	Category  string
+	CreatedAt string
 }
 
 type Usecase interface {

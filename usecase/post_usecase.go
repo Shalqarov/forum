@@ -14,7 +14,7 @@ func (u *usecase) CreatePost(post *domain.Post) error {
 }
 
 func (u *usecase) GetPostsByUserID(id int) ([]*domain.Post, error) {
-	return nil, nil
+	return u.repo.GetPostsByUserID(id)
 }
 
 func (u *usecase) GetPostByTitle(title string) (*domain.Post, error) {

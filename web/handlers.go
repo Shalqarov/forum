@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/Shalqarov/forum/domain"
@@ -27,7 +28,7 @@ func NewHandler(usecase domain.Usecase, template map[string]*template.Template) 
 	mux.HandleFunc("/signup", handler.signup)
 	mux.HandleFunc("/signin", handler.signin)
 	mux.HandleFunc("/logout", handler.logout)
-	mux.HandleFunc("/profile/", handler.profile)
+	mux.HandleFunc("/profile", handler.profile)
 	mux.HandleFunc("/welcome", handler.welcome)
 	mux.HandleFunc("/createpost", handler.createPost)
 	return mux
@@ -38,41 +39,45 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	switch r.Method {
-	case http.MethodGet:
-		app.render(w, r, "home.page.html", &templateData{
-			IsSession: isSession(r),
-		})
-	default:
+	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", http.MethodGet)
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
+	user := domain.User{}
+	if isSession(r) {
+		username := getUserNameByCookie(r)
+		userID, _ := app.usecase.GetUserIDByUsername(username)
+		user.ID = userID
+	}
+	app.render(w, r, "home.page.html", &templateData{
+		IsSession: isSession(r),
+		User:      user,
+	})
 }
 
 func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		userID, err := app.usecase.GetUserIDByUsername(getUserNameByCookie(r))
-		if err != nil {
-			app.clientError(w, http.StatusBadRequest)
-			return
-		}
-		user, err := app.usecase.GetUserByID(userID)
-		if err != nil {
-			app.clientError(w, http.StatusBadRequest)
-			return
-		}
-		fmt.Println(user)
-		app.render(w, r, "profile.page.html", &templateData{
-			IsSession: isSession(r),
-			User:      *user,
-		})
-	default:
+	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", http.MethodGet)
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
+	userID, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil || userID < 1 {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	user, err := app.usecase.GetUserByID(userID)
+	if err != nil {
+		app.clientError(w, http.StatusNotFound)
+		return
+	}
+	posts, _ := app.usecase.GetPostsByUserID(user.ID)
+	app.render(w, r, "profile.page.html", &templateData{
+		IsSession: isSession(r),
+		User:      *user,
+		Posts:     posts,
+	})
 }
 
 func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
@@ -200,6 +205,5 @@ func (app *Handler) welcome(w http.ResponseWriter, r *http.Request) {
 	}
 	userName := getUserNameByCookie(r)
 
-	app.render(w, r, "welcome.page.html", &templateData{})
 	w.Write([]byte(fmt.Sprintf("Welcome %s!", userName)))
 }
