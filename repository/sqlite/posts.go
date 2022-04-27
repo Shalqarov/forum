@@ -1,11 +1,16 @@
 package repository
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
 	"github.com/Shalqarov/forum/domain"
 )
+
+func NewSqlitePostRepo(db *sql.DB) domain.PostRepo {
+	return &sqliteRepo{db: db}
+}
 
 func (u *sqliteRepo) CreatePost(post *domain.Post) error {
 	stmt := `INSERT INTO "post"(

@@ -6,25 +6,35 @@ import (
 	"github.com/Shalqarov/forum/domain"
 )
 
-func (u *usecase) CreatePost(post *domain.Post) error {
+type postUsecase struct {
+	repo domain.PostRepo
+}
+
+func NewPostUsecase(postRepo domain.PostRepo) domain.PostUsecase {
+	return &postUsecase{
+		repo: postRepo,
+	}
+}
+
+func (u *postUsecase) CreatePost(post *domain.Post) error {
 	if strings.TrimSpace(post.Title) == "" || strings.TrimSpace(post.Content) == "" {
 		return domain.ErrBadParamInput
 	}
 	return u.repo.CreatePost(post)
 }
 
-func (u *usecase) GetPostsByUserID(id int) ([]*domain.Post, error) {
+func (u *postUsecase) GetPostsByUserID(id int) ([]*domain.Post, error) {
 	return u.repo.GetPostsByUserID(id)
 }
 
-func (u *usecase) GetPostByTitle(title string) (*domain.Post, error) {
+func (u *postUsecase) GetPostByTitle(title string) (*domain.Post, error) {
 	return nil, nil
 }
 
-func (u *usecase) GetPostsByCategory(category string) ([]*domain.Post, error) {
+func (u *postUsecase) GetPostsByCategory(category string) ([]*domain.Post, error) {
 	return nil, nil
 }
 
-func (u *usecase) GetAllPosts() ([]*domain.Post, error) {
+func (u *postUsecase) GetAllPosts() ([]*domain.Post, error) {
 	return u.repo.GetAllPosts()
 }

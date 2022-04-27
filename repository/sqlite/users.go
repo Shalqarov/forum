@@ -11,7 +11,7 @@ type sqliteRepo struct {
 	db *sql.DB
 }
 
-func NewSqliteRepo(db *sql.DB) domain.Repo {
+func NewSqliteUserRepo(db *sql.DB) domain.UserRepo {
 	return &sqliteRepo{db: db}
 }
 

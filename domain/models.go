@@ -16,29 +16,3 @@ type Post struct {
 	Category  string
 	CreatedAt string
 }
-
-type Usecase interface {
-	CreateUser(user *User) error
-	GetUserIDByUsername(username string) (int, error)
-	GetUserByID(id int) (*User, error)
-	GetUserByEmail(user *User) (*User, error)
-
-	CreatePost(post *Post) error
-	GetPostsByUserID(id int) ([]*Post, error)
-	GetPostByTitle(title string) (*Post, error)
-	GetPostsByCategory(category string) ([]*Post, error)
-	GetAllPosts() ([]*Post, error)
-}
-
-type Repo interface {
-	CreateUser(user *User) error
-	GetUserIDByUsername(username string) (int, error)
-	GetUserByID(id int) (*User, error)
-	GetUserByEmail(user *User) (*User, error)
-
-	CreatePost(post *Post) error
-	GetPostsByUserID(id int) ([]*Post, error)
-	GetPostByTitle(title string) (*Post, error)
-	GetPostsByCategory(category string) ([]*Post, error)
-	GetAllPosts() ([]*Post, error)
-}

@@ -7,7 +7,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (u *usecase) CreateUser(user *domain.User) error {
+type userUsecase struct {
+	repo domain.UserRepo
+}
+
+func NewUserUsecase(userRepo domain.UserRepo) domain.UserUsecase {
+	return &userUsecase{
+		repo: userRepo,
+	}
+}
+
+func (u *userUsecase) CreateUser(user *domain.User) error {
 	if strings.TrimSpace(user.Username) == "" || strings.TrimSpace(user.Password) == "" || strings.TrimSpace(user.Email) == "" {
 		return domain.ErrBadParamInput
 	}
@@ -15,7 +25,7 @@ func (u *usecase) CreateUser(user *domain.User) error {
 	return u.repo.CreateUser(user)
 }
 
-func (u *usecase) GetUserByID(id int) (*domain.User, error) {
+func (u *userUsecase) GetUserByID(id int) (*domain.User, error) {
 	user, err := u.repo.GetUserByID(id)
 	if err != nil {
 		return nil, domain.ErrNotFound
@@ -23,7 +33,7 @@ func (u *usecase) GetUserByID(id int) (*domain.User, error) {
 	return user, nil
 }
 
-func (u *usecase) GetUserByEmail(user *domain.User) (*domain.User, error) {
+func (u *userUsecase) GetUserByEmail(user *domain.User) (*domain.User, error) {
 	searchedUser, err := u.repo.GetUserByEmail(user)
 	if err != nil {
 		return nil, domain.ErrNotFound
@@ -34,6 +44,6 @@ func (u *usecase) GetUserByEmail(user *domain.User) (*domain.User, error) {
 	return searchedUser, nil
 }
 
-func (u *usecase) GetUserIDByUsername(username string) (int, error) {
+func (u *userUsecase) GetUserIDByUsername(username string) (int, error) {
 	return u.repo.GetUserIDByUsername(username)
 }
