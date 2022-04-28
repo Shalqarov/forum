@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/Shalqarov/forum/domain"
 	"golang.org/x/crypto/bcrypt"
@@ -45,7 +44,6 @@ func (u *sqliteRepo) GetUserByID(id int) (*domain.User, error) {
 	stmt := `SELECT * FROM "user" WHERE "id"=?`
 	user := domain.User{}
 	err := u.db.QueryRow(stmt, id).Scan(&user.ID, &user.Username, &user.Email, &user.Password)
-	fmt.Println(err, sql.ErrNoRows)
 	return &user, err
 }
 

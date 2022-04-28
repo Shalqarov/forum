@@ -29,6 +29,9 @@ func NewHandler(r *http.ServeMux, h *Handler) {
 	r.HandleFunc("/profile", h.profile)
 	r.HandleFunc("/welcome", h.welcome)
 	r.HandleFunc("/createpost", h.createPost)
+	fileServer := http.FileServer(http.Dir("./ui/static"))
+	r.Handle("/static", http.NotFoundHandler())
+	r.Handle("/static/", http.StripPrefix("/static", fileServer))
 }
 
 func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
@@ -100,8 +103,10 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if strings.TrimSpace(user.Email) != "" || strings.TrimSpace(user.Password) != "" || strings.TrimSpace(user.Username) != "" {
-			app.badRequest(w)
-			app.render(w, r, "register.page.html", &templateData{})
+			w.WriteHeader(http.StatusBadRequest)
+			app.render(w, r, "register.page.html", &templateData{
+				Error: true,
+			})
 			return
 		}
 
@@ -138,9 +143,8 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 			Password: r.FormValue("password"),
 		}
 
-		if strings.TrimSpace(info.Email) != "" || strings.TrimSpace(info.Password) != "" {
-			app.badRequest(w)
-			app.render(w, r, "login.page.html", &templateData{})
+		if strings.TrimSpace(info.Email) == "" || strings.TrimSpace(info.Password) == "" {
+			app.clientError(w, http.StatusBadRequest)
 			return
 		}
 

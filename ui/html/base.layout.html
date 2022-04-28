@@ -2,18 +2,23 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Forum</title>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <title>Forum</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link type="text/css" rel="stylesheet" href="/static/css/materialize.min.css" media="screen,projection" />
+    </head>
 
-<body>
-    
-    {{ template "navbar" .}}
-    <main>
-        {{ template "main" .}}
-    </main>
-</body>
+    <body>
+
+        {{ template "navbar" .}}
+        <main>
+            {{ template "main" .}}
+        </main>
+
+
+        <script type="text/javascript" src="/static/js/materialize.js"></script>
+    </body>
 
 </html>
 
@@ -21,16 +26,22 @@
 
 
 {{ define "navbar" }}
+
 <nav>
-    {{ if eq .IsSession false}}
-        <a href="/signup">signup</a>
-        <a href="/signin">signin</a>
-    {{ else }}
-        <a href="/welcome">cookie test</a>
-        <a href="/profile?id={{.User.ID}}">profile</a>
-        <a href="/logout">logout</a>
-        <a href="/createpost">create post</a>
-    {{end}}
+    <div class="nav-wrapper light-blue darken-4">
+        <a href="/" class="brand-logo">FORUM</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            {{ if eq .IsSession false}}
+            <li><a href="/signup">signup</a></li>
+            <li><a href="/signin">signin</a></li>
+            {{ else }}
+            <li><a href="/welcome">cookie test</a></li>
+            <li><a href="/profile?id={{.User.ID}}">profile</a></li>
+            <li><a href="/logout">logout</a></li>
+            <li><a href="/createpost">create post</a></li>
+            {{end}}
+        </ul>
+    </div>
 </nav>
 
 {{ end }}

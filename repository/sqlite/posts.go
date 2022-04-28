@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/Shalqarov/forum/domain"
@@ -38,7 +37,6 @@ func (u *sqliteRepo) GetPostsByUserID(id int) ([]*domain.Post, error) {
 	for rows.Next() {
 		post := domain.Post{}
 		err = rows.Scan(&post.Title, &post.Content, &post.Category, &post.CreatedAt)
-		fmt.Println(post.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -75,7 +73,6 @@ func (u *sqliteRepo) GetAllPosts() ([]*domain.Post, error) {
 	for rows.Next() {
 		post := domain.Post{}
 		err = rows.Scan(&post.ID, &post.UserID, &post.Author, &post.Title, &post.Content, &post.Category, &post.CreatedAt)
-		fmt.Println(post.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
