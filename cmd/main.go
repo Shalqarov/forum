@@ -36,18 +36,27 @@ func main() {
 		}
 	}()
 
+	router := http.NewServeMux()
+	userRepo := repository.NewSqliteUserRepo(dbConn)
+	postRepo := repository.NewSqlitePostRepo(dbConn)
+	userUsecase := usecase.NewUserUsecase(userRepo)
+	postUsecase := usecase.NewPostUsecase(postRepo)
+
 	templateCache, err := web.NewTemplateCache("./ui/html/")
 	if err != nil {
 		errorLog.Fatal(err)
 	}
 
-	repository := repository.NewSqliteRepo(dbConn)
-	useCase := usecase.NewUsecase(repository)
+	web.NewHandler(router, &web.Handler{
+		UserUsecase:   userUsecase,
+		PostUsecase:   postUsecase,
+		TemplateCache: templateCache,
+	})
 
 	srv := &http.Server{
 		Addr:         *addr,
 		ErrorLog:     errorLog,
-		Handler:      web.NewHandler(useCase, templateCache),
+		Handler:      router,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}

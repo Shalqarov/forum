@@ -1,37 +1,34 @@
 package web
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/Shalqarov/forum/domain"
 )
 
+var UNIQUE = errors.New("UNIQUE")
+
 type Handler struct {
-	usecase       domain.Usecase
+	UserUsecase   domain.UserUsecase
+	PostUsecase   domain.PostUsecase
 	TemplateCache map[string]*template.Template
 	ErrorLog      *log.Logger
 	InfoLog       *log.Logger
 }
 
-func NewHandler(usecase domain.Usecase, template map[string]*template.Template) *http.ServeMux {
-	handler := &Handler{
-		usecase:       usecase,
-		TemplateCache: template,
-	}
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", handler.home)
-	mux.HandleFunc("/signup", handler.signup)
-	mux.HandleFunc("/signin", handler.signin)
-	mux.HandleFunc("/logout", handler.logout)
-	mux.HandleFunc("/profile", handler.profile)
-	mux.HandleFunc("/welcome", handler.welcome)
-	mux.HandleFunc("/createpost", handler.createPost)
-	return mux
+func NewHandler(r *http.ServeMux, h *Handler) {
+	r.HandleFunc("/", h.home)
+	r.HandleFunc("/signup", h.signup)
+	r.HandleFunc("/signin", h.signin)
+	r.HandleFunc("/logout", h.logout)
+	r.HandleFunc("/profile", h.profile)
+	r.HandleFunc("/welcome", h.welcome)
+	r.HandleFunc("/createpost", h.createPost)
 }
 
 func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
@@ -47,10 +44,10 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 	user := domain.User{}
 	if isSession(r) {
 		username := getUserNameByCookie(r)
-		userID, _ := app.usecase.GetUserIDByUsername(username)
+		userID, _ := app.UserUsecase.GetUserIDByUsername(username)
 		user.ID = userID
 	}
-	posts, err := app.usecase.GetAllPosts()
+	posts, err := app.PostUsecase.GetAllPosts()
 	if err != nil {
 		log.Println(err)
 	}
@@ -72,12 +69,12 @@ func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	user, err := app.usecase.GetUserByID(userID)
+	user, err := app.UserUsecase.GetUserByID(userID)
 	if err != nil {
 		app.clientError(w, http.StatusNotFound)
 		return
 	}
-	posts, _ := app.usecase.GetPostsByUserID(user.ID)
+	posts, _ := app.PostUsecase.GetPostsByUserID(user.ID)
 	app.render(w, r, "profile.page.html", &templateData{
 		IsSession: isSession(r),
 		User:      *user,
@@ -101,9 +98,9 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 			Username: r.FormValue("login"),
 			Password: r.FormValue("password"),
 		}
-		err := app.usecase.CreateUser(&user)
+		err := app.UserUsecase.CreateUser(&user)
 		if err != nil {
-			if strings.Contains(err.Error(), "UNIQUE") {
+			if errors.Is(err, UNIQUE) {
 				app.render(w, r, "register.page.html", &templateData{
 					Error: true,
 				})
@@ -134,7 +131,7 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 			Password: r.FormValue("password"),
 		}
 
-		user, err := app.usecase.GetUserByEmail(info)
+		user, err := app.UserUsecase.GetUserByEmail(info)
 		if err != nil {
 			fmt.Println("wrong login or password")
 			w.WriteHeader(http.StatusUnauthorized)
@@ -174,7 +171,7 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := app.usecase.GetUserIDByUsername(getUserNameByCookie(r))
+	userID, err := app.UserUsecase.GetUserIDByUsername(getUserNameByCookie(r))
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
@@ -186,7 +183,7 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		UserID:   userID,
 		Category: r.FormValue("category"),
 	}
-	err = app.usecase.CreatePost(postInfo)
+	err = app.PostUsecase.CreatePost(postInfo)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return

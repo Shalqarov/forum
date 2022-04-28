@@ -1,8 +1,6 @@
 package usecase
 
 import (
-	"strings"
-
 	"github.com/Shalqarov/forum/domain"
 )
 
@@ -17,9 +15,6 @@ func NewPostUsecase(postRepo domain.PostRepo) domain.PostUsecase {
 }
 
 func (u *postUsecase) CreatePost(post *domain.Post) error {
-	if strings.TrimSpace(post.Title) == "" || strings.TrimSpace(post.Content) == "" {
-		return domain.ErrBadParamInput
-	}
 	return u.repo.CreatePost(post)
 }
 

@@ -22,10 +22,7 @@ func (u *sqliteRepo) CreatePost(post *domain.Post) error {
 		"date"
 		) VALUES(?,?,?,?,?,?)`
 	_, err := u.db.Exec(stmt, post.UserID, post.Author, post.Title, post.Content, post.Category, time.Now().Format(time.RFC822))
-	if err != nil {
-		return domain.ErrConflict
-	}
-	return nil
+	return err
 }
 
 func (u *sqliteRepo) GetPostsByUserID(id int) ([]*domain.Post, error) {
