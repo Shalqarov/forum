@@ -27,11 +27,8 @@ func (u *sqliteRepo) CreateUser(user *domain.User) error {
 		"password"
 	) VALUES (?, ?, ?)`
 	_, err = u.db.Exec(stmt, user.Username, user.Email, hashedPassword)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 func (u *sqliteRepo) GetUserIDByUsername(username string) (int, error) {

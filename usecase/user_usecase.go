@@ -1,8 +1,6 @@
 package usecase
 
 import (
-	"strings"
-
 	"github.com/Shalqarov/forum/domain"
 )
 
@@ -17,10 +15,6 @@ func NewUserUsecase(userRepo domain.UserRepo) domain.UserUsecase {
 }
 
 func (u *userUsecase) CreateUser(user *domain.User) error {
-	if strings.TrimSpace(user.Username) == "" || strings.TrimSpace(user.Password) == "" || strings.TrimSpace(user.Email) == "" {
-		return domain.ErrBadParamInput
-	}
-
 	return u.repo.CreateUser(user)
 }
 

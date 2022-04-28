@@ -100,9 +100,16 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 			Username: r.FormValue("login"),
 			Password: r.FormValue("password"),
 		}
+
+		if strings.TrimSpace(user.Email) != "" || strings.TrimSpace(user.Password) != "" || strings.TrimSpace(user.Username) != "" {
+			app.badRequest(w)
+			app.render(w, r, "register.page.html", &templateData{})
+			return
+		}
+
 		err := app.UserUsecase.CreateUser(&user)
 		if err != nil {
-			if errors.Is(err, UNIQUE) {
+			if strings.Contains(err.Error(), "UNIQUE") {
 				app.render(w, r, "register.page.html", &templateData{
 					Error: true,
 				})
@@ -132,6 +139,7 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 			Email:    r.FormValue("email"),
 			Password: r.FormValue("password"),
 		}
+
 		if strings.TrimSpace(info.Email) != "" || strings.TrimSpace(info.Password) != "" {
 			app.badRequest(w)
 			app.render(w, r, "login.page.html", &templateData{})
