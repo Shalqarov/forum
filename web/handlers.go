@@ -13,8 +13,6 @@ import (
 	"github.com/Shalqarov/forum/domain"
 )
 
-var UNIQUE = errors.New("UNIQUE")
-
 type Handler struct {
 	UserUsecase   domain.UserUsecase
 	PostUsecase   domain.PostUsecase
