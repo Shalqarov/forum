@@ -1,27 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
+{{template "base" . }}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forum - sign in</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link type="text/css" rel="stylesheet" href="/static/materialize.min.css"  media="screen,projection"/>
-</head>
+{{define "main"}}
+<form action="/signin" method="POST">
+    <div class="row ">
+        <div class="col s12 m6">
+            <div class="card ">
+                <div class="card-content">
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">email</i>
+                            <input name="email" id="email" type="email" class="validate">
+                            <label for="email">Email</label>
+                            {{ if .Error }}
+                            <span class="helper-text" data-error="username or password is incorrect" data-success="right">username or password is incorrect</span>
+                            {{ end }}
+                            <span class="helper-text" data-error="incorrect email address" data-success="right"></span>
+                        </div>
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">password</i>
+                            <input name="password" id="password" type="password" class="validate">
+                            <label for="password">Password</label>
+                        </div>
+                    </div>
+                    <div class="card-action">
+                        <button class="btn" type="submit">back</button>
+                        <button class="btn" type="submit">Login</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
-<body>
-    <form action="/signin" method="POST">
-        email or login: <input type="text" name="email" placeholder="email or login..." required> <br><br> password: <input type="password" name="password" required> <br><br>
-        {{if .Error}}
-        <p>username or password is incorrect</p>
-        {{end}}
-
-        <button type="submit">press</button>
-    </form>
-
-
-    <script type="text/javascript" src="/static/js/materialize.js"></script>
-</body>
-
-</html>
+{{end}}

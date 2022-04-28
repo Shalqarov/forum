@@ -1,69 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
+{{template "base" . }}
 
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Forum - sign up</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link type="text/css" rel="stylesheet" href="/static/css/materialize.min.css" media="screen,projection" />
-    <style>
-      html, body {
-        height: 100% !important;
-      }
-      .parent {
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-    </style>
-  </head>
+{{define "main"}}
 
-  <body>
-    <div class="parent">
-      <div  class="container">
-        <form action="/signup" method="POST">
-          <div class="row">
-            <div class="col s12 m6">
-              <div class="card child">
-                <div class="card-content">
-                  <div class="row">
-                    <div class="input-field col s12">
-                      <i class="material-icons prefix">account_circle</i>
-                      <input name="username" id="username" type="text" class="validate">
-                      <label for="username">Username</label>
-                    </div>
-                    <div class="input-field col s12">
-                      <i class="material-icons prefix">email</i>
-                      <input name="email" id="email" type="email" class="validate">
-                      <label for="email">Email</label>
-                      {{ if .Error }}
-                      <span class="helper-text" data-error="Email or login are
+<div class="container">
+  <form action="/signup" method="POST">
+    <div class="row ">
+      <div class="col s12 m6">
+        <div class="card ">
+          <div class="card-content">
+            <div class="row">
+              <div class="input-field col s12">
+                <i class="material-icons prefix">account_circle</i>
+                <input name="username" id="username" type="text" class="validate">
+                <label for="username">Username</label>
+              </div>
+              <div class="input-field col s12">
+                <i class="material-icons prefix">email</i>
+                <input name="email" id="email" type="email" class="validate">
+                <label for="email">Email</label>
+                {{ if .Error }}
+                <span class="helper-text" data-error="Email or login are
                       already in use" data-success="right">Email or login are
-                        already in use</span>
-                      {{ end }}
-                      <span class="helper-text" data-error="incorrect email address" data-success="right"></span>
-                    </div>
-                    <div class="input-field col s12">
-                      <i class="material-icons prefix">password</i>
-                      <input name="password" id="password" type="password" class="validate">
-                      <label for="password">Password</label>
-                    </div>
-                  </div>
-                  <div style="justify-content: right;" class="card-action">
-                    <button class="btn" type="submit">back</button>
-                    <button class="btn" type="submit">Register</button>
-                  </div>
-                </div>
+                  already in use</span>
+                {{ end }}
+                <span class="helper-text" data-error="incorrect email address" data-success="right"></span>
+              </div>
+              <div class="input-field col s12">
+                <i class="material-icons prefix">password</i>
+                <input name="password" id="password" type="password" class="validate">
+                <label for="password">Password</label>
               </div>
             </div>
+            <div class="card-action">
+              <button class="btn" type="submit">back</button>
+              <button class="btn" type="submit">Register</button>
+            </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
-    <script type="text/javascript" src="/static/js/materialize.js"></script>
-  </body>
-
-</html>
+  </form>
+</div>
+</div>
+{{end}}

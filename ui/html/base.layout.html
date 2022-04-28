@@ -32,8 +32,8 @@
         <a href="/" class="brand-logo">FORUM</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
             {{ if eq .IsSession false}}
-            <li><a href="/signup">signup</a></li>
-            <li><a href="/signin">signin</a></li>
+            <li><a href="/signup"><i class="material-icons left">group_add</i>signup</a></li>
+            <li><a href="/signin"><i class="material-icons left">login</i>signin</a></li>
             {{ else }}
             <li><a href="/welcome">cookie test</a></li>
             <li><a href="/profile?id={{.User.ID}}">profile</a></li>

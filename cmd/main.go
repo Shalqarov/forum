@@ -59,6 +59,7 @@ func main() {
 		Handler:      router,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  10 * time.Second,
 	}
 
 	infoLog.Printf("Starting server on %s\n", *addr)
