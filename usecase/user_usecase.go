@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/Shalqarov/forum/domain"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type userUsecase struct {
@@ -27,21 +26,12 @@ func (u *userUsecase) CreateUser(user *domain.User) error {
 
 func (u *userUsecase) GetUserByID(id int) (*domain.User, error) {
 	user, err := u.repo.GetUserByID(id)
-	if err != nil {
-		return nil, domain.ErrNotFound
-	}
-	return user, nil
+	return user, err
 }
 
 func (u *userUsecase) GetUserByEmail(user *domain.User) (*domain.User, error) {
 	searchedUser, err := u.repo.GetUserByEmail(user)
-	if err != nil {
-		return nil, domain.ErrNotFound
-	}
-	if err = bcrypt.CompareHashAndPassword([]byte(searchedUser.Password), []byte(user.Password)); err != nil {
-		return nil, domain.ErrBadParamInput
-	}
-	return searchedUser, nil
+	return searchedUser, err
 }
 
 func (u *userUsecase) GetUserIDByUsername(username string) (int, error) {

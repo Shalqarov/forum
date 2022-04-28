@@ -1,12 +1,14 @@
 package web
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Shalqarov/forum/domain"
 )
@@ -130,10 +132,19 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 			Email:    r.FormValue("email"),
 			Password: r.FormValue("password"),
 		}
+		if strings.TrimSpace(info.Email) != "" || strings.TrimSpace(info.Password) != "" {
+			app.badRequest(w)
+			app.render(w, r, "login.page.html", &templateData{})
+			return
+		}
 
 		user, err := app.UserUsecase.GetUserByEmail(info)
 		if err != nil {
-			fmt.Println("wrong login or password")
+			if errors.Is(err, sql.ErrNoRows) {
+				w.WriteHeader(http.StatusUnauthorized)
+				app.render(w, r, "login.page.html", &templateData{})
+				return
+			}
 			w.WriteHeader(http.StatusUnauthorized)
 			app.render(w, r, "login.page.html", &templateData{})
 			return
