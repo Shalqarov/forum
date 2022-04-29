@@ -13,11 +13,18 @@
 
         {{ template "navbar" .}}
         <main>
-            {{ template "main" .}}
+            <div class="container">
+                {{ template "main" .}}
+            </div>
         </main>
 
-
+        <div class="fixed-action-btn hoverEnabled">
+            <a href="/createpost" class="btn-floating btn-large light-blue darken-4 ">
+                <i class="large material-icons">mode_edit</i> Create Post
+            </a>
+        </div>
         <script type="text/javascript" src="/static/js/materialize.js"></script>
+        <script type="text/javascript" src="/static/js/scripts.js"></script>
     </body>
 
 </html>
@@ -26,21 +33,35 @@
 
 
 {{ define "navbar" }}
-
-<nav>
-    <div class="nav-wrapper light-blue darken-4">
-        <a href="/" class="brand-logo">FORUM</a>
-        <ul id="nav-mobile" class="right hide-on-med-and-down">
-            {{ if eq .IsSession false}}
-            <li><a href="/signup"><i class="material-icons left">group_add</i>signup</a></li>
-            <li><a href="/signin"><i class="material-icons left">login</i>signin</a></li>
-            {{ else }}
-            <li><a href="/welcome">cookie test</a></li>
-            <li><a href="/profile?id={{.User.ID}}">profile</a></li>
-            <li><a href="/logout">logout</a></li>
-            <li><a href="/createpost">create post</a></li>
-            {{end}}
-        </ul>
+<nav class="light-blue darken-4">
+    <div class="container">
+        <div class="nav-wrapper light-blue darken-4">
+            <a href="/" class="brand-logo">FORUM</a>
+            <a href="#" data-target="mobile-demo" class="sidenav-trigger right"><i class="material-icons">menu</i></a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                {{ if eq .IsSession false}}
+                <li><a href="/signup"><i class="material-icons left">group_add</i>signup</a></li>
+                <li><a href="/signin"><i class="material-icons left">login</i>signin</a></li>
+                {{ else }}
+                <li><a href="/welcome">cookie test</a></li>
+                <li><a href="/profile?id={{.User.ID}}">profile</a></li>
+                <li><a href="/logout">logout</a></li>
+                <li><a href="/createpost">create post</a></li>
+                {{end}}
+            </ul>
+            <ul class="sidenav" id="mobile-demo">
+                {{ if eq .IsSession false}}
+                <li><a href="/signup"><i class="material-icons left">group_add</i>signup</a></li>
+                <li><a href="/signin"><i class="material-icons left">login</i>signin</a></li>
+                {{ else }}
+                <li><a href="/welcome">cookie test</a></li>
+                <li><a href="/profile?id={{.User.ID}}">profile</a></li>
+                <li><a href="/logout">logout</a></li>
+                <li><a href="/createpost">create post</a></li>
+                {{end}}
+            </ul>
+        </div>
+        
     </div>
 </nav>
 
