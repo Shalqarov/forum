@@ -11,6 +11,7 @@ type templateData struct {
 	User      models.User
 	Error     bool
 	IsSession bool
+	Post      *models.Post
 	Posts     []*models.PostDTO
 }
 

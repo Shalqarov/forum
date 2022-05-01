@@ -2,6 +2,7 @@ package web
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -44,4 +45,28 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *Handler) PostPage(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.Header().Set("Allow", http.MethodGet)
+		app.clientError(w, http.StatusMethodNotAllowed)
+		return
+	}
+	title := r.URL.Query().Get("title")
+	if title == "" {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	post, err := app.PostUsecase.GetPostByTitle(title)
+	if err != nil {
+		fmt.Println(err)
+		app.clientError(w, http.StatusNotFound)
+		return
+	}
+	fmt.Println(post)
+	app.render(w, r, "post.page.html", &templateData{
+		IsSession: isSession(r),
+		Post:      post,
+	})
 }

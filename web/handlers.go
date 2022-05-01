@@ -24,6 +24,7 @@ func NewHandler(r *http.ServeMux, h *Handler) {
 	r.HandleFunc("/profile", h.profile)
 	r.HandleFunc("/welcome", h.welcome)
 	r.HandleFunc("/createpost", h.createPost)
+	r.HandleFunc("/post", h.PostPage)
 	fileServer := http.FileServer(http.Dir("./ui/static"))
 	r.Handle("/static", http.NotFoundHandler())
 	r.Handle("/static/", http.StripPrefix("/static", fileServer))

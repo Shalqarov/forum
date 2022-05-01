@@ -46,9 +46,9 @@ func (u *sqliteRepo) GetAllPostsByUserID(id int) ([]*domain.PostDTO, error) {
 func (u *sqliteRepo) GetPostByTitle(title string) (*domain.Post, error) {
 	stmt := `SELECT * FROM "post" WHERE "title" = ?`
 	post := domain.Post{}
-	err := u.db.QueryRow(stmt, title).Scan(&post.ID, &post.UserID, &post.Author, &post.Title, &post.Content, &post.CreatedAt)
+	err := u.db.QueryRow(stmt, title).Scan(&post.ID, &post.UserID, &post.Author, &post.Title, &post.Content, &post.Category, &post.CreatedAt)
 	if err != nil {
-		return nil, domain.ErrNotFound
+		return nil, err
 	}
 	return &post, nil
 }
