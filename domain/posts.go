@@ -2,16 +2,16 @@ package domain
 
 type PostUsecase interface {
 	CreatePost(post *Post) error
-	GetPostsByUserID(id int) ([]*Post, error)
+	GetAllPostsByUserID(id int) ([]*PostDTO, error)
 	GetPostByTitle(title string) (*Post, error)
 	GetPostsByCategory(category string) ([]*Post, error)
-	GetAllPosts() ([]*Post, error)
+	GetAllPosts() ([]*PostDTO, error)
 }
 
 type PostRepo interface {
 	CreatePost(post *Post) error
-	GetPostsByUserID(id int) ([]*Post, error)
+	GetAllPostsByUserID(id int) ([]*PostDTO, error)
 	GetPostByTitle(title string) (*Post, error)
 	GetPostsByCategory(category string) ([]*Post, error)
-	GetAllPosts() ([]*Post, error)
+	GetAllPosts() ([]*PostDTO, error)
 }

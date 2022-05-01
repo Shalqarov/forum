@@ -17,3 +17,14 @@ CREATE TABLE IF NOT EXISTS "post" (
     "date" TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
+-- comment TABLE --
+CREATE TABLE IF NOT EXISTS "comment" (
+    "id" INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,
+    "user_id" INTEGER NOT NULL,
+    "post_id" INTEGER NOT NULL,
+    "author" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "date" TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user(id),
+    FOREIGN KEY (post_id) REFERENCES post(id)
+)

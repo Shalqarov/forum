@@ -16,3 +16,10 @@ type Post struct {
 	Category  string
 	CreatedAt string
 }
+
+type PostDTO struct {
+	Author    string
+	Title     string
+	Category  string
+	CreatedAt string
+}

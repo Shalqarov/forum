@@ -8,10 +8,9 @@
     <p>User posts:</p>
     {{if .Posts }}
     {{range .Posts}}
-    <p>Title: {{.Title}}</p>
-    <p>Content: {{.Content}}</p>
-    <p>Category: {{.Category}}</p>
-    <p>Created: {{.CreatedAt}}</p>
+        <p>Title: {{.Title}}</p>
+        <p>Category: {{.Category}}</p>
+        <p>Created: {{.CreatedAt}}</p>
     <br>
     {{end}}
     {{else}} {{.User.Username}} has not created any posts{{end}}

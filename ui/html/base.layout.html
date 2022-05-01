@@ -18,11 +18,13 @@
             </div>
         </main>
 
+        {{ if eq .IsSession true}}
         <div class="fixed-action-btn hoverEnabled">
             <a href="/createpost" class="btn-floating btn-large light-blue darken-4 ">
                 <i class="large material-icons">mode_edit</i> Create Post
             </a>
         </div>
+        {{end}}
         <script type="text/javascript" src="/static/js/materialize.js"></script>
         <script type="text/javascript" src="/static/js/scripts.js"></script>
     </body>

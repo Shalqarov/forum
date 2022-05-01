@@ -11,7 +11,7 @@ type templateData struct {
 	User      models.User
 	Error     bool
 	IsSession bool
-	Posts     []*models.Post
+	Posts     []*models.PostDTO
 }
 
 func NewTemplateCache(dir string) (map[string]*template.Template, error) {
