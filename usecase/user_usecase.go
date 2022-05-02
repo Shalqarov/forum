@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"github.com/Shalqarov/forum/domain"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type userUsecase struct {
@@ -15,6 +16,11 @@ func NewUserUsecase(userRepo domain.UserRepo) domain.UserUsecase {
 }
 
 func (u *userUsecase) CreateUser(user *domain.User) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
+	if err != nil {
+		return err
+	}
+	user.Password = string(hashedPassword)
 	return u.repo.CreateUser(user)
 }
 

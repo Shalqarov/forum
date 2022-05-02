@@ -16,16 +16,12 @@ func NewSqliteUserRepo(db *sql.DB) domain.UserRepo {
 }
 
 func (u *sqliteRepo) CreateUser(user *domain.User) error {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
-	if err != nil {
-		return err
-	}
 	stmt := `INSERT INTO "user"(
 		"username",
 		"email",
 		"password"
 	) VALUES (?, ?, ?)`
-	_, err = u.db.Exec(stmt, user.Username, user.Email, hashedPassword)
+	_, err := u.db.Exec(stmt, user.Username, user.Email, user.Password)
 
 	return err
 }

@@ -50,11 +50,11 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		user := domain.User{
 			Email:    r.FormValue("email"),
-			Username: r.FormValue("login"),
+			Username: r.FormValue("username"),
 			Password: r.FormValue("password"),
 		}
 
-		if strings.TrimSpace(user.Email) != "" || strings.TrimSpace(user.Password) != "" || strings.TrimSpace(user.Username) != "" {
+		if strings.TrimSpace(user.Email) == "" || strings.TrimSpace(user.Password) == "" || strings.TrimSpace(user.Username) == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			app.render(w, r, "register.page.html", &templateData{
 				Error: true,
