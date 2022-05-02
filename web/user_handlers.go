@@ -136,22 +136,3 @@ func (app *Handler) logout(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
-
-func (app *Handler) welcome(w http.ResponseWriter, r *http.Request) {
-	if !isSession(r) {
-		http.Redirect(w, r, "/signin", http.StatusSeeOther)
-		return
-	}
-	_, err := r.Cookie(cookieName)
-	if err != nil {
-		if err == http.ErrNoCookie {
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-			return
-		}
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-	userName := getUserNameByCookie(r)
-
-	w.Write([]byte(fmt.Sprintf("Welcome %s!", userName)))
-}

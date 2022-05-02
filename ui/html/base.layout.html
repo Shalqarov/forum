@@ -18,11 +18,8 @@
             </div>
         </main>
 
-        {{ if eq .IsSession true}}
-        <div class="fixed-action-btn hoverable">
-            <a href="/createpost" class="btn light-blue darken-4 "><i class="large material-icons">border_color</i>Create Post</a>
-        </div>
-        {{end}}
+        {{ template "footer" .}}
+
         <script type="text/javascript" src="/static/js/materialize.js"></script>
         <script type="text/javascript" src="/static/js/scripts.js"></script>
     </body>
@@ -43,8 +40,9 @@
                 <li><a href="/signup"><i class="material-icons left">group_add</i>signup</a></li>
                 <li><a href="/signin"><i class="material-icons left">login</i>signin</a></li>
                 {{ else }}
-                <li><a href="/welcome">cookie test</a></li>
-                <li><a href="/profile?id={{.User.ID}}">profile</a></li>
+                <li><a href="/createpost"><i
+                    class="material-icons left">border_color</i>Create Post</a></li>
+                <li><a href="/profile?id={{.User.ID}}"><i class="material-icons left">account_circle</i>profile</a></li>
                 <li><a href="/logout"><i class="material-icons left">logout</i>logout</a></li>
                 {{end}}
             </ul>
@@ -53,15 +51,41 @@
                 <li><a href="/signup"><i class="material-icons left">group_add</i>signup</a></li>
                 <li><a href="/signin"><i class="material-icons left">login</i>signin</a></li>
                 {{ else }}
-                <li><a href="/createpost" class="btn light-blue darken-4 "><i class="large material-icons">border_color</i>Create Post</a></li>
-                <li><a href="/welcome">cookie test</a></li>
+                <li><a href="/createpost" class="btn light-blue darken-4 "><i
+                            class="large material-icons">border_color</i>Create Post</a></li>
                 <li><a href="/profile?id={{.User.ID}}"><i class="material-icons left">account_circle</i>profile</a></li>
                 <li><a href="/logout">logout</a></li>
                 {{end}}
             </ul>
         </div>
-        
+
     </div>
 </nav>
 
 {{ end }}
+
+{{define "footer"}}
+<style>
+    body {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+    }
+
+    main {
+        flex: 1 0 auto;
+    }
+</style>
+<footer class="page-footer light-blue darken-4">
+    <div class="container">
+        <div class="row">
+                <p class="grey-text text-lighten-4">This project consists in creating a web forum that allows communication between users, associating categories to posts, liking and disliking posts and comments, filtering posts.</p>
+        </div>
+    </div>
+    <div class="footer-copyright light-blue darken-4">
+        <div class="container">
+            2022 created by MangoMango and erdauletbatalov
+        </div>
+    </div>
+</footer>
+{{end}}
