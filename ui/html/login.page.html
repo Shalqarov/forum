@@ -11,8 +11,8 @@
                             <i class="material-icons prefix">email</i>
                             <input name="email" id="email" type="email" class="validate">
                             <label for="email">Email</label>
-                            {{ if .Error }}
-                            <span class="helper-text" data-error="username or password is incorrect" data-success="right">username or password is incorrect</span>
+                            {{ if ne .Error ""}}
+                            <span class="helper-text" data-error="username or password is incorrect" data-success="right">{{.Error}}</span>
                             {{ end }}
                             <span class="helper-text" data-error="incorrect email address" data-success="right"></span>
                         </div>

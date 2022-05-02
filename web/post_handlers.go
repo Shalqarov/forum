@@ -2,7 +2,6 @@ package web
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -60,11 +59,9 @@ func (app *Handler) PostPage(w http.ResponseWriter, r *http.Request) {
 	}
 	post, err := app.PostUsecase.GetPostByTitle(title)
 	if err != nil {
-		fmt.Println(err)
 		app.clientError(w, http.StatusNotFound)
 		return
 	}
-	fmt.Println(post)
 	app.render(w, r, "post.page.html", &templateData{
 		IsSession: isSession(r),
 		Post:      post,

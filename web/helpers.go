@@ -17,10 +17,6 @@ func (app *Handler) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
-func (app *Handler) badRequest(w http.ResponseWriter) {
-	app.clientError(w, http.StatusBadRequest)
-}
-
 func (app *Handler) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }

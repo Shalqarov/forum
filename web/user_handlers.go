@@ -1,10 +1,6 @@
 package web
 
 import (
-	"database/sql"
-	"errors"
-	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -29,7 +25,6 @@ func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	posts, _ := app.PostUsecase.GetAllPostsByUserID(user.ID)
-	fmt.Println(posts)
 	app.render(w, r, "profile.page.html", &templateData{
 		IsSession: isSession(r),
 		User:      *user,
@@ -57,7 +52,7 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 		if strings.TrimSpace(user.Email) == "" || strings.TrimSpace(user.Password) == "" || strings.TrimSpace(user.Username) == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			app.render(w, r, "register.page.html", &templateData{
-				Error: true,
+				Error: "incorrect input",
 			})
 			return
 		}
@@ -66,16 +61,17 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			if strings.Contains(err.Error(), "UNIQUE") {
 				app.render(w, r, "register.page.html", &templateData{
-					Error: true,
+					Error: "User already exists",
 				})
 				return
 			}
 			w.WriteHeader(http.StatusBadRequest)
 			app.render(w, r, "register.page.html", &templateData{
-				Error: true,
+				Error: "bad request",
 			})
 			return
 		}
+		addCookie(w, r, user.Username)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	default:
 		app.clientError(w, http.StatusMethodNotAllowed)
@@ -105,19 +101,15 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 
 		user, err := app.UserUsecase.GetUserByEmail(info)
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
-				w.WriteHeader(http.StatusUnauthorized)
-				app.render(w, r, "login.page.html", &templateData{})
-				return
-			}
 			w.WriteHeader(http.StatusUnauthorized)
-			app.render(w, r, "login.page.html", &templateData{})
+			app.render(w, r, "login.page.html", &templateData{
+				Error: "email or password are wrong",
+			})
 			return
 		}
 
 		addCookie(w, r, user.Username)
 
-		log.Println("success signin - ", user.Username)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }

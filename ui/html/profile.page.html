@@ -8,9 +8,11 @@
     <p>User posts:</p>
     {{if .Posts }}
     {{range .Posts}}
+    <div class="divider z-depth-5"></div>
         <p>Title: {{.Title}}</p>
         <p>Category: {{.Category}}</p>
         <p>Created: {{.CreatedAt}}</p>
+    <div class="divider z-depth-5"></div>
     <br>
     {{end}}
     {{else}} {{.User.Username}} has not created any posts{{end}}

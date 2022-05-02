@@ -9,7 +9,7 @@ import (
 
 type templateData struct {
 	User      models.User
-	Error     bool
+	Error     string
 	IsSession bool
 	Post      *models.Post
 	Posts     []*models.PostDTO
