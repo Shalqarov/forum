@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Shalqarov/forum/tree/master/domain"
+	"github.com/Shalqarov/forum/domain"
 )
 
 func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {

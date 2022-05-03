@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/Shalqarov/forum/tree/master/domain"
+	"github.com/Shalqarov/forum/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 

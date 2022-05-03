@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"path/filepath"
 
-	models "github.com/Shalqarov/forum/tree/master/domain"
+	models "github.com/Shalqarov/forum/domain"
 )
 
 type templateData struct {

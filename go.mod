@@ -1,4 +1,4 @@
-module github.com/Shalqarov/forum/tree/master
+module github.com/Shalqarov/forum
 
 go 1.17
 

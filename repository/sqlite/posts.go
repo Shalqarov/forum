@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/Shalqarov/forum/tree/master/domain"
+	"github.com/Shalqarov/forum/domain"
 )
 
 func NewSqlitePostRepo(db *sql.DB) domain.PostRepo {
