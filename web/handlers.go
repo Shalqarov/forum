@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Shalqarov/forum/domain"
+	"github.com/Shalqarov/forum/tree/master/domain"
 )
 
 type Handler struct {
@@ -23,6 +23,7 @@ func NewHandler(r *http.ServeMux, h *Handler) {
 	r.HandleFunc("/logout", h.logout)
 	r.HandleFunc("/profile", h.profile)
 	r.HandleFunc("/createpost", h.createPost)
+	r.HandleFunc("/createcomment", h.createComment)
 	r.HandleFunc("/post", h.PostPage)
 	fileServer := http.FileServer(http.Dir("./ui/static"))
 	r.Handle("/static", http.NotFoundHandler())

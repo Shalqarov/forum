@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Shalqarov/forum/domain"
+	"github.com/Shalqarov/forum/tree/master/domain"
 )
 
 func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {

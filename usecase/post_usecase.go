@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/Shalqarov/forum/domain"
+	"github.com/Shalqarov/forum/tree/master/domain"
 )
 
 type postUsecase struct {

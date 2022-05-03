@@ -3,7 +3,7 @@ package repository
 import (
 	"database/sql"
 
-	"github.com/Shalqarov/forum/domain"
+	"github.com/Shalqarov/forum/tree/master/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 

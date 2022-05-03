@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Shalqarov/forum/domain"
+	"github.com/Shalqarov/forum/tree/master/domain"
 )
 
 func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
@@ -66,4 +66,7 @@ func (app *Handler) PostPage(w http.ResponseWriter, r *http.Request) {
 		IsSession: isSession(r),
 		Post:      post,
 	})
+}
+
+func (app *Handler) createComment(w http.ResponseWriter, r *http.Request) {
 }

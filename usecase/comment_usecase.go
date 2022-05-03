@@ -1,6 +1,6 @@
 package usecase
 
-import "github.com/Shalqarov/forum/domain"
+import "github.com/Shalqarov/forum/tree/master/domain"
 
 type commentUsecase struct {
 	repo domain.CommentRepo
