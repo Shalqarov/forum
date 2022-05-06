@@ -77,7 +77,7 @@ func (app *Handler) PostPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Handler) createComment(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
+	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodGet)
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
