@@ -22,8 +22,8 @@ func (u *postUsecase) GetAllPostsByUserID(id int) ([]*domain.PostDTO, error) {
 	return u.repo.GetAllPostsByUserID(id)
 }
 
-func (u *postUsecase) GetPostByTitle(title string) (*domain.Post, error) {
-	return u.repo.GetPostByTitle(title)
+func (u *postUsecase) GetPostByID(id int) (*domain.Post, error) {
+	return u.repo.GetPostByID(id)
 }
 
 func (u *postUsecase) GetPostsByCategory(category string) ([]*domain.Post, error) {

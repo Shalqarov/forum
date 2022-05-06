@@ -23,17 +23,17 @@ func (u *sqliteRepo) CreateComment(comm *domain.Comment) error {
 	return err
 }
 
-func (u *sqliteRepo) GetCommentsByPostTitle(title string) ([]*domain.CommentDTO, error) {
-	stmt := `SELECT "author","content","date" FROM "comment" as comm INNER JOIN "post" as p WHERE p.title=? ORDER BY "date" DESC`
-	rows, err := u.db.Query(stmt, title)
+func (u *sqliteRepo) GetCommentsByPostID(id int) ([]*domain.Comment, error) {
+	stmt := `SELECT * FROM "comment" WHERE "post_id"=? ORDER BY "date" DESC`
+	rows, err := u.db.Query(stmt, id)
 	if err != nil {
-		return nil, domain.ErrNotFound
+		return nil, err
 	}
 	defer rows.Close()
-	comments := []*domain.CommentDTO{}
+	comments := []*domain.Comment{}
 	for rows.Next() {
-		comment := domain.CommentDTO{}
-		err := rows.Scan(&comment.Author, &comment.Content, &comment.Date)
+		comment := domain.Comment{}
+		err := rows.Scan(&comment.ID, &comment.UserID, &comment.PostID, &comment.Author, &comment.Content, &comment.Date)
 		if err != nil {
 			return nil, err
 		}

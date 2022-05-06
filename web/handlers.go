@@ -9,11 +9,12 @@ import (
 )
 
 type Handler struct {
-	UserUsecase   domain.UserUsecase
-	PostUsecase   domain.PostUsecase
-	TemplateCache map[string]*template.Template
-	ErrorLog      *log.Logger
-	InfoLog       *log.Logger
+	UserUsecase    domain.UserUsecase
+	PostUsecase    domain.PostUsecase
+	CommentUsecase domain.CommentUsecase
+	TemplateCache  map[string]*template.Template
+	ErrorLog       *log.Logger
+	InfoLog        *log.Logger
 }
 
 func NewHandler(r *http.ServeMux, h *Handler) {

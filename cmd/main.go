@@ -39,8 +39,10 @@ func main() {
 	router := http.NewServeMux()
 	userRepo := repository.NewSqliteUserRepo(dbConn)
 	postRepo := repository.NewSqlitePostRepo(dbConn)
+	commRepo := repository.NewSqliteCommentRepo(dbConn)
 	userUsecase := usecase.NewUserUsecase(userRepo)
 	postUsecase := usecase.NewPostUsecase(postRepo)
+	commUsecase := usecase.NewCommentUsecase(commRepo)
 
 	templateCache, err := web.NewTemplateCache("./ui/html/")
 	if err != nil {
@@ -48,9 +50,10 @@ func main() {
 	}
 
 	web.NewHandler(router, &web.Handler{
-		UserUsecase:   userUsecase,
-		PostUsecase:   postUsecase,
-		TemplateCache: templateCache,
+		UserUsecase:    userUsecase,
+		PostUsecase:    postUsecase,
+		CommentUsecase: commUsecase,
+		TemplateCache:  templateCache,
 	})
 
 	srv := &http.Server{

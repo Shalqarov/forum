@@ -3,7 +3,7 @@ package domain
 type PostUsecase interface {
 	CreatePost(post *Post) error
 	GetAllPostsByUserID(id int) ([]*PostDTO, error)
-	GetPostByTitle(title string) (*Post, error)
+	GetPostByID(id int) (*Post, error)
 	GetPostsByCategory(category string) ([]*Post, error)
 	GetAllPosts() ([]*PostDTO, error)
 }
@@ -11,7 +11,7 @@ type PostUsecase interface {
 type PostRepo interface {
 	CreatePost(post *Post) error
 	GetAllPostsByUserID(id int) ([]*PostDTO, error)
-	GetPostByTitle(title string) (*Post, error)
+	GetPostByID(id int) (*Post, error)
 	GetPostsByCategory(category string) ([]*Post, error)
 	GetAllPosts() ([]*PostDTO, error)
 }

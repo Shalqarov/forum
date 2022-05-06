@@ -27,6 +27,7 @@ type Comment struct {
 }
 
 type PostDTO struct {
+	ID        int
 	Author    string
 	Title     string
 	Category  string

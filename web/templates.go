@@ -13,6 +13,7 @@ type templateData struct {
 	IsSession bool
 	Post      *models.Post
 	Posts     []*models.PostDTO
+	Comments  []*models.Comment
 }
 
 func NewTemplateCache(dir string) (map[string]*template.Template, error) {
