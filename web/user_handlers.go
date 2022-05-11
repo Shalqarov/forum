@@ -37,7 +37,6 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
-
 	switch r.Method {
 	case http.MethodGet:
 		app.render(w, r, "register.page.html", &templateData{})
@@ -85,10 +84,11 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	switch r.Method {
-
 	case http.MethodGet:
 		app.render(w, r, "login.page.html", &templateData{})
+		return
 	case http.MethodPost:
+
 		info := &domain.User{
 			Email:    r.FormValue("email"),
 			Password: r.FormValue("password"),
@@ -109,8 +109,11 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		addCookie(w, r, user.Username)
-
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+
+	default:
+		app.clientError(w, http.StatusMethodNotAllowed)
+		return
 	}
 }
 

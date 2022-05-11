@@ -1,25 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forum</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link type="text/css" rel="stylesheet" href="/static/css/materialize.min.css"  media="screen,projection"/>
-</head>
-<body>
-    <form action="/createpost" method="POST">
-        title: <input type="text" name="title" required /><br /><br />
-        content: <textarea name="content" required ></textarea> <br /><br />
-        <select name="category" id="">
-            <option value="other" selected>other</option>
-        </select>
-
-        <button type="submit">press</button>
-    </form>
+{{ template "base" .}}
 
 
-    <script type="text/javascript" src="/static/js/materialize.js"></script>
-</body>
-</html>
+{{define "main"}}
+<form action="/createpost" method="POST">
+    <div class="row">
+        <div class="col s6 offset-s3">
+            <div class="card">
+                <div class="card-content">
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">title</i>
+                            <input name="title" id="title" type="text" required>
+                            <label for="title">Title</label>
+                        </div>
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">create</i>
+                            <textarea name="content" id="content" class="materialize-textarea"></textarea>
+                            <label for="content">content</label>
+                        </div>
+                        <div class="input-field col s12">
+                            <select>
+                                <option value="other" disabled selected>Choose category</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <label>Category select</label>
+                        </div>
+                    </div>
+                    <div class="card-action">
+                        <button class="btn" type="submit">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{{end}}
