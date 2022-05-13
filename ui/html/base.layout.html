@@ -31,7 +31,7 @@
 
 
 {{ define "navbar" }}
-<div class="navbar-fixed">
+<div class="navbar">
     <nav class="light-blue darken-4">
         <div class="container">
             <div class="nav-wrapper light-blue darken-4">
@@ -54,11 +54,10 @@
                     <li><a href="/signup"><i class="material-icons left">group_add</i>signup</a></li>
                     <li><a href="/signin"><i class="material-icons left">login</i>signin</a></li>
                     {{ else }}
-                    <li><a href="/createpost" class="btn light-blue darken-4 "><i
-                                class="large material-icons">border_color</i>Create Post</a></li>
+                    <li><a href="/createpost"><i class="material-icons left">border_color</i>Create Post</a></li>
                     <li><a href="/profile?id={{.User.ID}}"><i class="material-icons left">account_circle</i>profile</a>
                     </li>
-                    <li><a href="/logout">logout</a></li>
+                    <li><a href="/logout"><i class="material-icons left">logout</i>logout</a></li>
                     {{end}}
                 </ul>
             </div>

@@ -2,7 +2,7 @@
 
 
 {{define "main"}}
-<div class="row ">
+<div style="margin-top: 20px;" class="row">
     <div class="col s6 offset-s3 grey lighten-3">
         <h3>{{.Post.Title}}</h3>
         <p class="flow-text">{{.Post.Content}}</p>
@@ -26,11 +26,15 @@
                 </div>
             </form>
         </div>
-        <h5>Comments:</h5>
+        
     </div>
 </div>
 
-
+<div class="row">
+    <div class="col s6 offset-s3">
+        <h5>Comments:</h5>
+    </div>
+</div>
 {{ range .Comments }}
 <div class="row">
     <div class="col s6 offset-s3 grey lighten-3">
