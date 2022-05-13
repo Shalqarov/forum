@@ -78,7 +78,7 @@ func (app *Handler) PostPage(w http.ResponseWriter, r *http.Request) {
 
 func (app *Handler) createComment(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodGet)
+		w.Header().Set("Allow", http.MethodPost)
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
@@ -97,11 +97,16 @@ func (app *Handler) createComment(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
+	comment := r.FormValue("comment")
+	if len(comment) > 255 {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 	comm := &domain.Comment{
 		UserID:  userID,
 		PostID:  postID,
 		Author:  userName,
-		Content: r.FormValue("comment"),
+		Content: comment,
 	}
 	app.CommentUsecase.CreateComment(comm)
 	http.Redirect(w, r, fmt.Sprintf("/post?id=%d", postID), http.StatusSeeOther)

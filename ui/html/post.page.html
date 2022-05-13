@@ -2,43 +2,61 @@
 
 
 {{define "main"}}
-<h3>{{.Post.Title}}</h3>
-<p class="flow-text">{{.Post.Content}}</p>
-<div class="divider"></div>
-<span>Category: </span>
-<a id="category" href="/post?category={{ .Post.Category }}">{{.Post.Category}}</a>
-<div class="row">
-    <div class="card-action ">
-        <a style="margin:50px;" href="#"><i class="material-icons">thumb_up</i></a>
-        <a style="margin:50px;" href="#"><i class="material-icons">thumb_down</i></a>
+<div class="row ">
+    <div class="col s6 offset-s3 grey lighten-3">
+        <h3>{{.Post.Title}}</h3>
+        <p class="flow-text">{{.Post.Content}}</p>
+        <div class="divider"></div>
+        <span>Category: </span>
+        <a id="category" href="/post?category={{ .Post.Category }}">{{.Post.Category}}</a>
+        <div class="row">
+            <a style="margin:20px;" href="#"><i class="material-icons">thumb_up</i></a>
+            <a style="margin:20px;" href="#"><i class="material-icons">thumb_down</i></a>
+        </div>
+        <div class="row">
+            <form method="POST" action="/post/createcomment?id={{.Post.ID}}" class="col s12">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <textarea name="comment" id="textareaComment" class="materialize-textarea" maxlength="255"
+                            required></textarea>
+                        <span class="helper-text">maximum characters: 255</span>
+                        <label for="textareaComment">Comment</label>
+                        <button type="submit" class="btn waves-effect waves-light">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <h5>Comments:</h5>
     </div>
 </div>
-<div class="row">
-    <form method="POST" action="/post/createcomment?id={{.Post.ID}}" class="col s12">
-        <div class="row">
-            <div class="input-field col s12">
-                <textarea name="comment" id="comment" class="materialize-textarea"></textarea>
-                <label for="comment">Comment</label>
-                <button type="submit" class="btn">Submit</button>
-            </div>
-        </div>
-    </form>
-</div>
+
+
 {{ range .Comments }}
 <div class="row">
-    <div class="col s12 ">
-        <div class="card">
-            <div class="card-content">
-                <span class="card-title">{{.Author}}</span>
-                <label for="category">{{.Date}}</label>
-                <p>{{.Content}}</p>
-            </div>
-            <div class="card-action">
-                <a href="#"><i class="material-icons">thumb_up</i></a>
-                <a href="#"><i class="material-icons">thumb_down</i></a>
-            </div>
+    <div class="col s6 offset-s3 grey lighten-3">
+        <a href="/profile?id={{.UserID}}">{{.Author}}</a>
+        <label for="date">{{.Date}}</label>
+        <div style="word-wrap:break-word;">
+            <p>{{.Content}}</p>
+        </div>
+        <div class="row">
+            <a style="margin:20px;" href="#"><i class="material-icons">thumb_up</i></a>
+            <a style="margin:20px;" href="#"><i class="material-icons">thumb_down</i></a>
         </div>
     </div>
 </div>
 {{end}}
+
+<script>
+    function maxLength(el) {
+        if (!('maxLength' in el)) {
+            var max = el.attributes.maxLength.value;
+            el.onkeypress = function () {
+                if (this.value.length >= max) return false;
+            };
+        }
+    }
+
+    maxLength(document.getElementById("textareaComment"));
+</script>
 {{end}}
