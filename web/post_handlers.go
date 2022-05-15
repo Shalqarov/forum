@@ -3,6 +3,7 @@ package web
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -37,11 +38,13 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		Category: r.FormValue("category"),
 	}
 	if strings.TrimSpace(postInfo.Title) == "" || strings.TrimSpace(postInfo.Content) == "" || strings.TrimSpace(postInfo.Category) == "" {
+		fmt.Println("AAAAAAAAAAAAA")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 	err = app.PostUsecase.CreatePost(postInfo)
 	if err != nil {
+		log.Printf("CreatePost: %s", err.Error())
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}

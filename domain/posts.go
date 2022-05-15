@@ -6,6 +6,7 @@ type PostUsecase interface {
 	GetPostByID(id int) (*Post, error)
 	GetPostsByCategory(category string) ([]*Post, error)
 	GetAllPosts() ([]*PostDTO, error)
+	// VotePost()
 }
 
 type PostRepo interface {

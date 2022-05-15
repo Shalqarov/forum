@@ -25,16 +25,16 @@ func (u *sqliteRepo) CreatePost(post *domain.Post) error {
 }
 
 func (u *sqliteRepo) GetAllPostsByUserID(id int) ([]*domain.PostDTO, error) {
-	stmt := `SELECT "id","title","category","date" FROM "post" WHERE "user_id" = ? ORDER BY "date" DESC`
+	stmt := `SELECT "id","title","category","date" FROM "post" WHERE "user_id" = ? ORDER BY "id" DESC`
 	rows, err := u.db.Query(stmt, id)
 	if err != nil {
-		return nil, domain.ErrNotFound
+		return nil, err
 	}
 	defer rows.Close()
 	posts := []*domain.PostDTO{}
 	for rows.Next() {
 		post := domain.PostDTO{}
-		err := rows.Scan(&post.Title, &post.Category, &post.CreatedAt)
+		err := rows.Scan(&post.ID, &post.Title, &post.Category, &post.CreatedAt)
 		if err != nil {
 			return nil, err
 		}

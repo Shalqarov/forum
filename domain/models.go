@@ -7,6 +7,11 @@ type User struct {
 	Password string
 }
 
+type Vote struct {
+	Like    uint64
+	Dislike uint64
+}
+
 type Post struct {
 	ID        int
 	UserID    int
@@ -15,6 +20,7 @@ type Post struct {
 	Content   string
 	Category  string
 	CreatedAt string
+	Votes     Vote
 }
 
 type Comment struct {
@@ -24,6 +30,7 @@ type Comment struct {
 	Author  string
 	Content string
 	Date    string
+	Votes   Vote
 }
 
 type PostDTO struct {

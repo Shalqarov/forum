@@ -1,6 +1,7 @@
 package web
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -24,7 +25,13 @@ func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusNotFound)
 		return
 	}
-	posts, _ := app.PostUsecase.GetAllPostsByUserID(user.ID)
+	posts, err := app.PostUsecase.GetAllPostsByUserID(user.ID)
+	if err != nil {
+		log.Printf("profile: %s", err.Error())
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
 	app.render(w, r, "profile.page.html", &templateData{
 		IsSession: isSession(r),
 		User:      *user,
