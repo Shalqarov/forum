@@ -27,4 +27,13 @@ CREATE TABLE IF NOT EXISTS "comment" (
     "date" TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(id),
     FOREIGN KEY (post_id) REFERENCES post(id)
-)
+);
+-- vote TABLE --
+CREATE TABLE IF NOT EXISTS "post_votes" (
+    "id" INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,
+    "user_id" INTEGER NOT NULL,
+    "post_id" INTEGER NOT NULL,
+    "vote" INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user(id),
+    FOREIGN KEY (post_id) REFERENCES post(id)
+);
