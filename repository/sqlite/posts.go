@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/Shalqarov/forum/domain"
@@ -98,6 +99,40 @@ func (u *sqliteRepo) VotePost(postID, userID int64, vote int) error {
 		return err
 	}
 	return nil
+}
+
+func (u *sqliteRepo) GetVotesByPostID(postID int64) (*domain.Vote, error) {
+	// stmtLikes := `SELECT count("vote") FROM "post_votes"
+	// 		WHERE post_id = ? AND vote = 1`
+	// stmtDislike := `SELECT count("vote") FROM "post_votes"
+	// 		WHERE post_id = ? AND vote = -1`
+	stmtLD := `SELECT "vote", count("vote") FROM "post_votes"
+			WHERE post_id = ? 
+			GROUP BY "vote"
+			ORDER BY "vote" desc`
+	rows, err := u.db.Query(stmtLD, postID)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var voteqwe int64
+		var cnt int64
+		err := rows.Scan(&voteqwe, &cnt)
+		if err != nil {
+			return nil, err
+		}
+		switch voteqwe {
+		case 1:
+			fmt.Println("Likes:", cnt)
+		case -1:
+			fmt.Println("DisLikes:", cnt)
+		default:
+			fmt.Println("Default:", voteqwe, cnt)
+		}
+	}
+	fmt.Println("------")
+	// votes := &domain
+	return nil, nil
 }
 
 func scanAllPostRows(rows *sql.Rows) ([]*domain.PostDTO, error) {

@@ -42,3 +42,7 @@ func (u *postUsecase) VotePost(postID, userID int64, vote int) error {
 	}
 	return u.repo.VotePost(postID, userID, vote)
 }
+
+func (u *postUsecase) GetVotesByPostID(postID int64) (*domain.Vote, error) {
+	return u.repo.GetVotesByPostID(postID)
+}

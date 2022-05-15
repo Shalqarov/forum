@@ -62,6 +62,8 @@ func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
+	app.PostUsecase.GetVotesByPostID(postID)
+
 	post, err := app.PostUsecase.GetPostByID(postID)
 	if err != nil {
 		app.clientError(w, http.StatusNotFound)
@@ -101,7 +103,6 @@ func (app *Handler) votePost(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	fmt.Println(postID, vote)
 	userID, err := app.UserUsecase.GetUserIDByUsername(getUserNameByCookie(r))
 	if err != nil {
 		log.Println("VotePost:", err)

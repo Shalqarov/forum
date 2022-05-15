@@ -7,6 +7,7 @@ type PostUsecase interface {
 	GetPostsByCategory(category string) ([]*Post, error)
 	GetAllPosts() ([]*PostDTO, error)
 	VotePost(postID, userID int64, vote int) error
+	GetVotesByPostID(postID int64) (*Vote, error)
 }
 
 type PostRepo interface {
@@ -16,4 +17,5 @@ type PostRepo interface {
 	GetPostsByCategory(category string) ([]*Post, error)
 	GetAllPosts() ([]*PostDTO, error)
 	VotePost(postID, userID int64, vote int) error
+	GetVotesByPostID(postID int64) (*Vote, error)
 }
