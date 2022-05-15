@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"fmt"
+
 	"github.com/Shalqarov/forum/domain"
 )
 
@@ -35,5 +37,8 @@ func (u *postUsecase) GetAllPosts() ([]*domain.PostDTO, error) {
 }
 
 func (u *postUsecase) VotePost(postID, userID int64, vote int) error {
-	return nil
+	if vote != -1 && vote != 1 {
+		return fmt.Errorf("VotePost: invalid voteType")
+	}
+	return u.repo.VotePost(postID, userID, vote)
 }

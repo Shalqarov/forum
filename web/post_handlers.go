@@ -51,7 +51,7 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func (app *Handler) PostPage(w http.ResponseWriter, r *http.Request) {
+func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", http.MethodGet)
 		app.clientError(w, http.StatusMethodNotAllowed)
@@ -77,6 +77,39 @@ func (app *Handler) PostPage(w http.ResponseWriter, r *http.Request) {
 		Post:      post,
 		Comments:  comments,
 	})
+}
+
+func (app *Handler) votePost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		app.clientError(w, http.StatusMethodNotAllowed)
+		return
+	}
+	if !isSession(r) {
+		http.Redirect(w, r, "/signin", http.StatusSeeOther)
+		return
+	}
+	postID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	if err != nil || postID < 1 {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	vote, err := strconv.ParseInt(r.URL.Query().Get("vote"), 10, 64)
+	if err != nil || vote != 1 && vote != -1 {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	userID, err := app.UserUsecase.GetUserIDByUsername(getUserNameByCookie(r))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	err = app.PostUsecase.VotePost(postID, userID, int(vote))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	http.Redirect(w, r, fmt.Sprintf("/post?id=%d", postID), http.StatusSeeOther)
 }
 
 func (app *Handler) createComment(w http.ResponseWriter, r *http.Request) {
