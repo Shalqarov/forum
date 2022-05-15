@@ -61,7 +61,7 @@ func (u *sqliteRepo) GetAllPosts() ([]*domain.PostDTO, error) {
 	stmt := `SELECT "id","author","title","category","date" FROM "post" ORDER BY "date" DESC`
 	rows, err := u.db.Query(stmt)
 	if err != nil {
-		return nil, domain.ErrNotFound
+		return nil, err
 	}
 	defer rows.Close()
 	return scanAllPostRows(rows)

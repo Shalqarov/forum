@@ -31,7 +31,7 @@ func (u *sqliteRepo) GetUserIDByUsername(username string) (int, error) {
 	user := domain.User{}
 	err := u.db.QueryRow(stmt, username).Scan(&user.ID)
 	if err != nil {
-		return -1, domain.ErrNotFound
+		return -1, err
 	}
 	return user.ID, nil
 }
