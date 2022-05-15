@@ -18,11 +18,11 @@ func (u *postUsecase) CreatePost(post *domain.Post) error {
 	return u.repo.CreatePost(post)
 }
 
-func (u *postUsecase) GetAllPostsByUserID(id int) ([]*domain.PostDTO, error) {
+func (u *postUsecase) GetAllPostsByUserID(id int64) ([]*domain.PostDTO, error) {
 	return u.repo.GetAllPostsByUserID(id)
 }
 
-func (u *postUsecase) GetPostByID(id int) (*domain.Post, error) {
+func (u *postUsecase) GetPostByID(id int64) (*domain.Post, error) {
 	return u.repo.GetPostByID(id)
 }
 
@@ -32,4 +32,8 @@ func (u *postUsecase) GetPostsByCategory(category string) ([]*domain.Post, error
 
 func (u *postUsecase) GetAllPosts() ([]*domain.PostDTO, error) {
 	return u.repo.GetAllPosts()
+}
+
+func (u *postUsecase) VotePost(postID, userID int64, vote int) error {
+	return nil
 }

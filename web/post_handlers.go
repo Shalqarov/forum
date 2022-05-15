@@ -57,7 +57,7 @@ func (app *Handler) PostPage(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
-	postID, err := strconv.Atoi(r.URL.Query().Get("id"))
+	postID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 	if err != nil || postID < 1 {
 		app.clientError(w, http.StatusBadRequest)
 		return
@@ -89,7 +89,7 @@ func (app *Handler) createComment(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/signin", http.StatusSeeOther)
 		return
 	}
-	postID, err := strconv.Atoi(r.URL.Query().Get("id"))
+	postID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 	if err != nil || postID < 1 {
 		app.clientError(w, http.StatusBadRequest)
 		return

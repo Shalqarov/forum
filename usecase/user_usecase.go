@@ -24,7 +24,7 @@ func (u *userUsecase) CreateUser(user *domain.User) error {
 	return u.repo.CreateUser(user)
 }
 
-func (u *userUsecase) GetUserByID(id int) (*domain.User, error) {
+func (u *userUsecase) GetUserByID(id int64) (*domain.User, error) {
 	user, err := u.repo.GetUserByID(id)
 	return user, err
 }
@@ -34,6 +34,6 @@ func (u *userUsecase) GetUserByEmail(user *domain.User) (*domain.User, error) {
 	return searchedUser, err
 }
 
-func (u *userUsecase) GetUserIDByUsername(username string) (int, error) {
+func (u *userUsecase) GetUserIDByUsername(username string) (int64, error) {
 	return u.repo.GetUserIDByUsername(username)
 }

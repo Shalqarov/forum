@@ -1,7 +1,7 @@
 package domain
 
 type User struct {
-	ID       int
+	ID       int64
 	Username string
 	Email    string
 	Password string
@@ -13,8 +13,8 @@ type Vote struct {
 }
 
 type Post struct {
-	ID        int
-	UserID    int
+	ID        int64
+	UserID    int64
 	Author    string
 	Title     string
 	Content   string
@@ -24,9 +24,9 @@ type Post struct {
 }
 
 type Comment struct {
-	ID      int
-	UserID  int
-	PostID  int
+	ID      int64
+	UserID  int64
+	PostID  int64
 	Author  string
 	Content string
 	Date    string
@@ -34,7 +34,7 @@ type Comment struct {
 }
 
 type PostDTO struct {
-	ID        int
+	ID        int64
 	Author    string
 	Title     string
 	Category  string

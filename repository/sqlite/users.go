@@ -26,7 +26,7 @@ func (u *sqliteRepo) CreateUser(user *domain.User) error {
 	return err
 }
 
-func (u *sqliteRepo) GetUserIDByUsername(username string) (int, error) {
+func (u *sqliteRepo) GetUserIDByUsername(username string) (int64, error) {
 	stmt := `SELECT "id" FROM "user" WHERE "username"=?`
 	user := domain.User{}
 	err := u.db.QueryRow(stmt, username).Scan(&user.ID)
@@ -36,7 +36,7 @@ func (u *sqliteRepo) GetUserIDByUsername(username string) (int, error) {
 	return user.ID, nil
 }
 
-func (u *sqliteRepo) GetUserByID(id int) (*domain.User, error) {
+func (u *sqliteRepo) GetUserByID(id int64) (*domain.User, error) {
 	stmt := `SELECT * FROM "user" WHERE "id"=?`
 	user := domain.User{}
 	err := u.db.QueryRow(stmt, id).Scan(&user.ID, &user.Username, &user.Email, &user.Password)

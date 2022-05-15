@@ -15,7 +15,7 @@ func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
-	userID, err := strconv.Atoi(r.URL.Query().Get("id"))
+	userID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 	if err != nil || userID < 1 {
 		app.clientError(w, http.StatusBadRequest)
 		return

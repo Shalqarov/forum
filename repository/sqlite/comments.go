@@ -23,7 +23,7 @@ func (u *sqliteRepo) CreateComment(comm *domain.Comment) error {
 	return err
 }
 
-func (u *sqliteRepo) GetCommentsByPostID(id int) ([]*domain.Comment, error) {
+func (u *sqliteRepo) GetCommentsByPostID(id int64) ([]*domain.Comment, error) {
 	stmt := `SELECT * FROM "comment" WHERE "post_id"=? ORDER BY "date" DESC`
 	rows, err := u.db.Query(stmt, id)
 	if err != nil {

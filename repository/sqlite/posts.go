@@ -24,7 +24,7 @@ func (u *sqliteRepo) CreatePost(post *domain.Post) error {
 	return err
 }
 
-func (u *sqliteRepo) GetAllPostsByUserID(id int) ([]*domain.PostDTO, error) {
+func (u *sqliteRepo) GetAllPostsByUserID(id int64) ([]*domain.PostDTO, error) {
 	stmt := `SELECT "id","title","category","date" FROM "post" WHERE "user_id" = ? ORDER BY "id" DESC`
 	rows, err := u.db.Query(stmt, id)
 	if err != nil {
@@ -43,7 +43,7 @@ func (u *sqliteRepo) GetAllPostsByUserID(id int) ([]*domain.PostDTO, error) {
 	return posts, nil
 }
 
-func (u *sqliteRepo) GetPostByID(id int) (*domain.Post, error) {
+func (u *sqliteRepo) GetPostByID(id int64) (*domain.Post, error) {
 	stmt := `SELECT * FROM "post" WHERE "id" = ?`
 	post := domain.Post{}
 	err := u.db.QueryRow(stmt, id).Scan(&post.ID, &post.UserID, &post.Author, &post.Title, &post.Content, &post.Category, &post.CreatedAt)
@@ -65,6 +65,10 @@ func (u *sqliteRepo) GetAllPosts() ([]*domain.PostDTO, error) {
 	}
 	defer rows.Close()
 	return scanAllPostRows(rows)
+}
+
+func (u *sqliteRepo) VotePost(postID, userID int64, vote int) error {
+	return nil
 }
 
 func scanAllPostRows(rows *sql.Rows) ([]*domain.PostDTO, error) {

@@ -18,6 +18,6 @@ func (u *commentUsecase) CreateComment(comm *domain.Comment) error {
 	return u.repo.CreateComment(comm)
 }
 
-func (u *commentUsecase) GetCommentsByPostID(id int) ([]*domain.Comment, error) {
+func (u *commentUsecase) GetCommentsByPostID(id int64) ([]*domain.Comment, error) {
 	return u.repo.GetCommentsByPostID(id)
 }
