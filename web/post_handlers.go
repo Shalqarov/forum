@@ -91,21 +91,26 @@ func (app *Handler) votePost(w http.ResponseWriter, r *http.Request) {
 	}
 	postID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 	if err != nil || postID < 1 {
+		log.Println("VotePost:", err)
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 	vote, err := strconv.ParseInt(r.URL.Query().Get("vote"), 10, 64)
 	if err != nil || vote != 1 && vote != -1 {
+		log.Println("VotePost:", err)
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
+	fmt.Println(postID, vote)
 	userID, err := app.UserUsecase.GetUserIDByUsername(getUserNameByCookie(r))
 	if err != nil {
+		log.Println("VotePost:", err)
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 	err = app.PostUsecase.VotePost(postID, userID, int(vote))
 	if err != nil {
+		log.Println("VotePost:", err)
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}

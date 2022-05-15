@@ -9,9 +9,14 @@
         <div class="divider"></div>
         <span>Category: </span>
         <a id="category" href="/post?category={{ .Post.Category }}">{{.Post.Category}}</a>
+
         <div class="row">
-            <a style="margin:20px;" href="#"><i class="material-icons">thumb_up</i></a>
-            <a style="margin:20px;" href="#"><i class="material-icons">thumb_down</i></a>
+            <form action="/post/vote?id={{.Post.ID }}&vote=1" method="POST">
+                <button type="submit" style="margin:20px;"><i class="material-icons small">thumb_up</i></button>
+            </form>
+            <form action="/post/vote?id={{.Post.ID }}&vote=-1" method="POST">
+                <button type="submit" style="margin:20px;"><i class="material-icons small">thumb_down</i></button>
+            </form>
         </div>
         <div class="row">
             <form method="POST" action="/post/createcomment?id={{.Post.ID}}" class="col s12">
@@ -26,7 +31,7 @@
                 </div>
             </form>
         </div>
-        
+
     </div>
 </div>
 
@@ -44,8 +49,8 @@
             <p>{{.Content}}</p>
         </div>
         <div class="row">
-            <a style="margin:20px;" href="#"><i class="material-icons">thumb_up</i></a>
-            <a style="margin:20px;" href="#"><i class="material-icons">thumb_down</i></a>
+            <a style="margin:20px;" href="#"><i class="material-icons small">thumb_up</i></a>
+            <a style="margin:20px;" href="#"><i class="material-icons small">thumb_down</i></a>
         </div>
     </div>
 </div>

@@ -69,12 +69,12 @@ func (u *sqliteRepo) GetAllPosts() ([]*domain.PostDTO, error) {
 
 func (u *sqliteRepo) VotePost(postID, userID int64, vote int) error {
 	stmtSelect := `SELECT "id","vote" FROM "post_votes" WHERE user_id = ? AND post_id = ?`
-	stmtExec := `INSERT INTO "vote_post"(
+	stmtExec := `INSERT INTO "post_votes"(
 					"user_id",
 					"post_id",
 					"vote")
 					VALUES (?,?,?)`
-	stmtDelete := `DELETE FROM "vote_post" WHERE "id" = ?`
+	stmtDelete := `DELETE FROM "post_votes" WHERE "id" = ?`
 	var voteID int64
 	var voteInDB int
 	row := u.db.QueryRow(stmtSelect, userID, postID)
