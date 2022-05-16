@@ -26,8 +26,6 @@
                 </form>
                 <label  for="dislike"><p class="center-align">{{ .Post.Votes.Dislike }}</p></label>
             </div>
-
-
         </div>
         <div class="row">
             <form method="POST" action="/post/createcomment?id={{.Post.ID}}" class="col s12">
@@ -60,8 +58,21 @@
             <p>{{.Content}}</p>
         </div>
         <div class="row">
-            <a style="margin:20px;" href="#"><i class="material-icons small">thumb_up</i></a>
-            <a style="margin:20px;" href="#"><i class="material-icons small">thumb_down</i></a>
+            <div class="col">
+                <form action="/post/votecomment?id={{.ID }}&vote=1" method="POST">
+                    <button class="waves-effect waves-teal btn-flat" id="like" type="submit"><i
+                            class="material-icons small">thumb_up</i></button>
+                    
+                </form>
+                <label  for="like"><p class="center-align">{{ .Votes.Like }}</p></label>
+            </div>
+            <div class="col">
+                <form action="/post/votecomment?id={{.ID }}&vote=-1" method="POST">
+                    <button class="waves-effect waves-red btn-flat" id="dislike" type="submit"><i
+                            class="material-icons small">thumb_down</i></button>
+                </form>
+                <label  for="dislike"><p class="center-align">{{ .Votes.Dislike }}</p></label>
+            </div>
         </div>
     </div>
 </div>
