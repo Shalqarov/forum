@@ -62,13 +62,19 @@ func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	app.PostUsecase.GetVotesByPostID(postID)
+	votes, err := app.PostUsecase.GetVotesCountByPostID(postID)
+	if err != nil {
+		log.Println("getVotes error:")
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 
 	post, err := app.PostUsecase.GetPostByID(postID)
 	if err != nil {
 		app.clientError(w, http.StatusNotFound)
 		return
 	}
+
 	comments, err := app.CommentUsecase.GetCommentsByPostID(postID)
 	if err != nil {
 		app.clientError(w, http.StatusInternalServerError)
@@ -78,6 +84,7 @@ func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 		IsSession: isSession(r),
 		Post:      post,
 		Comments:  comments,
+		Votes:     votes,
 	})
 }
 

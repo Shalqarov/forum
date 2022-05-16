@@ -13,6 +13,7 @@ type templateData struct {
 	IsSession bool
 	Post      *models.Post
 	Posts     []*models.PostDTO
+	Votes     *models.Vote
 	Comments  []*models.Comment
 }
 

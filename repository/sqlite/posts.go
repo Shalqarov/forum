@@ -2,7 +2,7 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/Shalqarov/forum/domain"
@@ -101,38 +101,36 @@ func (u *sqliteRepo) VotePost(postID, userID int64, vote int) error {
 	return nil
 }
 
-func (u *sqliteRepo) GetVotesByPostID(postID int64) (*domain.Vote, error) {
-	// stmtLikes := `SELECT count("vote") FROM "post_votes"
-	// 		WHERE post_id = ? AND vote = 1`
-	// stmtDislike := `SELECT count("vote") FROM "post_votes"
-	// 		WHERE post_id = ? AND vote = -1`
-	stmtLD := `SELECT "vote", count("vote") FROM "post_votes"
+func (u *sqliteRepo) GetVotesCountByPostID(postID int64) (*domain.Vote, error) {
+	stmt := `SELECT "vote", count("vote") FROM "post_votes"
 			WHERE post_id = ? 
 			GROUP BY "vote"
 			ORDER BY "vote" desc`
-	rows, err := u.db.Query(stmtLD, postID)
+	rows, err := u.db.Query(stmt, postID)
 	if err != nil {
 		return nil, err
 	}
+	votes := &domain.Vote{
+		Like:    0,
+		Dislike: 0,
+	}
 	for rows.Next() {
-		var voteqwe int64
+		var voteType int64
 		var cnt int64
-		err := rows.Scan(&voteqwe, &cnt)
+		err := rows.Scan(&voteType, &cnt)
 		if err != nil {
 			return nil, err
 		}
-		switch voteqwe {
+		switch voteType {
 		case 1:
-			fmt.Println("Likes:", cnt)
+			votes.Like = uint64(cnt)
 		case -1:
-			fmt.Println("DisLikes:", cnt)
+			votes.Dislike = uint64(cnt)
 		default:
-			fmt.Println("Default:", voteqwe, cnt)
+			log.Println("Get Votes count bug:", voteType, cnt)
 		}
 	}
-	fmt.Println("------")
-	// votes := &domain
-	return nil, nil
+	return votes, nil
 }
 
 func scanAllPostRows(rows *sql.Rows) ([]*domain.PostDTO, error) {

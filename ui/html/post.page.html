@@ -11,12 +11,23 @@
         <a id="category" href="/post?category={{ .Post.Category }}">{{.Post.Category}}</a>
 
         <div class="row">
-            <form action="/post/vote?id={{.Post.ID }}&vote=1" method="POST">
-                <button type="submit" style="margin:20px;"><i class="material-icons small">thumb_up</i></button>
-            </form>
-            <form action="/post/vote?id={{.Post.ID }}&vote=-1" method="POST">
-                <button type="submit" style="margin:20px;"><i class="material-icons small">thumb_down</i></button>
-            </form>
+            <div class="col">
+                <form action="/post/vote?id={{.Post.ID }}&vote=1" method="POST">
+                    <button class="waves-effect waves-teal btn-flat" id="like" type="submit"><i
+                            class="material-icons small">thumb_up</i></button>
+                    
+                </form>
+                <label  for="like"><p class="center-align">{{ .Votes.Like }}</p></label>
+            </div>
+            <div class="col">
+                <form action="/post/vote?id={{.Post.ID }}&vote=-1" method="POST">
+                    <button class="waves-effect waves-red btn-flat" id="dislike" type="submit"><i
+                            class="material-icons small">thumb_down</i></button>
+                </form>
+                <label  for="dislike"><p class="center-align">{{ .Votes.Dislike }}</p></label>
+            </div>
+
+
         </div>
         <div class="row">
             <form method="POST" action="/post/createcomment?id={{.Post.ID}}" class="col s12">
