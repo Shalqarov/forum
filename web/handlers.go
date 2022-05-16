@@ -45,7 +45,12 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 	user := domain.User{}
 	if isSession(r) {
 		username := getUserNameByCookie(r)
-		userID, _ := app.UserUsecase.GetUserIDByUsername(username)
+		userID, err := app.UserUsecase.GetUserIDByUsername(username)
+		if err != nil {
+			log.Printf("home: GetUserIDByUsername: %s", err.Error())
+			app.clientError(w, http.StatusInternalServerError)
+			return
+		}
 		user.ID = userID
 	}
 	posts, err := app.PostUsecase.GetAllPosts()

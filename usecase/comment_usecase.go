@@ -21,3 +21,11 @@ func (u *commentUsecase) CreateComment(comm *domain.Comment) error {
 func (u *commentUsecase) GetCommentsByPostID(id int64) ([]*domain.Comment, error) {
 	return u.repo.GetCommentsByPostID(id)
 }
+
+func (u *commentUsecase) VoteComment(commentID, userID int64, vote int) error {
+	return nil
+}
+
+func (u *commentUsecase) GetVotesCountByCommentID(postID int64) (*domain.Vote, error) {
+	return nil, nil
+}

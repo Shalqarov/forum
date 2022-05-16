@@ -25,7 +25,16 @@ func (u *postUsecase) GetAllPostsByUserID(id int64) ([]*domain.PostDTO, error) {
 }
 
 func (u *postUsecase) GetPostByID(id int64) (*domain.Post, error) {
-	return u.repo.GetPostByID(id)
+	post, err := u.repo.GetPostByID(id)
+	if err != nil {
+		return nil, fmt.Errorf("GetPostByID error: %w", err)
+	}
+	votes, err := u.GetVotesCountByPostID(id)
+	if err != nil {
+		return nil, fmt.Errorf("GetVotesCountByPostID error: %w", err)
+	}
+	post.Votes = *votes
+	return post, nil
 }
 
 func (u *postUsecase) GetPostsByCategory(category string) ([]*domain.Post, error) {

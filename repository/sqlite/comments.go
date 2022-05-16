@@ -41,3 +41,11 @@ func (u *sqliteRepo) GetCommentsByPostID(id int64) ([]*domain.Comment, error) {
 	}
 	return comments, nil
 }
+
+func (u *sqliteRepo) VoteComment(commentID, userID int64, vote int) error {
+	return nil
+}
+
+func (u *sqliteRepo) GetVotesCountByCommentID(postID int64) (*domain.Vote, error) {
+	return nil, nil
+}

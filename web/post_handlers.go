@@ -38,7 +38,6 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		Category: r.FormValue("category"),
 	}
 	if strings.TrimSpace(postInfo.Title) == "" || strings.TrimSpace(postInfo.Content) == "" || strings.TrimSpace(postInfo.Category) == "" {
-		fmt.Println("AAAAAAAAAAAAA")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -62,12 +61,6 @@ func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	votes, err := app.PostUsecase.GetVotesCountByPostID(postID)
-	if err != nil {
-		log.Println("getVotes error:")
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
 
 	post, err := app.PostUsecase.GetPostByID(postID)
 	if err != nil {
@@ -80,11 +73,21 @@ func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusInternalServerError)
 		return
 	}
+	var userID int64 = 0
+	if isSession(r) {
+		userID, err = app.UserUsecase.GetUserIDByUsername(getUserNameByCookie(r))
+		if err != nil {
+			log.Println("VotePost: GetUserIDByUsername: ", err)
+			app.clientError(w, http.StatusBadRequest)
+			return
+		}
+	}
+
 	app.render(w, r, "post.page.html", &templateData{
 		IsSession: isSession(r),
+		User:      domain.User{ID: userID},
 		Post:      post,
 		Comments:  comments,
-		Votes:     votes,
 	})
 }
 
@@ -112,7 +115,7 @@ func (app *Handler) votePost(w http.ResponseWriter, r *http.Request) {
 	}
 	userID, err := app.UserUsecase.GetUserIDByUsername(getUserNameByCookie(r))
 	if err != nil {
-		log.Println("VotePost:", err)
+		log.Println("VotePost: GetUserIDByUsername: ", err)
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
