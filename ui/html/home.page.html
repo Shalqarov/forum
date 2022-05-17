@@ -2,6 +2,7 @@
 
 
 {{define "main"}}
+{{ if .Posts }}
 {{range .Posts}}
 <div style="margin-top: 20px;" class="row">
     <div class="col s6 offset-s3">
@@ -13,6 +14,14 @@
                 
             </div>
         </div>
+    </div>
+</div>
+{{end}}
+{{ else }}
+<div style="margin-top: 20px;" class="row">
+    <div class="col s6 offset-s3">
+        <h5 class="center-align"><i class="material-icons large">grid_off</i></h5>
+        <h5 class="center-align">No Posts Yet</h5>
     </div>
 </div>
 {{end}}
