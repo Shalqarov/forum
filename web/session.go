@@ -74,11 +74,11 @@ func isSession(r *http.Request) bool {
 func getUserIDByCookie(r *http.Request) (int64, error) {
 	c, err := r.Cookie(cookieName)
 	if err != nil {
-		return "", nil
+		return 0, nil
 	}
 	value, ok := cookie.Load(c.Value)
 	if !ok {
-		return "", fmt.Errorf("getUserIDByCookie: cannot load value from cookie store")
+		return 0, fmt.Errorf("getUserIDByCookie: cannot load value from cookie store")
 	}
 	userID := value.(int64)
 	return userID, nil
