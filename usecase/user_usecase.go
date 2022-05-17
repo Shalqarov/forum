@@ -15,10 +15,10 @@ func NewUserUsecase(userRepo domain.UserRepo) domain.UserUsecase {
 	}
 }
 
-func (u *userUsecase) CreateUser(user *domain.User) error {
+func (u *userUsecase) CreateUser(user *domain.User) (int64, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	user.Password = string(hashedPassword)
 	return u.repo.CreateUser(user)

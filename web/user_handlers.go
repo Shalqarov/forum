@@ -63,7 +63,7 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err := app.UserUsecase.CreateUser(&user)
+		userID, err := app.UserUsecase.CreateUser(&user)
 		if err != nil {
 			if strings.Contains(err.Error(), "UNIQUE") {
 				app.render(w, r, "register.page.html", &templateData{
@@ -77,7 +77,7 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
-		addCookie(w, r, user.Username)
+		addCookie(w, r, userID)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	default:
 		app.clientError(w, http.StatusMethodNotAllowed)
@@ -115,7 +115,7 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		addCookie(w, r, user.Username)
+		addCookie(w, r, user.ID)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 
 	default:

@@ -20,14 +20,14 @@ type duration struct {
 
 var sessionDuration = duration{expiry: make(map[interface{}]time.Time)}
 
-func addCookie(w http.ResponseWriter, r *http.Request, login string) {
+func addCookie(w http.ResponseWriter, r *http.Request, id int64) {
 	sessionDuration.mu.Lock()
 	defer sessionDuration.mu.Unlock()
 
 	u := uuid.NewV4().String()
-	deleteExistingCookie(login, u)
+	deleteExistingCookie(id, u)
 
-	cookie.Store(u, login)
+	cookie.Store(u, id)
 	expire := time.Now().AddDate(0, 0, 1)
 	sessionDuration.expiry[u] = expire
 
@@ -53,9 +53,9 @@ func deleteCookie(w http.ResponseWriter, r *http.Request) {
 	cookie.Delete(c.Value)
 }
 
-func deleteExistingCookie(login, uuid string) {
+func deleteExistingCookie(id int64, uuid string) {
 	cookie.Range(func(key, value interface{}) bool {
-		if login == fmt.Sprint(value) {
+		if id == value.(int64) {
 			cookie.Delete(key)
 		}
 		return true
@@ -71,11 +71,17 @@ func isSession(r *http.Request) bool {
 	return ok
 }
 
-func getUserNameByCookie(r *http.Request) string {
-	c, _ := r.Cookie(cookieName)
-	value, _ := cookie.Load(c.Value)
-	userName := fmt.Sprint(value)
-	return userName
+func getUserIDByCookie(r *http.Request) (int64, error) {
+	c, err := r.Cookie(cookieName)
+	if err != nil {
+		return "", nil
+	}
+	value, ok := cookie.Load(c.Value)
+	if !ok {
+		return "", fmt.Errorf("getUserIDByCookie: cannot load value from cookie store")
+	}
+	userID := value.(int64)
+	return userID, nil
 }
 
 func ExpiredSessionsDeletion() {

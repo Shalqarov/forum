@@ -15,15 +15,18 @@ func NewSqliteUserRepo(db *sql.DB) domain.UserRepo {
 	return &sqliteRepo{db: db}
 }
 
-func (u *sqliteRepo) CreateUser(user *domain.User) error {
+func (u *sqliteRepo) CreateUser(user *domain.User) (int64, error) {
 	stmt := `INSERT INTO "user"(
 		"username",
 		"email",
 		"password"
 	) VALUES (?, ?, ?)`
-	_, err := u.db.Exec(stmt, user.Username, user.Email, user.Password)
+	id, err := u.db.Exec(stmt, user.Username, user.Email, user.Password)
+	if err != nil {
+		return 0, err
+	}
 
-	return err
+	return id.LastInsertId()
 }
 
 func (u *sqliteRepo) GetUserIDByUsername(username string) (int64, error) {
