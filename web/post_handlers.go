@@ -21,7 +21,7 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := app.UserUsecase.GetUserIDByUsername(getUserNameByCookie(r))
+	userID, err := getUserIDByCookie(r)
 	if err != nil {
 		if errors.Is(err, http.ErrNoCookie) {
 			app.clientError(w, http.StatusUnauthorized)
@@ -75,7 +75,7 @@ func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 	}
 	var userID int64 = 0
 	if isSession(r) {
-		userID, err = app.UserUsecase.GetUserIDByUsername(getUserNameByCookie(r))
+		userID, err = getUserIDByCookie(r)
 		if err != nil {
 			log.Println("VotePost: GetUserIDByUsername: ", err)
 			app.clientError(w, http.StatusBadRequest)
@@ -113,7 +113,7 @@ func (app *Handler) votePost(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	userID, err := app.UserUsecase.GetUserIDByUsername(getUserNameByCookie(r))
+	userID, err := getUserIDByCookie(r)
 	if err != nil {
 		log.Println("VotePost: GetUserIDByUsername: ", err)
 		app.clientError(w, http.StatusBadRequest)
@@ -156,7 +156,7 @@ func (app *Handler) voteComment(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	userID, err := app.UserUsecase.GetUserIDByUsername(getUserNameByCookie(r))
+	userID, err := getUserIDByCookie(r)
 	if err != nil {
 		log.Println("voteComment: GetUserIDByUsername: ", err)
 		app.clientError(w, http.StatusBadRequest)
@@ -186,10 +186,14 @@ func (app *Handler) createComment(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	userName := getUserNameByCookie(r)
-	userID, err := app.UserUsecase.GetUserIDByUsername(userName)
+	userID, err := getUserIDByCookie(r)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	user, err := app.UserUsecase.GetUserByID(userID)
+	if err != nil {
+		app.clientError(w, http.StatusInternalServerError)
 		return
 	}
 	comment := r.FormValue("comment")
@@ -200,7 +204,7 @@ func (app *Handler) createComment(w http.ResponseWriter, r *http.Request) {
 	comm := &domain.Comment{
 		UserID:  userID,
 		PostID:  postID,
-		Author:  userName,
+		Author:  user.Username,
 		Content: comment,
 	}
 	app.CommentUsecase.CreateComment(comm)
