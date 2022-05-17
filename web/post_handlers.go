@@ -85,9 +85,39 @@ func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 
 	app.render(w, r, "post.page.html", &templateData{
 		IsSession: isSession(r),
-		User:      domain.User{ID: userID},
+		User:      &domain.User{ID: userID},
 		Post:      post,
 		Comments:  comments,
+	})
+}
+
+func (app *Handler) postCategory(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		app.clientError(w, http.StatusMethodNotAllowed)
+		return
+	}
+	user := &domain.User{}
+	if isSession(r) {
+		userID, err := getUserIDByCookie(r)
+		if err != nil {
+			log.Println("postCategory: getUserIDByCookie: ", err)
+			app.clientError(w, http.StatusBadRequest)
+			return
+		}
+		user.ID = userID
+	}
+	category := r.URL.Query().Get("category")
+	posts, err := app.PostUsecase.GetPostsByCategory(category)
+	if err != nil {
+		log.Println("postCategory: GetPostsByCategory: ", err)
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	app.render(w, r, "home.page.html", &templateData{
+		IsSession: isSession(r),
+		User:      user,
+		Posts:     posts,
 	})
 }
 

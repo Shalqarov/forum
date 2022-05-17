@@ -8,7 +8,7 @@ import (
 )
 
 type templateData struct {
-	User      models.User
+	User      *models.User
 	Error     string
 	IsSession bool
 	Post      *models.Post

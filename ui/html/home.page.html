@@ -6,12 +6,15 @@
 {{range .Posts}}
 <div style="margin-top: 20px;" class="row">
     <div class="col s6 offset-s3">
-        <div  class="card hoverable ">
+        <div class="card hoverable ">
             <div style="cursor: pointer;" onclick="location.href='/post?id={{.ID}}';" class="card-content">
                 <span class="card-title">{{.Title}}</span>
                 <label for="category">Category</label>
-                <p id="category">{{.Category}}</p>
-                
+                <form action="/category?category={{.Category}}" method="POST">
+                    <button style="text-transform: none;" id="category" type="submit" class="btn-flat blue-text">
+                            {{.Category}}
+                    </button>
+                </form>
             </div>
         </div>
     </div>

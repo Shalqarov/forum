@@ -37,8 +37,24 @@ func (u *postUsecase) GetPostByID(id int64) (*domain.Post, error) {
 	return post, nil
 }
 
-func (u *postUsecase) GetPostsByCategory(category string) ([]*domain.Post, error) {
-	return nil, nil
+func (u *postUsecase) GetPostsByCategory(category string) ([]*domain.PostDTO, error) {
+	if !containsCategory(category) {
+		return nil, fmt.Errorf("postCategory: entered category doesn't exists")
+	}
+	return u.repo.GetPostsByCategory(category)
+}
+
+var categories = map[string]bool{
+	"alem":     true,
+	"Study":    true,
+	"Teamalem": true,
+	"Linkedin": true,
+	"Offtop":   true,
+}
+
+func containsCategory(category string) bool {
+	_, ok := categories[category]
+	return ok
 }
 
 func (u *postUsecase) GetAllPosts() ([]*domain.PostDTO, error) {

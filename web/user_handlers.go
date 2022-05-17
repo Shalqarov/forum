@@ -34,7 +34,7 @@ func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 
 	app.render(w, r, "profile.page.html", &templateData{
 		IsSession: isSession(r),
-		User:      *user,
+		User:      user,
 		Posts:     posts,
 	})
 }

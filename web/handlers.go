@@ -24,10 +24,11 @@ func NewHandler(r *http.ServeMux, h *Handler) {
 	r.HandleFunc("/logout", h.logout)
 	r.HandleFunc("/profile", h.profile)
 	r.HandleFunc("/createpost", h.createPost)
-	r.HandleFunc("/post/createcomment", h.createComment)
-	r.HandleFunc("/post/vote", h.votePost)
-	r.HandleFunc("/post/votecomment", h.voteComment)
 	r.HandleFunc("/post", h.postPage)
+	r.HandleFunc("/post/vote", h.votePost)
+	r.HandleFunc("/post/createcomment", h.createComment)
+	r.HandleFunc("/post/votecomment", h.voteComment)
+	r.HandleFunc("/category", h.postCategory)
 	fileServer := http.FileServer(http.Dir("./ui/static"))
 	r.Handle("/static", http.NotFoundHandler())
 	r.Handle("/static/", http.StripPrefix("/static", fileServer))
@@ -43,7 +44,7 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
-	user := domain.User{}
+	user := &domain.User{}
 	if isSession(r) {
 		userID, err := getUserIDByCookie(r)
 		if err != nil {
