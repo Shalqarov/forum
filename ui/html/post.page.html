@@ -59,7 +59,7 @@
         </div>
         <div class="row">
             <div class="col">
-                <form action="/post/votecomment?id={{.ID }}&vote=1" method="POST">
+                <form action="/post/votecomment?id={{.PostID }}&vote=1&comm={{.ID}}" method="POST">
                     <button class="waves-effect waves-teal btn-flat" id="like" type="submit"><i
                             class="material-icons small">thumb_up</i></button>
                     
@@ -67,7 +67,7 @@
                 <label  for="like"><p class="center-align">{{ .Votes.Like }}</p></label>
             </div>
             <div class="col">
-                <form action="/post/votecomment?id={{.ID }}&vote=-1" method="POST">
+                <form action="/post/votecomment?id={{.PostID }}&vote=-1&comm={{.ID}}" method="POST">
                     <button class="waves-effect waves-red btn-flat" id="dislike" type="submit"><i
                             class="material-icons small">thumb_down</i></button>
                 </form>

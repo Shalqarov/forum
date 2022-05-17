@@ -138,13 +138,19 @@ func (app *Handler) voteComment(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/signin", http.StatusSeeOther)
 		return
 	}
+	postID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	if err != nil {
+		log.Println("voteComment:", err)
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 	vote, err := strconv.ParseInt(r.URL.Query().Get("vote"), 10, 64)
 	if err != nil || vote != 1 && vote != -1 {
 		log.Println("voteComment:", err)
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	commentID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	commentID, err := strconv.ParseInt(r.URL.Query().Get("comm"), 10, 64)
 	if err != nil || vote != 1 && vote != -1 {
 		log.Println("voteComment:", err)
 		app.clientError(w, http.StatusBadRequest)
