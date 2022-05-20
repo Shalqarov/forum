@@ -23,6 +23,7 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 			app.clientError(w, http.StatusUnauthorized)
 			return
 		}
+		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
 		app.clientError(w, http.StatusInternalServerError)
 		return
 	}
@@ -47,7 +48,7 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 	}
 	err = app.PostUsecase.CreatePost(postInfo)
 	if err != nil {
-		log.Printf("CreatePost: %s", err.Error())
+		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
