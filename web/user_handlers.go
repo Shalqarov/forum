@@ -25,7 +25,7 @@ func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusNotFound)
 		return
 	}
-	posts, err := app.PostUsecase.GetAllPostsByUserID(user.ID)
+	posts, err := app.PostUsecase.GetPostsByUserID(user.ID)
 	if err != nil {
 		log.Printf("profile: %s", err.Error())
 		app.clientError(w, http.StatusBadRequest)

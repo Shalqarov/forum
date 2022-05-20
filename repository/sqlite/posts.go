@@ -25,7 +25,7 @@ func (u *sqliteRepo) CreatePost(post *domain.Post) error {
 	return err
 }
 
-func (u *sqliteRepo) GetAllPostsByUserID(id int64) ([]*domain.PostDTO, error) {
+func (u *sqliteRepo) GetPostsByUserID(id int64) ([]*domain.PostDTO, error) {
 	stmt := `SELECT "id","title","category","date" FROM "post" WHERE "user_id" = ? ORDER BY "id" DESC`
 	rows, err := u.db.Query(stmt, id)
 	if err != nil {
