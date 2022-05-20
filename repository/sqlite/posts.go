@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
@@ -22,7 +23,8 @@ func (u *sqliteRepo) CreatePost(post *domain.Post) error {
 		"date"
 		) VALUES(?,?,?,?,?,?)`
 	_, err := u.db.Exec(stmt, post.UserID, post.Author, post.Title, post.Content, post.Category, time.Now().Format(time.RFC822))
-	return err
+	fmt.Println(err)
+	return fmt.Errorf("Ошабка")
 }
 
 func (u *sqliteRepo) GetPostsByUserID(id int64) ([]*domain.PostDTO, error) {

@@ -54,6 +54,7 @@ func main() {
 		PostUsecase:    postUsecase,
 		CommentUsecase: commUsecase,
 		TemplateCache:  templateCache,
+		ErrorLog:       errorLog,
 	})
 
 	srv := &http.Server{

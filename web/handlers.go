@@ -49,7 +49,7 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 	if isSession(r) {
 		userID, err := getUserIDByCookie(r)
 		if err != nil {
-			log.Printf("home: GetUserIDByUsername: %s", err.Error())
+			log.Printf("HANDLERS: home(): %s", err.Error())
 			app.clientError(w, http.StatusInternalServerError)
 			return
 		}

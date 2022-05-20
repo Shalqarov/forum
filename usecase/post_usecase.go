@@ -20,8 +20,8 @@ func (u *postUsecase) CreatePost(post *domain.Post) error {
 	return u.repo.CreatePost(post)
 }
 
-func (u *postUsecase) GetAllPostsByUserID(id int64) ([]*domain.PostDTO, error) {
-	return u.repo.GetAllPostsByUserID(id)
+func (u *postUsecase) GetPostsByUserID(id int64) ([]*domain.PostDTO, error) {
+	return u.repo.GetPostsByUserID(id)
 }
 
 func (u *postUsecase) GetPostByID(id int64) (*domain.Post, error) {
