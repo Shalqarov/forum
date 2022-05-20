@@ -36,6 +36,10 @@ func NewTemplateCache(dir string) (map[string]*template.Template, error) {
 		if err != nil {
 			return nil, err
 		}
+		ts, err = ts.ParseGlob(filepath.Join(dir, "*.partial.html"))
+		if err != nil {
+			return nil, err
+		}
 
 		cache[name] = ts
 	}

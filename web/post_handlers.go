@@ -16,10 +16,6 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/signin", http.StatusSeeOther)
 		return
 	}
-	if r.Method != http.MethodPost {
-		app.render(w, r, "createpost.page.html", &templateData{})
-		return
-	}
 
 	userID, err := getUserIDByCookie(r)
 	if err != nil {
@@ -28,6 +24,14 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		app.clientError(w, http.StatusInternalServerError)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		app.render(w, r, "createpost.page.html", &templateData{
+			User:      &domain.User{ID: userID},
+			IsSession: isSession(r),
+		})
 		return
 	}
 
@@ -92,11 +96,6 @@ func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Handler) postCategory(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
 	user := &domain.User{}
 	if isSession(r) {
 		userID, err := getUserIDByCookie(r)
@@ -109,6 +108,7 @@ func (app *Handler) postCategory(w http.ResponseWriter, r *http.Request) {
 	}
 	category := r.URL.Query().Get("category")
 	posts, err := app.PostUsecase.GetPostsByCategory(category)
+	fmt.Println(category)
 	if err != nil {
 		log.Println("postCategory: GetPostsByCategory: ", err)
 		app.clientError(w, http.StatusBadRequest)
@@ -117,6 +117,30 @@ func (app *Handler) postCategory(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "home.page.html", &templateData{
 		IsSession: isSession(r),
 		User:      user,
+		Posts:     posts,
+	})
+}
+
+func (app *Handler) likedPosts(w http.ResponseWriter, r *http.Request) {
+	if !isSession(r) {
+		http.Redirect(w, r, "/signin", http.StatusSeeOther)
+		return
+	}
+	userID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	if err != nil {
+		log.Println("likedPosts(): ", err)
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	posts, err := app.PostUsecase.GetVotedPostsByUserID(userID)
+	if err != nil {
+		log.Println("HANDLER: likedPosts():", err)
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	app.render(w, r, "home.page.html", &templateData{
+		IsSession: isSession(r),
+		User:      &domain.User{ID: userID},
 		Posts:     posts,
 	})
 }

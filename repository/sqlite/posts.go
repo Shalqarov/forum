@@ -107,6 +107,19 @@ func (u *sqliteRepo) VotePost(postID, userID int64, vote int) error {
 	return nil
 }
 
+func (u *sqliteRepo) GetVotedPostsByUserID(userID int64) ([]*domain.PostDTO, error) {
+	stmt := `SELECT p."id","author","title","category","date" 
+				FROM "post" AS p
+				INNER JOIN "post_votes" AS v ON p."id"=v."post_id"	
+				WHERE p."user_id"=? AND v."vote"=1`
+	rows, err := u.db.Query(stmt, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	return scanPostDTORows(rows)
+}
+
 func (u *sqliteRepo) GetVotesCountByPostID(postID int64) (*domain.Vote, error) {
 	stmt := `SELECT "vote", count("vote") FROM "post_votes"
 			WHERE post_id = ? 

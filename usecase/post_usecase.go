@@ -68,6 +68,10 @@ func (u *postUsecase) VotePost(postID, userID int64, vote int) error {
 	return u.repo.VotePost(postID, userID, vote)
 }
 
+func (u *postUsecase) GetVotedPostsByUserID(userID int64) ([]*domain.PostDTO, error) {
+	return u.repo.GetVotedPostsByUserID(userID)
+}
+
 func (u *postUsecase) GetVotesCountByPostID(postID int64) (*domain.Vote, error) {
 	return u.repo.GetVotesCountByPostID(postID)
 }

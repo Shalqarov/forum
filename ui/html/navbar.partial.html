@@ -1,0 +1,61 @@
+{{ define "navbar" }}
+<div class="navbar-fixed">
+
+    <nav class="light-blue darken-4">
+        <div class="container">
+            <div class="nav-wrapper light-blue darken-4">
+                <a href="/" class="brand-logo">FORUM</a>
+                <a href="#" data-target="mobile-demo" class="sidenav-trigger right"><i
+                        class="material-icons">menu</i></a>
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    {{ if eq .IsSession false}}
+                    <li><a href="#modal1" class="modal-trigger"><i class="material-icons left">filter_list</i>Filter</a></li>
+                    <li><a href="/signup"><i class="material-icons left">group_add</i>signup</a></li>
+                    <li><a href="/signin"><i class="material-icons left">login</i>signin</a></li>
+                    {{ else }}
+                    <li><a href="#modal1" class="modal-trigger"><i class="material-icons left">filter_list</i>Filter</a></li>
+                    <li><a href="/createpost"><i class="material-icons left">border_color</i>Create Post</a></li>
+                    <li><a href="/profile?id={{.User.ID}}"><i class="material-icons left">account_circle</i>profile</a>
+                    </li>
+                    <li><a href="/logout"><i class="material-icons left">logout</i>logout</a></li>
+                    {{end}}
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+<div id="modal1" class="modal">
+    <div class="modal-content">
+        <h4>Filter by:</h4>
+        <div class="collection">
+            <a href="/filter/category?category=alem" class="collection-item">alem</a>
+            <a href="/filter/category?category=Study" class="collection-item">Study</a>
+            <a href="/filter/category?category=Teamalem" class="collection-item">Teamalem</a>
+            <a href="/filter/category?category=Linkedin" class="collection-item">Linkedin</a>
+            <a href="/filter/category?category=Offtop" class="collection-item">Offtop</a>
+        </div>
+        {{ if ne .IsSession false}}
+        <div class="divider"></div>
+        <div class="collection">
+            <a href="/filter/likedposts?id={{.User.ID}}" class="collection-item">Liked posts</a>
+        </div>
+        {{end}}
+
+    </div>
+    <div class="modal-footer">
+        <a class="modal-close waves-effect"><i class="material-icons">close</i></a>
+    </div>
+</div>
+<ul class="sidenav" id="mobile-demo">
+    {{ if eq .IsSession false}}
+    <li><a href="/signup"><i class="material-icons left">group_add</i>signup</a></li>
+    <li><a href="/signin"><i class="material-icons left">login</i>signin</a></li>
+    {{ else }}
+    <li><a href="/createpost"><i class="material-icons left">border_color</i>Create Post</a></li>
+    <li><a href="/profile?id={{.User.ID}}"><i class="material-icons left">account_circle</i>profile</a>
+    </li>
+    <li><a href="/logout"><i class="material-icons left">logout</i>logout</a></li>
+    {{end}}
+</ul>
+
+{{ end }}

@@ -2,7 +2,7 @@
 
 
 {{define "main"}}
-<div style="margin-top: 20px;" class="row">
+<div style="margin-top: 20px;" class="row z-depth-1">
     <div class="col s12 grey lighten-3">
         <h3>{{.Post.Title}}</h3>
         <p class="flow-text">{{.Post.Content}}</p>
@@ -54,7 +54,7 @@
     </div>
 </div>
 {{ range .Comments }}
-<div class="row">
+<div class="row z-depth-1" >
     <div class="col col s12 grey lighten-3">
         <a href="/profile?id={{.UserID}}">{{.Author}}</a>
         <label for="date">{{.Date}}</label>
