@@ -74,7 +74,7 @@ func isSession(r *http.Request) bool {
 func getUserIDByCookie(r *http.Request) (int64, error) {
 	c, err := r.Cookie(cookieName)
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
 	value, ok := cookie.Load(c.Value)
 	if !ok {
