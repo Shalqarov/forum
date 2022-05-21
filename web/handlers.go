@@ -1,6 +1,7 @@
 package web
 
 import (
+	"database/sql"
 	"html/template"
 	"log"
 	"net/http"
@@ -49,7 +50,11 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 	if isSession(r) {
 		userID, err := getUserIDByCookie(r)
 		if err != nil {
-			log.Printf("HANDLERS: home(): %s", err.Error())
+			if err == http.ErrNoCookie {
+				app.clientError(w, http.StatusUnauthorized)
+				return
+			}
+			app.ErrorLog.Printf("HANDLERS: home(): %s", err.Error())
 			app.clientError(w, http.StatusInternalServerError)
 			return
 		}
@@ -57,7 +62,9 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 	}
 	posts, err := app.PostUsecase.GetAllPosts()
 	if err != nil {
-		log.Println(err)
+		if err != sql.ErrNoRows {
+			app.ErrorLog.Println(err)
+		}
 	}
 	app.render(w, r, "home.page.html", &templateData{
 		IsSession: isSession(r),

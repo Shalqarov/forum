@@ -46,10 +46,10 @@ func (u *sqliteRepo) GetCommentsByPostID(id int64) ([]*domain.Comment, error) {
 func (u *sqliteRepo) VoteComment(commentID, userID int64, vote int) error {
 	stmtSelect := `SELECT "id","vote" FROM "comment_votes" WHERE user_id = ? AND comment_id = ?`
 	stmtExec := `INSERT INTO "comment_votes"(
-					"user_id",
-					"comment_id",
-					"vote")
-					VALUES (?,?,?)`
+		"user_id",
+		"comment_id",
+		"vote")
+		VALUES (?,?,?)`
 	stmtDelete := `DELETE FROM "comment_votes" WHERE "id" = ?`
 	var voteID int64
 	var voteInDB int
@@ -78,9 +78,9 @@ func (u *sqliteRepo) VoteComment(commentID, userID int64, vote int) error {
 
 func (u *sqliteRepo) GetVotesCountByCommentID(commentID int64) (*domain.Vote, error) {
 	stmt := `SELECT "vote", count("vote") FROM "comment_votes"
-			WHERE comment_id = ? 
-			GROUP BY "vote"
-			ORDER BY "vote" desc`
+		WHERE comment_id = ? 
+		GROUP BY "vote"
+		ORDER BY "vote" desc`
 	rows, err := u.db.Query(stmt, commentID)
 	if err != nil {
 		return nil, err

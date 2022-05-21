@@ -1,7 +1,6 @@
 package web
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -22,12 +21,13 @@ func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := app.UserUsecase.GetUserByID(userID)
 	if err != nil {
-		app.clientError(w, http.StatusNotFound)
+		app.ErrorLog.Printf("HANDLERS: profile(): %s", err.Error())
+		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 	posts, err := app.PostUsecase.GetPostsByUserID(user.ID)
 	if err != nil {
-		log.Printf("profile: %s", err.Error())
+		app.ErrorLog.Printf("HANDLERS: profile(): %s", err.Error())
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -56,10 +56,7 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if strings.TrimSpace(user.Email) == "" || strings.TrimSpace(user.Password) == "" || strings.TrimSpace(user.Username) == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			app.render(w, r, "register.page.html", &templateData{
-				Error: "incorrect input",
-			})
+			app.clientError(w, http.StatusBadRequest)
 			return
 		}
 
@@ -72,9 +69,6 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			w.WriteHeader(http.StatusBadRequest)
-			app.render(w, r, "register.page.html", &templateData{
-				Error: "bad request",
-			})
 			return
 		}
 		addCookie(w, r, userID)
@@ -86,10 +80,6 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/signin" {
-		app.notFound(w)
-		return
-	}
 	switch r.Method {
 	case http.MethodGet:
 		app.render(w, r, "login.page.html", &templateData{})
