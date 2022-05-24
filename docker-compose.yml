@@ -4,8 +4,9 @@ services:
     container_name: web-app
     build: .
     ports:
-      - 8080:5000
+      - "8080:5000"
     volumes:
-      -forum:/app/repository/sqlite
+      - web-app:/app/repository/sqlite
+
 volumes:
-  forum:
+  web-app:
