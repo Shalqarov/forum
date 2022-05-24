@@ -1,0 +1,12 @@
+version: "3"
+services:
+  app:
+    container_name: web-app
+    build: .
+    ports:
+      - "8080:5000"
+    volumes:
+      - web-app:/app/repository/sqlite
+
+volumes:
+  web-app:

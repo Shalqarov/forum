@@ -7,7 +7,7 @@ import (
 )
 
 func OpenDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", dsn)
+	db, err := sql.Open("sqlite3", fmt.Sprintf("./repository/sqlite/%s", dsn))
 	if err != nil {
 		return nil, err
 	}
