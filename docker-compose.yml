@@ -5,3 +5,7 @@ services:
     build: .
     ports:
       - 8080:5000
+    volumes:
+      -forum:/app/repository/sqlite
+volumes:
+  forum:
