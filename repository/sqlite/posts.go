@@ -11,16 +11,18 @@ func NewSqlitePostRepo(db *sql.DB) domain.PostRepo {
 	return &sqliteRepo{db: db}
 }
 
+const queryCreatePost = `
+	INSERT INTO "post"(
+	"user_id",
+	"author",
+	"title",
+	"content",
+	"category",
+	"date"
+	) VALUES(?,?,?,?,?,?)`
+
 func (u *sqliteRepo) CreatePost(post *domain.Post) error {
-	stmt := `INSERT INTO "post"(
-		"user_id",
-		"author",
-		"title",
-		"content",
-		"category",
-		"date"
-		) VALUES(?,?,?,?,?,?)`
-	_, ok := u.db.Exec(stmt, post.UserID, post.Author, post.Title, post.Content, post.Category, time.Now().Format(time.RFC822))
+	_, ok := u.db.Exec(queryCreatePost, post.UserID, post.Author, post.Title, post.Content, post.Category, time.Now().Format(time.RFC822))
 	return ok
 }
 
