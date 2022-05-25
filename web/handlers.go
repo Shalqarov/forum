@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Shalqarov/forum/domain"
+	"github.com/Shalqarov/forum/internal/domain"
 )
 
 type Handler struct {

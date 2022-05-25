@@ -3,7 +3,7 @@ package usecase
 import (
 	"fmt"
 
-	"github.com/Shalqarov/forum/domain"
+	"github.com/Shalqarov/forum/internal/domain"
 )
 
 type postUsecase struct {

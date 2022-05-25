@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/Shalqarov/forum/domain"
+	"github.com/Shalqarov/forum/internal/domain"
 	"github.com/stretchr/testify/assert"
 )
 

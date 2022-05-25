@@ -7,7 +7,7 @@ import (
 )
 
 func OpenDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", fmt.Sprintf("./repository/sqlite/%s", dsn))
+	db, err := sql.Open("sqlite3", fmt.Sprintf("./internal/repository/sqlite/%s", dsn))
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func OpenDB(dsn string) (*sql.DB, error) {
 }
 
 func setup(db *sql.DB) error {
-	query, err := ioutil.ReadFile("./repository/sqlite/setup.sql")
+	query, err := ioutil.ReadFile("./internal/repository/sqlite/setup.sql")
 	if err != nil {
 		return fmt.Errorf("setup: %s", err)
 	}

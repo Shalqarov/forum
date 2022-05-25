@@ -3,7 +3,7 @@ package sqlite
 import (
 	"database/sql"
 
-	"github.com/Shalqarov/forum/domain"
+	"github.com/Shalqarov/forum/internal/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 

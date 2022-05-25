@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/Shalqarov/forum/domain"
+	"github.com/Shalqarov/forum/internal/domain"
 )
 
 type commentUsecase struct {
