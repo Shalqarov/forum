@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var correctPost = &domain.Post{
+var post = &domain.Post{
 	ID:        111,
 	UserID:    222,
 	Author:    "mangomango",
@@ -23,6 +23,19 @@ var correctPost = &domain.Post{
 		Like:    50,
 		Dislike: 50,
 	},
+}
+
+func TestGetPostsByUserID(t *testing.T) {
+	db, mock := NewMock()
+	repo := NewSqlitePostRepo(db)
+	query := queryGetPostsByUserID
+	rows := sqlmock.NewRows([]string{"id", "title", "category", "date"}).AddRow(post.ID, post.Title, post.Category, time.Now().Format(time.RFC822))
+
+	mock.ExpectQuery(query).WithArgs(post.UserID).WillReturnRows(rows)
+
+	posts, err := repo.GetPostsByUserID(post.UserID)
+	assert.NotNil(t, posts)
+	assert.NoError(t, err)
 }
 
 func NewMock() (*sql.DB, sqlmock.Sqlmock) {
@@ -38,9 +51,9 @@ func TestCreatePost(t *testing.T) {
 	repo := NewSqlitePostRepo(db)
 	query := queryCreatePost
 
-	mock.ExpectExec(query).WithArgs(correctPost.UserID, correctPost.Author, correctPost.Title, correctPost.Content, correctPost.Category, time.Now().Format(time.RFC822)).WillReturnResult(sqlmock.NewResult(111, 1))
+	mock.ExpectExec(query).WithArgs(post.UserID, post.Author, post.Title, post.Content, post.Category, time.Now().Format(time.RFC822)).WillReturnResult(sqlmock.NewResult(111, 1))
 
-	id, err := repo.CreatePost(correctPost)
+	id, err := repo.CreatePost(post)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(111), id)
 }

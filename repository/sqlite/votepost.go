@@ -7,33 +7,55 @@ import (
 	"github.com/Shalqarov/forum/domain"
 )
 
+const (
+	queryVotePostSelect = `
+	SELECT "id","vote" 
+	FROM "post_votes" 
+	WHERE user_id = ? AND post_id = ?`
+	queryVotePostExec = `
+	INSERT INTO "post_votes"(
+		"user_id",
+		"post_id",
+		"vote")
+	VALUES (?,?,?)`
+	queryVotePostDelete = `
+	DELETE FROM "post_votes" 
+	WHERE "id" = ?`
+
+	queryGetVotedPostsByUserID = `
+	SELECT p."id","author","title","category","date" 
+	FROM "post" AS p
+	INNER JOIN "post_votes" AS v ON p."id"=v."post_id"	
+	WHERE p."user_id"=? AND v."vote"=1`
+
+	queryGetVotesCountByPostID = `
+	SELECT "vote", count("vote") 
+	FROM "post_votes"
+	WHERE post_id = ? 
+	GROUP BY "vote"
+	ORDER BY "vote" desc`
+)
+
 func (u *sqliteRepo) VotePost(postID, userID int64, vote int) error {
-	stmtSelect := `SELECT "id","vote" FROM "post_votes" WHERE user_id = ? AND post_id = ?`
-	stmtExec := `INSERT INTO "post_votes"(
-					"user_id",
-					"post_id",
-					"vote")
-					VALUES (?,?,?)`
-	stmtDelete := `DELETE FROM "post_votes" WHERE "id" = ?`
 	var voteID int64
 	var voteInDB int
-	row := u.db.QueryRow(stmtSelect, userID, postID)
+	row := u.db.QueryRow(queryVotePostSelect, userID, postID)
 	err := row.Scan(&voteID, &voteInDB)
 	if err == sql.ErrNoRows {
-		_, err := u.db.Exec(stmtExec, userID, postID, vote)
+		_, err := u.db.Exec(queryVotePostExec, userID, postID, vote)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	_, err = u.db.Exec(stmtDelete, voteID)
+	_, err = u.db.Exec(queryVotePostDelete, voteID)
 	if err != nil {
 		return err
 	}
 	if vote == voteInDB {
 		return nil
 	}
-	_, err = u.db.Exec(stmtExec, userID, postID, vote)
+	_, err = u.db.Exec(queryVotePostExec, userID, postID, vote)
 	if err != nil {
 		return err
 	}
@@ -41,11 +63,7 @@ func (u *sqliteRepo) VotePost(postID, userID int64, vote int) error {
 }
 
 func (u *sqliteRepo) GetVotedPostsByUserID(userID int64) ([]*domain.PostDTO, error) {
-	stmt := `SELECT p."id","author","title","category","date" 
-				FROM "post" AS p
-				INNER JOIN "post_votes" AS v ON p."id"=v."post_id"	
-				WHERE p."user_id"=? AND v."vote"=1`
-	rows, err := u.db.Query(stmt, userID)
+	rows, err := u.db.Query(queryGetVotedPostsByUserID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -54,11 +72,7 @@ func (u *sqliteRepo) GetVotedPostsByUserID(userID int64) ([]*domain.PostDTO, err
 }
 
 func (u *sqliteRepo) GetVotesCountByPostID(postID int64) (*domain.Vote, error) {
-	stmt := `SELECT "vote", count("vote") FROM "post_votes"
-			WHERE post_id = ? 
-			GROUP BY "vote"
-			ORDER BY "vote" desc`
-	rows, err := u.db.Query(stmt, postID)
+	rows, err := u.db.Query(queryGetVotesCountByPostID, postID)
 	if err != nil {
 		return nil, err
 	}

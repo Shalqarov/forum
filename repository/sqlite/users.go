@@ -7,6 +7,30 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const (
+	queryCreateUser = `
+	INSERT INTO "user"(
+		"username",
+		"email",
+		"password"
+	) VALUES (?, ?, ?)`
+
+	queryGetUserIDByUsername = `
+	SELECT "id" 
+	FROM "user" 
+	WHERE "username"=?`
+
+	queryGetUserByID = `
+	SELECT * 
+	FROM "user" 
+	WHERE "id"=?`
+
+	queryGetUserByEmail = `
+	SELECT * 
+	FROM "user"
+	WHERE "email"=?`
+)
+
 type sqliteRepo struct {
 	db *sql.DB
 }
@@ -20,12 +44,7 @@ func NewSqliteUserRepo(db *sql.DB) domain.UserRepo {
 }
 
 func (u *sqliteRepo) CreateUser(user *domain.User) (int64, error) {
-	stmt := `INSERT INTO "user"(
-		"username",
-		"email",
-		"password"
-	) VALUES (?, ?, ?)`
-	id, err := u.db.Exec(stmt, user.Username, user.Email, user.Password)
+	id, err := u.db.Exec(queryCreateUser, user.Username, user.Email, user.Password)
 	if err != nil {
 		return 0, err
 	}
@@ -34,9 +53,8 @@ func (u *sqliteRepo) CreateUser(user *domain.User) (int64, error) {
 }
 
 func (u *sqliteRepo) GetUserIDByUsername(username string) (int64, error) {
-	stmt := `SELECT "id" FROM "user" WHERE "username"=?`
 	user := domain.User{}
-	err := u.db.QueryRow(stmt, username).Scan(&user.ID)
+	err := u.db.QueryRow(queryGetUserIDByUsername, username).Scan(&user.ID)
 	if err != nil {
 		return -1, err
 	}
@@ -44,16 +62,14 @@ func (u *sqliteRepo) GetUserIDByUsername(username string) (int64, error) {
 }
 
 func (u *sqliteRepo) GetUserByID(id int64) (*domain.User, error) {
-	stmt := `SELECT * FROM "user" WHERE "id"=?`
 	user := domain.User{}
-	err := u.db.QueryRow(stmt, id).Scan(&user.ID, &user.Username, &user.Email, &user.Password)
+	err := u.db.QueryRow(queryGetUserByID, id).Scan(&user.ID, &user.Username, &user.Email, &user.Password)
 	return &user, err
 }
 
 func (u *sqliteRepo) GetUserByEmail(user *domain.User) (*domain.User, error) {
-	stmt := `SELECT * FROM "user" WHERE "email"=?`
 	searchedUser := domain.User{}
-	err := u.db.QueryRow(stmt, user.Email).Scan(&searchedUser.ID, &searchedUser.Username, &searchedUser.Email, &searchedUser.Password)
+	err := u.db.QueryRow(queryGetUserByEmail, user.Email).Scan(&searchedUser.ID, &searchedUser.Username, &searchedUser.Email, &searchedUser.Password)
 	if err != nil {
 		return nil, err
 	}
