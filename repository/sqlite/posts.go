@@ -21,9 +21,12 @@ const queryCreatePost = `
 	"date"
 	) VALUES(?,?,?,?,?,?)`
 
-func (u *sqliteRepo) CreatePost(post *domain.Post) error {
-	_, ok := u.db.Exec(queryCreatePost, post.UserID, post.Author, post.Title, post.Content, post.Category, time.Now().Format(time.RFC822))
-	return ok
+func (u *sqliteRepo) CreatePost(post *domain.Post) (int64, error) {
+	result, err := u.db.Exec(queryCreatePost, post.UserID, post.Author, post.Title, post.Content, post.Category, time.Now().Format(time.RFC822))
+	if err != nil {
+		return 0, err
+	}
+	return result.LastInsertId()
 }
 
 func (u *sqliteRepo) GetPostsByUserID(id int64) ([]*domain.PostDTO, error) {

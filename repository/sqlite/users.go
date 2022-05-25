@@ -11,6 +11,10 @@ type sqliteRepo struct {
 	db *sql.DB
 }
 
+func (s *sqliteRepo) Close() {
+	s.db.Close()
+}
+
 func NewSqliteUserRepo(db *sql.DB) domain.UserRepo {
 	return &sqliteRepo{db: db}
 }

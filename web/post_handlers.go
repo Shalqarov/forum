@@ -47,7 +47,7 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	err = app.PostUsecase.CreatePost(postInfo)
+	_, err = app.PostUsecase.CreatePost(postInfo)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
 		app.clientError(w, http.StatusBadRequest)

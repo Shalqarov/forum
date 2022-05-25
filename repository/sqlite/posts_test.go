@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var p = &domain.Post{
+var correctPost = &domain.Post{
 	ID:        111,
 	UserID:    222,
 	Author:    "mangomango",
@@ -36,13 +36,11 @@ func NewMock() (*sql.DB, sqlmock.Sqlmock) {
 func TestCreatePost(t *testing.T) {
 	db, mock := NewMock()
 	repo := NewSqlitePostRepo(db)
-	defer func() {
-		db.Close()
-	}()
 	query := queryCreatePost
 
-	mock.ExpectExec(query).WithArgs(p.UserID, p.Author, p.Title, p.Content, p.Category, time.Now().Format(time.RFC822)).WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectExec(query).WithArgs(correctPost.UserID, correctPost.Author, correctPost.Title, correctPost.Content, correctPost.Category, time.Now().Format(time.RFC822)).WillReturnResult(sqlmock.NewResult(111, 1))
 
-	err := repo.CreatePost(p)
+	id, err := repo.CreatePost(correctPost)
 	assert.NoError(t, err)
+	assert.Equal(t, int64(111), id)
 }
