@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	repository "github.com/Shalqarov/forum/repository/sqlite"
-	"github.com/Shalqarov/forum/usecase"
+	repository "github.com/Shalqarov/forum/internal/repository/sqlite"
+	"github.com/Shalqarov/forum/internal/usecase"
 	"github.com/Shalqarov/forum/web"
 	_ "github.com/mattn/go-sqlite3"
 )

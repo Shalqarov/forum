@@ -3,7 +3,7 @@ package usecase
 import (
 	"fmt"
 
-	"github.com/Shalqarov/forum/domain"
+	"github.com/Shalqarov/forum/internal/domain"
 )
 
 type postUsecase struct {
@@ -16,7 +16,7 @@ func NewPostUsecase(postRepo domain.PostRepo) domain.PostUsecase {
 	}
 }
 
-func (u *postUsecase) CreatePost(post *domain.Post) error {
+func (u *postUsecase) CreatePost(post *domain.Post) (int64, error) {
 	return u.repo.CreatePost(post)
 }
 

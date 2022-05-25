@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Shalqarov/forum/domain"
+	"github.com/Shalqarov/forum/internal/domain"
 )
 
 type Handler struct {
@@ -65,6 +65,9 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 		if err != sql.ErrNoRows {
 			app.ErrorLog.Println(err)
 		}
+		app.ErrorLog.Printf("HANDLERS: home(): %s", err.Error())
+		app.clientError(w, http.StatusInternalServerError)
+		return
 	}
 	app.render(w, r, "home.page.html", &templateData{
 		IsSession: isSession(r),
