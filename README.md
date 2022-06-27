@@ -1,4 +1,4 @@
-# forum
+# Forum
 
 <details>
 <summary>Info</summary>
