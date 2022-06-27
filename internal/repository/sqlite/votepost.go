@@ -23,7 +23,7 @@ const (
 	WHERE "id" = ?`
 
 	queryGetVotedPostsByUserID = `
-	SELECT p."id","author","title","category","date" 
+	SELECT p."id",p."user_id","author","title","category","date" 
 	FROM "post" AS p
 	INNER JOIN "post_votes" AS v ON p."id"=v."post_id"	
 	WHERE p."user_id"=? AND v."vote"=1`
@@ -103,7 +103,7 @@ func scanPostDTORows(rows *sql.Rows) ([]*domain.PostDTO, error) {
 	posts := []*domain.PostDTO{}
 	for rows.Next() {
 		post := domain.PostDTO{}
-		err := rows.Scan(&post.ID, &post.Author, &post.Title, &post.Category, &post.CreatedAt)
+		err := rows.Scan(&post.ID, &post.UserID, &post.Author, &post.Title, &post.Category, &post.CreatedAt)
 		if err != nil {
 			return nil, err
 		}

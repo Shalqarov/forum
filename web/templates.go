@@ -8,12 +8,13 @@ import (
 )
 
 type templateData struct {
-	User      *models.User
-	Error     string
-	IsSession bool
-	Post      *models.Post
-	Posts     []*models.PostDTO
-	Comments  []*models.Comment
+	User       *models.User
+	Error      string
+	IsSession  bool
+	Post       *models.Post
+	Posts      []*models.PostDTO
+	Comments   []*models.Comment
+	LikedPosts []*models.PostDTO
 }
 
 func NewTemplateCache(dir string) (map[string]*template.Template, error) {

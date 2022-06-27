@@ -8,9 +8,11 @@
     <div class="col s8 offset-s2">
         <div class="card hoverable ">
             <div style="cursor: pointer;" onclick="location.href='/post?id={{.ID}}';" class="card-content">
-                <span class="card-title">{{.Title}}</span>
+                <span class="card-title truncate">{{.Title}}</span>
                 <label for="category">Category: </label>
-                <a id="category" href="/category?category={{.Category}}">{{.Category}}</a>
+                <a id="category" href="/filter/category?category={{.Category}}">{{.Category}}</a>
+                <label for="user">Created by: </label>
+                <a id="user" href="/profile?id={{.UserID}}">{{.Author}}</a>
             </div>
         </div>
     </div>

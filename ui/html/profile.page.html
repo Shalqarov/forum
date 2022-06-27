@@ -2,20 +2,102 @@
 
 
 {{define "main"}}
-    <p>Username: {{.User.Username}}</p>
-    <p>Email: {{.User.Email}}</p>
+<style>
+    .tabs .tab a {
+        color: #01579b;
+    }
 
-    <p>User posts:</p>
-    {{if .Posts }}
-    {{range .Posts}}
-    <div class="divider z-depth-5"></div>
-        <p>Title: {{.Title}}</p>
-        <p>Category: {{.Category}}</p>
-        <p>Created: {{.CreatedAt}}</p>
-    <div class="divider z-depth-5"></div>
-    <br>
-    {{end}}
-    {{else}} {{.User.Username}} has not created any posts{{end}}
+    .tabs .tab a.active {
+        color: #01579b;
+    }
+
+    .tabs .tab a:hover {
+        color: #01579b;
+    }
+
+    .tabs .tab a:focus {
+        background-color: rgba(0, 255, 0, 0.1);
+    }
+
+    .tabs .tab a:focus.active {
+        background-color: rgba(0, 255, 0, 0.1);
+    }
+
+    .tabs .indicator {
+        background-color: #01579b;
+    }
+</style>
+<div class="row">
+    <div class="col s4">
+        <img style="width: 296px;height: 296px;" class="circle" src="{{.User.Avatar}}" alt="">
+        <p>Username: {{.User.Username}}</p>
+        <p>Email: {{.User.Email}}</p>
+        {{ if .IsSession }}
+        <a href="#modal2" class="modal-trigger btn waves-effect light-blue darken-4">Change avatar</a>
+        <div id="modal2" class="modal">
+            <div class="modal-content">
+                <form action="/profile/upload-avatar" enctype="multipart/form-data" method="POST">
+                    <h4>Change avatar</h4>
+                    <p>required 300pxX300px size</p>
+                    <input type="file" name="avatar" />
+                    <button type="submit" class="btn">submit</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a class="modal-close waves-effect waves-green"><i class="material-icons">close</i></a>
+            </div>
+        </div>
+        {{end}}
+    </div>
+    <div class="col s8">
+        <ul class="tabs">
+            <li class="tab col s6"><a href="#test1">Created posts</a></li>
+            <li class="tab col s6"><a href="#test2">Liked Posts</a></li>
+        </ul>
+        <div id="test1">
+            {{if .Posts }}
+            {{range .Posts}}
+
+            <div id="test1" class="row">
+                <div class="col s8">
+
+                    <div class="card hoverable ">
+                        <div style="cursor: pointer;" onclick="location.href='/post?id={{.ID}}';" class="card-content">
+                            <span class="card-title truncate">{{.Title}}</span>
+                            <label for="category">Category: </label>
+                            <a id="category" href="/filter/category?category={{.Category}}">{{.Category}}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{end}}
+            {{else}} <h5>{{.User.Username}} has not created any posts</h5>{{end}}
+        </div>
+        <div id="test2">
+            {{if .LikedPosts }}
+            {{range .LikedPosts}}
+
+            <div id="test1" class="row">
+                <div class="col s8">
+
+                    <div class="card hoverable ">
+                        <div style="cursor: pointer;" onclick="location.href='/post?id={{.ID}}';" class="card-content">
+                            <span class="card-title truncate">{{.Title}}</span>
+                            <label for="category">Category: </label>
+                            <a id="category" href="/filter/category?category={{.Category}}">{{.Category}}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{end}}
+            {{else}} <h5>{{.User.Username}} has not liked any posts</h5> {{end}}
+        </div>
+
+    </div>
+</div>
+
+<script>
+    var el = document.querySelector('.tabs');
+    var instance = M.Tabs.init(el, {});
+</script>
 {{end}}
-
-

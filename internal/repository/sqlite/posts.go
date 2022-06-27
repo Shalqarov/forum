@@ -19,11 +19,13 @@ const (
 	"title",
 	"content",
 	"category",
-	"date"
-	) VALUES(?,?,?,?,?,?)`
+	"date",
+	"image",
+	"user_avatar"
+	) VALUES(?,?,?,?,?,?,?,?)`
 
 	queryGetPostsByUserID = `
-	SELECT "id","title","category","date" 
+	SELECT "id","user_id","title","category","date" 
 	FROM "post" 
 	WHERE "user_id" = ? 
 	ORDER BY "id" DESC`
@@ -34,19 +36,29 @@ const (
 	WHERE "id" = ?`
 
 	queryGetPostsByCategory = `
-	SELECT "id","author","title","category","date" 
+	SELECT "id","user_id","author","title","category","date" 
 	FROM "post" 
 	WHERE "category"=? 
 	ORDER BY "id" DESC`
 
 	queryGetAllPosts = `
-	SELECT "id","author","title","category","date" 
+	SELECT "id","user_id","author","title","category","date" 
 	FROM "post" 
 	ORDER BY "date" DESC`
 )
 
 func (u *sqliteRepo) CreatePost(post *domain.Post) (int64, error) {
-	result, err := u.db.Exec(queryCreatePost, post.UserID, post.Author, post.Title, post.Content, post.Category, time.Now().Format(time.RFC822))
+	result, err := u.db.Exec(
+		queryCreatePost,
+		post.UserID,
+		post.Author,
+		post.Title,
+		post.Content,
+		post.Category,
+		time.Now().Format(time.RFC822),
+		post.Image,
+		post.UserAvatar,
+	)
 	if err != nil {
 		return 0, err
 	}
@@ -62,7 +74,7 @@ func (u *sqliteRepo) GetPostsByUserID(id int64) ([]*domain.PostDTO, error) {
 	posts := []*domain.PostDTO{}
 	for rows.Next() {
 		post := domain.PostDTO{}
-		err := rows.Scan(&post.ID, &post.Title, &post.Category, &post.CreatedAt)
+		err := rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Category, &post.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -73,7 +85,17 @@ func (u *sqliteRepo) GetPostsByUserID(id int64) ([]*domain.PostDTO, error) {
 
 func (u *sqliteRepo) GetPostByID(id int64) (*domain.Post, error) {
 	post := domain.Post{}
-	err := u.db.QueryRow(queryGetPostByID, id).Scan(&post.ID, &post.UserID, &post.Author, &post.Title, &post.Content, &post.Category, &post.CreatedAt)
+	err := u.db.QueryRow(queryGetPostByID, id).Scan(
+		&post.ID,
+		&post.UserID,
+		&post.Author,
+		&post.Title,
+		&post.Content,
+		&post.Category,
+		&post.CreatedAt,
+		&post.Image,
+		&post.UserAvatar,
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -8,6 +8,10 @@ import (
 	"github.com/Shalqarov/forum/internal/domain"
 )
 
+const (
+	defaultAvatarPath = "/static/images/Blank-profile.jpg"
+)
+
 func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", http.MethodGet)
@@ -21,21 +25,27 @@ func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := app.UserUsecase.GetUserByID(userID)
 	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: profile(): %s", err.Error())
+		app.ErrorLog.Printf("HANDLERS: profile()1: %s", err.Error())
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 	posts, err := app.PostUsecase.GetPostsByUserID(user.ID)
 	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: profile(): %s", err.Error())
+		app.ErrorLog.Printf("HANDLERS: profile()2: %s", err.Error())
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-
+	likedPosts, err := app.PostUsecase.GetVotedPostsByUserID(user.ID)
+	if err != nil {
+		app.ErrorLog.Printf("HANDLERS: likedPosts(): %s", err.Error())
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 	app.render(w, r, "profile.page.html", &templateData{
-		IsSession: isSession(r),
-		User:      user,
-		Posts:     posts,
+		IsSession:  isSession(r),
+		User:       user,
+		Posts:      posts,
+		LikedPosts: likedPosts,
 	})
 }
 
@@ -53,6 +63,7 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 			Email:    r.FormValue("email"),
 			Username: r.FormValue("username"),
 			Password: r.FormValue("password"),
+			Avatar:   defaultAvatarPath,
 		}
 
 		if strings.TrimSpace(user.Email) == "" || strings.TrimSpace(user.Password) == "" || strings.TrimSpace(user.Username) == "" {
@@ -68,7 +79,7 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 				})
 				return
 			}
-			w.WriteHeader(http.StatusBadRequest)
+			app.clientError(w, http.StatusBadRequest)
 			return
 		}
 		addCookie(w, r, userID)

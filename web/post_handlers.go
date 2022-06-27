@@ -4,6 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -11,6 +15,32 @@ import (
 
 	"github.com/Shalqarov/forum/internal/domain"
 )
+
+func imageUpload(r *http.Request) (string, error) {
+	file, _, err := r.FormFile("myFile")
+	if err != nil {
+		if strings.Contains(err.Error(), "no such file") {
+			return "", nil
+		}
+		return "", err
+	}
+	defer file.Close()
+	fileBytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+	fileType, err := contentType(fileBytes)
+	if err != nil {
+		return "", err
+	}
+	tempFile, err := ioutil.TempFile("./ui/static/images", "upload-*."+fileType)
+	if err != nil {
+		return "", err
+	}
+	defer tempFile.Close()
+	tempFile.Write(fileBytes)
+	return strings.ReplaceAll(tempFile.Name(), "./ui", ""), nil
+}
 
 func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 	if !isSession(r) {
@@ -36,14 +66,28 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, 20<<20)
 
+	user, err := app.UserUsecase.GetUserByID(userID)
+	if err != nil {
+		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 	postInfo := &domain.Post{
 		Title:    r.FormValue("title"),
 		Content:  r.FormValue("content"),
 		UserID:   userID,
 		Category: r.FormValue("category"),
+		Author:   user.Username,
 	}
 	if strings.TrimSpace(postInfo.Title) == "" || strings.TrimSpace(postInfo.Content) == "" || strings.TrimSpace(postInfo.Category) == "" {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	postInfo.Image, err = imageUpload(r)
+	if err != nil {
+		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -86,19 +130,24 @@ func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusInternalServerError)
 		return
 	}
-	var userID int64 = 0
 	if isSession(r) {
-		userID, err = getUserIDByCookie(r)
+		_, err := getUserIDByCookie(r)
 		if err != nil {
 			log.Println("VotePost: GetUserIDByUsername: ", err)
 			app.clientError(w, http.StatusBadRequest)
 			return
 		}
 	}
+	user, err := app.UserUsecase.GetUserByID(post.UserID)
+	if err != nil {
+		app.ErrorLog.Printf("HANDLERS: postPage(): %s", err.Error())
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 
 	app.render(w, r, "post.page.html", &templateData{
 		IsSession: isSession(r),
-		User:      &domain.User{ID: userID},
+		User:      user,
 		Post:      post,
 		Comments:  comments,
 	})
@@ -125,30 +174,6 @@ func (app *Handler) postCategory(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "home.page.html", &templateData{
 		IsSession: isSession(r),
 		User:      user,
-		Posts:     posts,
-	})
-}
-
-func (app *Handler) likedPosts(w http.ResponseWriter, r *http.Request) {
-	if !isSession(r) {
-		http.Redirect(w, r, "/signin", http.StatusSeeOther)
-		return
-	}
-	userID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
-	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: likedPosts(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-	posts, err := app.PostUsecase.GetVotedPostsByUserID(userID)
-	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: likedPosts(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-	app.render(w, r, "home.page.html", &templateData{
-		IsSession: isSession(r),
-		User:      &domain.User{ID: userID},
 		Posts:     posts,
 	})
 }
@@ -264,10 +289,11 @@ func (app *Handler) createComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	comm := &domain.Comment{
-		UserID:  userID,
-		PostID:  postID,
-		Author:  user.Username,
-		Content: comment,
+		UserID:     userID,
+		PostID:     postID,
+		Author:     user.Username,
+		Content:    comment,
+		UserAvatar: user.Avatar,
 	}
 	app.CommentUsecase.CreateComment(comm)
 	http.Redirect(w, r, fmt.Sprintf("/post?id=%d", postID), http.StatusSeeOther)
