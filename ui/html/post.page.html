@@ -4,11 +4,17 @@
 {{define "main"}}
 <div style="margin-top: 20px;" class="row z-depth-1">
     <div class="col s12 grey lighten-3">
-        <h3>{{.Post.Title}}</h3>
-        <p class="flow-text">{{.Post.Content}}</p>
+        <h3  style="word-wrap:break-word;">{{.Post.Title}}</h3>
+        <img class="materialboxed responsive-img" src="{{.Post.Image}}" alt="">
+        <p class="flow-text"  style="word-wrap:break-word;">{{.Post.Content}}</p>
         <div class="divider"></div>
-        
-        <form action="/category?category={{.Post.Category}}" method="POST">
+        <span>Created by: </span>
+        <div class="chip">
+            <img src="{{.User.Avatar}}"
+                alt="">
+                <a href="/profile?id={{.Post.UserID}}">{{.Post.Author}}</a>
+        </div>
+        <form action="/filter/category?category={{.Post.Category}}" method="POST">
             <span>Category: </span>
             <button  style="text-transform: none;" id="category" type="submit" class="btn-flat blue-text">
                     {{.Post.Category}}
@@ -39,7 +45,7 @@
                             required></textarea>
                         <span class="helper-text">maximum characters: 255</span>
                         <label for="textareaComment">Comment</label>
-                        <button type="submit" class="btn waves-effect waves-light">Submit</button>
+                        <button type="submit" class="btn waves-effect waves-light light-blue darken-4">Create comment</button>
                     </div>
                 </div>
             </form>
@@ -56,7 +62,10 @@
 {{ range .Comments }}
 <div class="row z-depth-1" >
     <div class="col col s12 grey lighten-3">
-        <a href="/profile?id={{.UserID}}">{{.Author}}</a>
+        <div class="chip">
+                <a href="/profile?id={{.UserID}}">{{.Author}}</a>
+        </div>
+        
         <label for="date">{{.Date}}</label>
         <div style="word-wrap:break-word;">
             <p>{{.Content}}</p>
@@ -83,15 +92,6 @@
 {{end}}
 
 <script>
-    function maxLength(el) {
-        if (!('maxLength' in el)) {
-            var max = el.attributes.maxLength.value;
-            el.onkeypress = function () {
-                if (this.value.length >= max) return false;
-            };
-        }
-    }
-
-    maxLength(document.getElementById("textareaComment"));
+    
 </script>
 {{end}}

@@ -1,11 +1,9 @@
-.PHONY: build
+run:
+	go run ./cmd/ 
 
-build:
-	docker-compose build
-	docker image prune
-
-run: build
+docker-run:
 	docker-compose up -d
+	docker image prune
 
 stop:
 	docker-compose stop

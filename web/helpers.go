@@ -1,9 +1,11 @@
 package web
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"strings"
 )
 
 func (app *Handler) serverError(w http.ResponseWriter, err error) {
@@ -27,4 +29,35 @@ func (app *Handler) render(w http.ResponseWriter, r *http.Request, name string, 
 	if err != nil {
 		app.serverError(w, err)
 	}
+}
+
+func contentType(filebytes []byte) (string, error) {
+	t := http.DetectContentType(filebytes)
+	if strings.Contains(t, "image/jpeg") {
+		return "jpeg", nil
+	}
+	if strings.Contains(t, "image/jpg") {
+		return "jpg", nil
+	}
+	if strings.Contains(t, "image/png") {
+		return "png", nil
+	}
+	if strings.Contains(t, "image/gif") {
+		return "gif", nil
+	}
+	return "", errors.New("content is not an image")
+}
+
+func avatarType(filebytes []byte) (string, error) {
+	t := http.DetectContentType(filebytes)
+	if strings.Contains(t, "image/jpeg") {
+		return "jpeg", nil
+	}
+	if strings.Contains(t, "image/jpg") {
+		return "jpg", nil
+	}
+	if strings.Contains(t, "image/png") {
+		return "png", nil
+	}
+	return "", errors.New("content is not an image")
 }

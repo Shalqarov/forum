@@ -37,3 +37,7 @@ func (u *userUsecase) GetUserByEmail(user *domain.User) (*domain.User, error) {
 func (u *userUsecase) GetUserIDByUsername(username string) (int64, error) {
 	return u.repo.GetUserIDByUsername(username)
 }
+
+func (u *userUsecase) ChangeAvatarByUserID(userID int64, image string) error {
+	return u.repo.ChangeAvatarByUserID(userID, image)
+}

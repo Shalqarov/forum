@@ -34,13 +34,6 @@
             <a href="/filter/category?category=Linkedin" class="collection-item">Linkedin</a>
             <a href="/filter/category?category=Offtop" class="collection-item">Offtop</a>
         </div>
-        {{ if ne .IsSession false}}
-        <div class="divider"></div>
-        <div class="collection">
-            <a href="/filter/likedposts?id={{.User.ID}}" class="collection-item">Liked posts</a>
-        </div>
-        {{end}}
-
     </div>
     <div class="modal-footer">
         <a class="modal-close waves-effect"><i class="material-icons">close</i></a>

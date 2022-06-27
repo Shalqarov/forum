@@ -12,8 +12,9 @@ const (
 	INSERT INTO "user"(
 		"username",
 		"email",
-		"password"
-	) VALUES (?, ?, ?)`
+		"password",
+		"avatar"
+	) VALUES (?, ?, ?, ?)`
 
 	queryGetUserIDByUsername = `
 	SELECT "id" 
@@ -29,6 +30,10 @@ const (
 	SELECT * 
 	FROM "user"
 	WHERE "email"=?`
+
+	queryChangeAvatar = `
+	UPDATE "user" SET "avatar"=? WHERE "id" = ?
+	`
 )
 
 type sqliteRepo struct {
@@ -44,12 +49,20 @@ func NewSqliteUserRepo(db *sql.DB) domain.UserRepo {
 }
 
 func (u *sqliteRepo) CreateUser(user *domain.User) (int64, error) {
-	id, err := u.db.Exec(queryCreateUser, user.Username, user.Email, user.Password)
+	id, err := u.db.Exec(queryCreateUser, user.Username, user.Email, user.Password, user.Avatar)
 	if err != nil {
 		return 0, err
 	}
 
 	return id.LastInsertId()
+}
+
+func (u *sqliteRepo) ChangeAvatarByUserID(userID int64, image string) error {
+	_, err := u.db.Exec(queryChangeAvatar, image, userID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (u *sqliteRepo) GetUserIDByUsername(username string) (int64, error) {
@@ -63,13 +76,13 @@ func (u *sqliteRepo) GetUserIDByUsername(username string) (int64, error) {
 
 func (u *sqliteRepo) GetUserByID(id int64) (*domain.User, error) {
 	user := domain.User{}
-	err := u.db.QueryRow(queryGetUserByID, id).Scan(&user.ID, &user.Username, &user.Email, &user.Password)
+	err := u.db.QueryRow(queryGetUserByID, id).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)
 	return &user, err
 }
 
 func (u *sqliteRepo) GetUserByEmail(user *domain.User) (*domain.User, error) {
 	searchedUser := domain.User{}
-	err := u.db.QueryRow(queryGetUserByEmail, user.Email).Scan(&searchedUser.ID, &searchedUser.Username, &searchedUser.Email, &searchedUser.Password)
+	err := u.db.QueryRow(queryGetUserByEmail, user.Email).Scan(&searchedUser.ID, &searchedUser.Username, &searchedUser.Email, &searchedUser.Password, &searchedUser.Avatar)
 	if err != nil {
 		return nil, err
 	}

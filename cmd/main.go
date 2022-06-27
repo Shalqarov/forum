@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	addr := flag.String("addr", ":8080", "Network address HTTP")
+	addr := flag.String("addr", ":5000", "Network address HTTP")
 	dsn := flag.String("dsn", "forum.db", "Database name")
 	flag.Parse()
 

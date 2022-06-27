@@ -2,7 +2,7 @@
 
 
 {{define "main"}}
-<form action="/createpost" method="POST">
+<form action="/createpost" enctype="multipart/form-data" method="POST">
     <div class="row">
         <div class="col s6 offset-s3">
             <div class="card">
@@ -10,17 +10,20 @@
                     <div class="row">
                         <div class="input-field col s12">
                             <i class="material-icons prefix">title</i>
-                            <input name="title" id="title" type="text" required>
+                            <input name="title" id="title" type="text" maxlength="255" required>
                             <label for="title">Title</label>
+                            <span class="helper-text">maximum characters: 255</span>
                         </div>
                         <div class="input-field col s12">
                             <i class="material-icons prefix">create</i>
-                            <textarea name="content" id="content" class="materialize-textarea"></textarea>
+                            <textarea maxlength="2000" name="content" id="content" class="materialize-textarea"></textarea>
                             <label for="content">content</label>
+                            <span class="helper-text">maximum characters: 2000</span>
                         </div>
                         <div class="input-field col s12">
+                            <i class="material-icons prefix">format_list_bulleted</i>
                             <select name="category">
-                                <option value="Offtop" disabled selected>Choose category</option>
+                                <option value="Offtop" selected>Choose category</option>
                                 <option value="alem">alem</option>
                                 <option value="Study">Study</option>
                                 <option value="Teamalem">Teamalem</option>
@@ -29,9 +32,13 @@
                             </select>
                             <label>Category select</label>
                         </div>
-                    </div>
-                    <div class="card-action">
-                        <button class="btn waves-effect waves-light" type="submit">Create</button>
+                        <div class="input-field col s12">
+                            <input type="file" name="myFile"/>
+                        </div>
+                        <div class="input-field col s12">
+                            <button class="btn waves-effect waves-light light-blue darken-4"
+                                type="submit">Create</button>
+                        </div>
                     </div>
                 </div>
             </div>

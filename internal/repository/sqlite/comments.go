@@ -14,8 +14,9 @@ const (
 		"post_id",
 		"author",
 		"content",
-		"date"
-	) VALUES(?,?,?,?,?)`
+		"date",
+		"user_avatar"
+	) VALUES(?,?,?,?,?,?)`
 
 	queryGetCommentsByPostID = `
 	SELECT * 
@@ -29,7 +30,7 @@ func NewSqliteCommentRepo(db *sql.DB) domain.CommentRepo {
 }
 
 func (u *sqliteRepo) CreateComment(comm *domain.Comment) error {
-	_, err := u.db.Exec(queryCreateComment, comm.UserID, comm.PostID, comm.Author, comm.Content, time.Now().Format(time.RFC822))
+	_, err := u.db.Exec(queryCreateComment, comm.UserID, comm.PostID, comm.Author, comm.Content, time.Now().Format(time.RFC822), comm.UserAvatar)
 	return err
 }
 
@@ -42,7 +43,7 @@ func (u *sqliteRepo) GetCommentsByPostID(id int64) ([]*domain.Comment, error) {
 	comments := []*domain.Comment{}
 	for rows.Next() {
 		comment := domain.Comment{}
-		err := rows.Scan(&comment.ID, &comment.UserID, &comment.PostID, &comment.Author, &comment.Content, &comment.Date)
+		err := rows.Scan(&comment.ID, &comment.UserID, &comment.PostID, &comment.Author, &comment.Content, &comment.Date, &comment.UserAvatar)
 		if err != nil {
 			return nil, err
 		}
