@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/Shalqarov/forum/internal/domain"
 )
@@ -51,7 +50,6 @@ func NewSqliteUserRepo(db *sql.DB) domain.UserRepo {
 func (u *sqliteRepo) CreateUser(user *domain.User) (int64, error) {
 	id, err := u.db.Exec(queryCreateUser, user.Username, user.Email, user.Password, user.Avatar)
 	if err != nil {
-		fmt.Println(err)
 		return 0, err
 	}
 

@@ -75,11 +75,8 @@ func (app *Handler) googleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
-	fmt.Println(string(content))
 	userInfo := &UserInfo{}
 	json.Unmarshal(content, &userInfo)
-	fmt.Println(userInfo.Email)
-	fmt.Println(userInfo.Username)
 
 	user, err := app.UserUsecase.GetUserByEmail(userInfo.Email)
 	fmt.Println(user, err)

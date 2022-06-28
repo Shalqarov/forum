@@ -3,7 +3,6 @@ package web
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -56,7 +55,6 @@ func (c *Config) AuthCodeURL(state string) string {
 		buf.WriteByte('?')
 	}
 	buf.WriteString(v.Encode())
-	fmt.Println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==", buf.String())
 	return buf.String()
 }
 
