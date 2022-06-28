@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Shalqarov/forum/internal/domain"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -107,17 +108,22 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		user, err := app.UserUsecase.GetUserByEmail(info)
+		user, err := app.UserUsecase.GetUserByEmail(info.Email)
 		if err != nil {
+			app.ErrorLog.Printf("HANDLERS: : %s", err.Error())
+			app.clientError(w, http.StatusNotFound)
+			return
+		}
+		if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(info.Password)); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			app.render(w, r, "login.page.html", &templateData{
 				Error: "email or password are wrong",
 			})
 			return
 		}
-
 		addCookie(w, r, user.ID)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 
 	default:
 		app.clientError(w, http.StatusMethodNotAllowed)

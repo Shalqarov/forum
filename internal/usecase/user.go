@@ -29,8 +29,8 @@ func (u *userUsecase) GetUserByID(id int64) (*domain.User, error) {
 	return user, err
 }
 
-func (u *userUsecase) GetUserByEmail(user *domain.User) (*domain.User, error) {
-	searchedUser, err := u.repo.GetUserByEmail(user)
+func (u *userUsecase) GetUserByEmail(email string) (*domain.User, error) {
+	searchedUser, err := u.repo.GetUserByEmail(email)
 	return searchedUser, err
 }
 

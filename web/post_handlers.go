@@ -4,9 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -43,11 +40,12 @@ func imageUpload(r *http.Request) (string, error) {
 }
 
 func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
-	if !isSession(r) {
-		http.Redirect(w, r, "/signin", http.StatusSeeOther)
+	if r.Method != http.MethodPost {
+		app.ErrorLog.Printf("HANDLERS: createPost(): method not alowed")
+		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
-
+	r.Body = http.MaxBytesReader(w, r.Body, 20<<20)
 	userID, err := getUserIDByCookie(r)
 	if err != nil {
 		if errors.Is(err, http.ErrNoCookie) {
@@ -58,16 +56,6 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusInternalServerError)
 		return
 	}
-
-	if r.Method != http.MethodPost {
-		app.render(w, r, "createpost.page.html", &templateData{
-			User:      &domain.User{ID: userID},
-			IsSession: isSession(r),
-		})
-		return
-	}
-	r.Body = http.MaxBytesReader(w, r.Body, 20<<20)
-
 	user, err := app.UserUsecase.GetUserByID(userID)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
