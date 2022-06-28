@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS "post" (
     "id" INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,
     "user_id" INTEGER NOT NULL,
     "author" TEXT NOT NULL,
-    "title" TEXT NOT NULL UNIQUE,
+    "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "category" TEXT NOT NULL,
     "date" TEXT NOT NULL,

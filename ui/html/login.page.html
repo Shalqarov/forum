@@ -44,6 +44,11 @@
                             Login with Github
                         </a> -->
                     </div>
+                    {{if .Error }}
+                    <div class="card-action">
+                        <span class="red-text">{{.Error}}</span>
+                    </div>
+                    {{ end }}
                 </div>
             </div>
         </div>

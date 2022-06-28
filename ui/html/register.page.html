@@ -34,7 +34,7 @@
             <button class="btn waves-effect waves-light light-blue darken-4" type="submit">Register</button>
           </div>
           <div class="card-action">
-            <a class="oauth-container btn darken-4 white black-text" href="/signin/google/auth"
+            <a class="oauth-container btn darken-4 white black-text" href="/signup/google/auth"
               style="text-transform:none">
               <div class="left">
                 <img width="20px" style="margin-top:7px; margin-right:8px" alt="Google sign-in"
@@ -43,6 +43,11 @@
               Sign up with Google
             </a>
           </div>
+          {{if .Error }}
+          <div class="card-action">
+            <span class="red-text">{{.Error}}</span>
+          </div>
+          {{ end }}
         </div>
       </div>
     </div>
