@@ -3,40 +3,50 @@
 {{define "main"}}
 
 
-  <form action="/signup" method="POST">
-    <div class="row">
-      <div class="col s6 offset-s3">
-        <div class="card" >
-          <div class="card-content">
-            <div class="row">
-              <div class="input-field col s12">
-                <i class="material-icons prefix">account_circle</i>
-                <input name="username" id="username" type="text" class="validate">
-                <label for="username">Username</label>
-              </div>
-              <div class="input-field col s12">
-                <i class="material-icons prefix">email</i>
-                <input name="email" id="email" type="email" class="validate">
-                <label for="email">Email</label>
-                {{ if ne .Error ""}}
-                <span class="helper-text" data-error="Email or login are
+<form action="/signup" method="POST">
+  <div class="row">
+    <div class="col s6 offset-s3">
+      <div class="card">
+        <div class="card-content">
+          <div class="row">
+            <div class="input-field col s12">
+              <i class="material-icons prefix">account_circle</i>
+              <input name="username" id="username" type="text" class="validate">
+              <label for="username">Username</label>
+            </div>
+            <div class="input-field col s12">
+              <i class="material-icons prefix">email</i>
+              <input name="email" id="email" type="email" class="validate">
+              <label for="email">Email</label>
+              {{ if ne .Error ""}}
+              <span class="helper-text" data-error="Email or login are
                         already in use" data-success="right">{{.Error}}</span>
-                {{ end }}
-                <span class="helper-text" data-error="incorrect email address" data-success="right"></span>
-              </div>
-              <div class="input-field col s12">
-                <i class="material-icons prefix">password</i>
-                <input name="password" id="password" type="password" class="validate">
-                <label for="password">Password</label>
-              </div>
+              {{ end }}
+              <span class="helper-text" data-error="incorrect email address" data-success="right"></span>
             </div>
-            <div class="card-action">
-              <button class="btn waves-effect waves-light light-blue darken-4" type="submit">Register</button>
+            <div class="input-field col s12">
+              <i class="material-icons prefix">password</i>
+              <input name="password" id="password" type="password" class="validate">
+              <label for="password">Password</label>
             </div>
+          </div>
+          <div class="card-action">
+            <button class="btn waves-effect waves-light light-blue darken-4" type="submit">Register</button>
+          </div>
+          <div class="card-action">
+            <a class="oauth-container btn darken-4 white black-text" href="/signin/google/auth"
+              style="text-transform:none">
+              <div class="left">
+                <img width="20px" style="margin-top:7px; margin-right:8px" alt="Google sign-in"
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+              </div>
+              Sign up with Google
+            </a>
           </div>
         </div>
       </div>
     </div>
-  </form>
+  </div>
+</form>
 
 {{end}}

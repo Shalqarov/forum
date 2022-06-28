@@ -12,7 +12,8 @@
                             <input name="email" id="email" type="email" class="validate">
                             <label for="email">Email</label>
                             {{ if ne .Error ""}}
-                            <span class="helper-text" data-error="username or password is incorrect" data-success="right">{{.Error}}</span>
+                            <span class="helper-text" data-error="username or password is incorrect"
+                                data-success="right">{{.Error}}</span>
                             {{ end }}
                         </div>
                         <div class="input-field col s12">
@@ -25,12 +26,27 @@
                         <button class="btn waves-effect waves-light light-blue darken-4" type="submit">Login</button>
                     </div>
                     <div class="card-action">
-                        <a href="/signin/google/auth" class="btn">Google</a>
+                        <a class="oauth-container btn darken-4 white black-text" href="/signin/google/auth"
+                            style="text-transform:none">
+                            <div class="left">
+                                <img width="20px" style="margin-top:7px; margin-right:8px" alt="Google sign-in"
+                                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+                            </div>
+                            Login with Google
+                        </a>
+                        <!-- TODO HERE WILL BE GITHUB AUTH BUTTON
+                            <a class="oauth-container btn darken-4 white black-text" href="/signin/github/auth"
+                            style="text-transform:none">
+                            <div class="left">
+                                <img width="20px" style="margin-top:7px; margin-right:8px" alt="Google sign-in"
+                                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Font_Awesome_5_brands_github.svg/640px-Font_Awesome_5_brands_github.svg.png" />
+                            </div>
+                            Login with Github
+                        </a> -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </form>
-
 {{end}}
