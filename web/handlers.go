@@ -71,7 +71,7 @@ func (app *Handler) uploadAvatar(w http.ResponseWriter, r *http.Request) {
 	userID, err := getUserIDByCookie(r)
 	if err != nil {
 		if err == http.ErrNoCookie {
-			app.clientError(w, http.StatusUnauthorized)
+			http.Redirect(w, r, "/signin", http.StatusUnauthorized)
 			return
 		}
 		app.ErrorLog.Printf("HANDLERS: home(): %s", err.Error())
@@ -91,9 +91,6 @@ func (app *Handler) uploadAvatar(w http.ResponseWriter, r *http.Request) {
 func createAvatar(r *http.Request) (string, error) {
 	file, _, err := r.FormFile("avatar")
 	if err != nil {
-		if strings.Contains(err.Error(), "no such file") {
-			return "", nil
-		}
 		return "", err
 	}
 	defer file.Close()
