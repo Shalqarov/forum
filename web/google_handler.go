@@ -14,9 +14,7 @@ import (
 )
 
 const (
-	// ClientID     = "820533650499-t1lg2j1tl2162t2sldeo9tp3sj4itj3k.apps.googleusercontent.com"
-	googleClientID = "820533650499-dj70ovtt4uspgoh9sbdb0m3bdlsf470g.apps.googleusercontent.com"
-	// ClientSecret = "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"
+	googleClientID     = "820533650499-dj70ovtt4uspgoh9sbdb0m3bdlsf470g.apps.googleusercontent.com"
 	googleClientSecret = "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"
 )
 
