@@ -4,7 +4,6 @@ import (
 	"database/sql"
 
 	"github.com/Shalqarov/forum/internal/domain"
-	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -80,14 +79,18 @@ func (u *sqliteRepo) GetUserByID(id int64) (*domain.User, error) {
 	return &user, err
 }
 
-func (u *sqliteRepo) GetUserByEmail(user *domain.User) (*domain.User, error) {
-	searchedUser := domain.User{}
-	err := u.db.QueryRow(queryGetUserByEmail, user.Email).Scan(&searchedUser.ID, &searchedUser.Username, &searchedUser.Email, &searchedUser.Password, &searchedUser.Avatar)
+func (u *sqliteRepo) GetUserByEmail(email string) (*domain.User, error) {
+	user := domain.User{}
+	err := u.db.QueryRow(queryGetUserByEmail, email).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+		&user.Avatar,
+	)
 	if err != nil {
 		return nil, err
 	}
-	if err = bcrypt.CompareHashAndPassword([]byte(searchedUser.Password), []byte(user.Password)); err != nil {
-		return nil, err
-	}
-	return &searchedUser, nil
+
+	return &user, nil
 }

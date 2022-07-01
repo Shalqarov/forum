@@ -25,28 +25,40 @@ func NewHandler(r *http.ServeMux, h *Handler) {
 	r.HandleFunc("/", h.home)
 	r.HandleFunc("/signup", h.signup)
 	r.HandleFunc("/signin", h.signin)
+	r.HandleFunc("/signin/google/auth", h.googleAuthSignIn)
+	r.HandleFunc("/signin/google/callback", h.googleSignIn)
+	r.HandleFunc("/signup/google/auth", h.googleAuthSignUp)
+	r.HandleFunc("/signup/google/callback", h.googleSignUp)
 	r.HandleFunc("/logout", h.logout)
 	r.HandleFunc("/profile", h.profile)
-	r.HandleFunc("/createpost", h.createPost)
 	r.HandleFunc("/post", h.postPage)
-	r.HandleFunc("/post/vote", h.votePost)
-	r.HandleFunc("/post/createcomment", h.createComment)
-	r.HandleFunc("/post/votecomment", h.voteComment)
-	r.HandleFunc("/profile/upload-avatar", h.uploadAvatar)
 	r.HandleFunc("/filter/category", h.postCategory)
+	r.HandleFunc("/createpost", h.createPost)
+
+	// r.Handle("/createpost", sessionChecker(h.createPost))
+	r.Handle("/post/createcomment", sessionChecker(h.createComment))
+	r.Handle("/post/votecomment", sessionChecker(h.voteComment))
+	r.Handle("/post/vote", sessionChecker(h.votePost))
+	r.Handle("/profile/upload-avatar", sessionChecker(h.uploadAvatar))
 	fileServer := http.FileServer(http.Dir("./ui/static"))
 	r.Handle("/static", http.NotFoundHandler())
 	r.Handle("/static/", http.StripPrefix("/static", fileServer))
+}
+
+func sessionChecker(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !isSession(r) {
+			http.Redirect(w, r, "/signin", http.StatusSeeOther)
+			return
+		}
+		h(w, r)
+	}
 }
 
 func (app *Handler) uploadAvatar(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost)
 		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
-	if !isSession(r) {
-		app.clientError(w, http.StatusUnauthorized)
 		return
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, 20<<20)

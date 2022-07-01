@@ -4,9 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -43,11 +40,6 @@ func imageUpload(r *http.Request) (string, error) {
 }
 
 func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
-	if !isSession(r) {
-		http.Redirect(w, r, "/signin", http.StatusSeeOther)
-		return
-	}
-
 	userID, err := getUserIDByCookie(r)
 	if err != nil {
 		if errors.Is(err, http.ErrNoCookie) {
@@ -58,7 +50,6 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusInternalServerError)
 		return
 	}
-
 	if r.Method != http.MethodPost {
 		app.render(w, r, "createpost.page.html", &templateData{
 			User:      &domain.User{ID: userID},
