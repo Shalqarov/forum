@@ -130,8 +130,6 @@ This project will help you learn about:
 </details>
 
 <details>
-
-<details>
 <summary>How to stop docker</summary>
   
   1. Write to the terminal `make delete`
