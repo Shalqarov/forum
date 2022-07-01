@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/Shalqarov/forum/internal/domain"
+	"github.com/Shalqarov/forum/internal/session"
+	"github.com/Shalqarov/forum/web/middleware"
 )
 
 type Handler struct {
@@ -33,23 +35,13 @@ func NewHandler(r *http.ServeMux, h *Handler) {
 	r.HandleFunc("/createpost", h.createPost)
 
 	// r.Handle("/createpost", sessionChecker(h.createPost))
-	r.Handle("/post/createcomment", sessionChecker(h.createComment))
-	r.Handle("/post/votecomment", sessionChecker(h.voteComment))
-	r.Handle("/post/vote", sessionChecker(h.votePost))
-	r.Handle("/profile/upload-avatar", sessionChecker(h.uploadAvatar))
+	r.Handle("/post/createcomment", middleware.SessionChecker(h.createComment))
+	r.Handle("/post/votecomment", middleware.SessionChecker(h.voteComment))
+	r.Handle("/post/vote", middleware.SessionChecker(h.votePost))
+	r.Handle("/profile/upload-avatar", middleware.SessionChecker(h.uploadAvatar))
 	fileServer := http.FileServer(http.Dir("./ui/static"))
 	r.Handle("/static", http.NotFoundHandler())
 	r.Handle("/static/", http.StripPrefix("/static", fileServer))
-}
-
-func sessionChecker(h http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if !isSession(r) {
-			http.Redirect(w, r, "/signin", http.StatusSeeOther)
-			return
-		}
-		h(w, r)
-	}
 }
 
 func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
@@ -63,8 +55,8 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := &domain.User{}
-	if isSession(r) {
-		userID, err := getUserIDByCookie(r)
+	if session.IsSession(r) {
+		userID, err := session.GetUserIDByCookie(r)
 		if err != nil {
 			if err == http.ErrNoCookie {
 				app.clientError(w, http.StatusUnauthorized)
@@ -86,7 +78,7 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	app.render(w, r, "home.page.html", &templateData{
-		IsSession: isSession(r),
+		IsSession: session.IsSession(r),
 		User:      user,
 		Posts:     posts,
 	})

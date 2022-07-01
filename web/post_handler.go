@@ -10,10 +10,11 @@ import (
 	"strings"
 
 	"github.com/Shalqarov/forum/internal/domain"
+	"github.com/Shalqarov/forum/internal/session"
 )
 
 func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
-	userID, err := getUserIDByCookie(r)
+	userID, err := session.GetUserIDByCookie(r)
 	if err != nil {
 		if errors.Is(err, http.ErrNoCookie) {
 			app.clientError(w, http.StatusUnauthorized)
@@ -26,7 +27,7 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		app.render(w, r, "createpost.page.html", &templateData{
 			User:      &domain.User{ID: userID},
-			IsSession: isSession(r),
+			IsSession: session.IsSession(r),
 		})
 		return
 	}
@@ -94,8 +95,8 @@ func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusInternalServerError)
 		return
 	}
-	if isSession(r) {
-		_, err := getUserIDByCookie(r)
+	if session.IsSession(r) {
+		_, err := session.GetUserIDByCookie(r)
 		if err != nil {
 			log.Println("VotePost: GetUserIDByUsername: ", err)
 			app.clientError(w, http.StatusBadRequest)
@@ -110,7 +111,7 @@ func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.render(w, r, "post.page.html", &templateData{
-		IsSession: isSession(r),
+		IsSession: session.IsSession(r),
 		User:      user,
 		Post:      post,
 		Comments:  comments,
@@ -119,8 +120,8 @@ func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 
 func (app *Handler) postCategory(w http.ResponseWriter, r *http.Request) {
 	user := &domain.User{}
-	if isSession(r) {
-		userID, err := getUserIDByCookie(r)
+	if session.IsSession(r) {
+		userID, err := session.GetUserIDByCookie(r)
 		if err != nil {
 			app.ErrorLog.Printf("postCategory: getUserIDByCookie: %s", err.Error())
 			app.clientError(w, http.StatusBadRequest)
@@ -136,7 +137,7 @@ func (app *Handler) postCategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	app.render(w, r, "home.page.html", &templateData{
-		IsSession: isSession(r),
+		IsSession: session.IsSession(r),
 		User:      user,
 		Posts:     posts,
 	})
@@ -146,10 +147,6 @@ func (app *Handler) votePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost)
 		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
-	if !isSession(r) {
-		http.Redirect(w, r, "/signin", http.StatusSeeOther)
 		return
 	}
 	postID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
@@ -164,7 +161,7 @@ func (app *Handler) votePost(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	userID, err := getUserIDByCookie(r)
+	userID, err := session.GetUserIDByCookie(r)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: votePost(): %s", err.Error())
 		app.clientError(w, http.StatusBadRequest)
@@ -185,10 +182,6 @@ func (app *Handler) voteComment(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
-	if !isSession(r) {
-		http.Redirect(w, r, "/signin", http.StatusSeeOther)
-		return
-	}
 	postID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: voteComment(): %s", err.Error())
@@ -206,7 +199,7 @@ func (app *Handler) voteComment(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	userID, err := getUserIDByCookie(r)
+	userID, err := session.GetUserIDByCookie(r)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: voteComment(): %s", err.Error())
 		app.clientError(w, http.StatusBadRequest)
@@ -227,16 +220,12 @@ func (app *Handler) createComment(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
-	if !isSession(r) {
-		http.Redirect(w, r, "/signin", http.StatusSeeOther)
-		return
-	}
 	postID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 	if err != nil || postID < 1 {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	userID, err := getUserIDByCookie(r)
+	userID, err := session.GetUserIDByCookie(r)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return

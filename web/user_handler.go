@@ -3,6 +3,8 @@ package web
 import (
 	"net/http"
 	"strconv"
+
+	"github.com/Shalqarov/forum/internal/session"
 )
 
 const (
@@ -39,7 +41,7 @@ func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	app.render(w, r, "profile.page.html", &templateData{
-		IsSession:  isSession(r),
+		IsSession:  session.IsSession(r),
 		User:       user,
 		Posts:      posts,
 		LikedPosts: likedPosts,
@@ -59,7 +61,7 @@ func (app *Handler) uploadAvatar(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	userID, err := getUserIDByCookie(r)
+	userID, err := session.GetUserIDByCookie(r)
 	if err != nil {
 		if err == http.ErrNoCookie {
 			http.Redirect(w, r, "/signin", http.StatusUnauthorized)

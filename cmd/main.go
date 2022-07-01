@@ -8,6 +8,7 @@ import (
 	"time"
 
 	repository "github.com/Shalqarov/forum/internal/repository/sqlite"
+	"github.com/Shalqarov/forum/internal/session"
 	"github.com/Shalqarov/forum/internal/usecase"
 	"github.com/Shalqarov/forum/web"
 	_ "github.com/mattn/go-sqlite3"
@@ -67,7 +68,7 @@ func main() {
 	}
 
 	infoLog.Printf("Starting server on %s\n", *addr)
-	go web.ExpiredSessionsDeletion()
+	go session.ExpiredSessionsDeletion()
 	err = srv.ListenAndServe()
 	errorLog.Fatalln(err)
 }

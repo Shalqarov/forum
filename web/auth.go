@@ -5,11 +5,12 @@ import (
 	"strings"
 
 	"github.com/Shalqarov/forum/internal/domain"
+	"github.com/Shalqarov/forum/internal/session"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
-	if isSession(r) {
+	if session.IsSession(r) {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
@@ -41,7 +42,7 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 			app.clientError(w, http.StatusBadRequest)
 			return
 		}
-		addCookie(w, r, userID)
+		session.AddCookie(w, r, userID)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	default:
 		app.clientError(w, http.StatusMethodNotAllowed)
@@ -80,7 +81,7 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
-		addCookie(w, r, user.ID)
+		session.AddCookie(w, r, user.ID)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 
@@ -91,7 +92,7 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Handler) logout(w http.ResponseWriter, r *http.Request) {
-	_, err := r.Cookie(cookieName)
+	_, err := r.Cookie(session.CookieName)
 	if err != nil {
 		if err == http.ErrNoCookie {
 			app.clientError(w, http.StatusUnauthorized)
@@ -100,7 +101,7 @@ func (app *Handler) logout(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	deleteCookie(w, r)
+	session.DeleteCookie(w, r)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

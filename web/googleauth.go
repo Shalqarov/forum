@@ -9,21 +9,22 @@ import (
 	"net/http"
 
 	"github.com/Shalqarov/forum/internal/domain"
+	"github.com/Shalqarov/forum/internal/session"
 	uuid "github.com/satori/go.uuid"
 )
 
 const (
 	// ClientID     = "820533650499-t1lg2j1tl2162t2sldeo9tp3sj4itj3k.apps.googleusercontent.com"
-	clientID = "820533650499-dj70ovtt4uspgoh9sbdb0m3bdlsf470g.apps.googleusercontent.com"
+	googleClientID = "820533650499-dj70ovtt4uspgoh9sbdb0m3bdlsf470g.apps.googleusercontent.com"
 	// ClientSecret = "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"
-	clientSecret = "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"
+	googleClientSecret = "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"
 )
 
 var (
 	googleConfigSignIn = &Config{
 		RedirectURL:  "http://localhost:5000/signin/google/callback",
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
+		ClientID:     googleClientID,
+		ClientSecret: googleClientSecret,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 			"https://www.googleapis.com/auth/userinfo.profile",
@@ -32,8 +33,8 @@ var (
 	}
 	googleConfigSignUp = &Config{
 		RedirectURL:  "http://localhost:5000/signup/google/callback",
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
+		ClientID:     googleClientID,
+		ClientSecret: googleClientSecret,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 			"https://www.googleapis.com/auth/userinfo.profile",
@@ -48,7 +49,7 @@ var (
 )
 
 func (app *Handler) googleAuthSignIn(w http.ResponseWriter, r *http.Request) {
-	if isSession(r) {
+	if session.IsSession(r) {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
@@ -57,7 +58,7 @@ func (app *Handler) googleAuthSignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Handler) googleAuthSignUp(w http.ResponseWriter, r *http.Request) {
-	if isSession(r) {
+	if session.IsSession(r) {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
@@ -109,7 +110,7 @@ func (app *Handler) googleSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	addCookie(w, r, user.ID)
+	session.AddCookie(w, r, user.ID)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -158,7 +159,7 @@ func (app *Handler) googleSignUp(w http.ResponseWriter, r *http.Request) {
 				app.clientError(w, http.StatusBadRequest)
 				return
 			}
-			addCookie(w, r, userID)
+			session.AddCookie(w, r, userID)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
