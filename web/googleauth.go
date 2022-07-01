@@ -14,16 +14,16 @@ import (
 
 const (
 	// ClientID     = "820533650499-t1lg2j1tl2162t2sldeo9tp3sj4itj3k.apps.googleusercontent.com"
-	ClientID = "820533650499-dj70ovtt4uspgoh9sbdb0m3bdlsf470g.apps.googleusercontent.com"
+	clientID = "820533650499-dj70ovtt4uspgoh9sbdb0m3bdlsf470g.apps.googleusercontent.com"
 	// ClientSecret = "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"
-	ClientSecret = "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"
+	clientSecret = "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"
 )
 
 var (
 	googleConfigSignIn = &Config{
 		RedirectURL:  "http://localhost:5000/signin/google/callback",
-		ClientID:     ClientID,
-		ClientSecret: ClientSecret,
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 			"https://www.googleapis.com/auth/userinfo.profile",
@@ -32,8 +32,8 @@ var (
 	}
 	googleConfigSignUp = &Config{
 		RedirectURL:  "http://localhost:5000/signup/google/callback",
-		ClientID:     ClientID,
-		ClientSecret: ClientSecret,
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 			"https://www.googleapis.com/auth/userinfo.profile",

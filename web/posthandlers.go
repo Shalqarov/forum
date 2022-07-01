@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,32 +11,6 @@ import (
 
 	"github.com/Shalqarov/forum/internal/domain"
 )
-
-func imageUpload(r *http.Request) (string, error) {
-	file, _, err := r.FormFile("myFile")
-	if err != nil {
-		if strings.Contains(err.Error(), "no such file") {
-			return "", nil
-		}
-		return "", err
-	}
-	defer file.Close()
-	fileBytes, err := ioutil.ReadAll(file)
-	if err != nil {
-		return "", err
-	}
-	fileType, err := contentType(fileBytes)
-	if err != nil {
-		return "", err
-	}
-	tempFile, err := ioutil.TempFile("./ui/static/images", "upload-*."+fileType)
-	if err != nil {
-		return "", err
-	}
-	defer tempFile.Close()
-	tempFile.Write(fileBytes)
-	return strings.ReplaceAll(tempFile.Name(), "./ui", ""), nil
-}
 
 func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 	userID, err := getUserIDByCookie(r)

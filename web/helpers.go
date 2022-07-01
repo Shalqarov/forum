@@ -3,6 +3,7 @@ package web
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"runtime/debug"
 	"strings"
@@ -29,6 +30,55 @@ func (app *Handler) render(w http.ResponseWriter, r *http.Request, name string, 
 	if err != nil {
 		app.serverError(w, err)
 	}
+}
+
+func imageUpload(r *http.Request) (string, error) {
+	file, _, err := r.FormFile("myFile")
+	if err != nil {
+		if strings.Contains(err.Error(), "no such file") {
+			return "", nil
+		}
+		return "", err
+	}
+	defer file.Close()
+	fileBytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+	fileType, err := contentType(fileBytes)
+	if err != nil {
+		return "", err
+	}
+	tempFile, err := ioutil.TempFile("./ui/static/images", "upload-*."+fileType)
+	if err != nil {
+		return "", err
+	}
+	defer tempFile.Close()
+	tempFile.Write(fileBytes)
+	return strings.ReplaceAll(tempFile.Name(), "./ui", ""), nil
+}
+
+func createAvatar(r *http.Request) (string, error) {
+	file, _, err := r.FormFile("avatar")
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+	fileBytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+	fileType, err := avatarType(fileBytes)
+	if err != nil {
+		return "", err
+	}
+	tempFile, err := ioutil.TempFile("./ui/static/images", "avatar-*."+fileType)
+	if err != nil {
+		return "", err
+	}
+	defer tempFile.Close()
+	tempFile.Write(fileBytes)
+	return strings.ReplaceAll(tempFile.Name(), "./ui", ""), nil
 }
 
 func contentType(filebytes []byte) (string, error) {

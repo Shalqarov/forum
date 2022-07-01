@@ -3,11 +3,8 @@ package web
 import (
 	"database/sql"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/Shalqarov/forum/internal/domain"
 )
@@ -53,62 +50,6 @@ func sessionChecker(h http.HandlerFunc) http.HandlerFunc {
 		}
 		h(w, r)
 	}
-}
-
-func (app *Handler) uploadAvatar(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
-	r.Body = http.MaxBytesReader(w, r.Body, 20<<20)
-	image, err := createAvatar(r)
-	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-	userID, err := getUserIDByCookie(r)
-	if err != nil {
-		if err == http.ErrNoCookie {
-			http.Redirect(w, r, "/signin", http.StatusUnauthorized)
-			return
-		}
-		app.ErrorLog.Printf("HANDLERS: home(): %s", err.Error())
-		app.clientError(w, http.StatusInternalServerError)
-		return
-	}
-	err = app.UserUsecase.ChangeAvatarByUserID(userID, image)
-	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: home(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-	redirectID := strconv.Itoa(int(userID))
-	http.Redirect(w, r, "/profile?id="+redirectID, http.StatusSeeOther)
-}
-
-func createAvatar(r *http.Request) (string, error) {
-	file, _, err := r.FormFile("avatar")
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-	fileBytes, err := ioutil.ReadAll(file)
-	if err != nil {
-		return "", err
-	}
-	fileType, err := avatarType(fileBytes)
-	if err != nil {
-		return "", err
-	}
-	tempFile, err := ioutil.TempFile("./ui/static/images", "avatar-*."+fileType)
-	if err != nil {
-		return "", err
-	}
-	defer tempFile.Close()
-	tempFile.Write(fileBytes)
-	return strings.ReplaceAll(tempFile.Name(), "./ui", ""), nil
 }
 
 func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
