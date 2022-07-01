@@ -95,7 +95,6 @@ func (app *Handler) googleSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 	userInfo := &UserInfo{}
 	json.Unmarshal(content, &userInfo)
-
 	user, err := app.UserUsecase.GetUserByEmail(userInfo.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {

@@ -97,7 +97,6 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 		app.render(w, r, "login.page.html", &templateData{})
 		return
 	case http.MethodPost:
-
 		info := &domain.User{
 			Email:    r.FormValue("email"),
 			Password: r.FormValue("password"),
@@ -110,8 +109,10 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 
 		user, err := app.UserUsecase.GetUserByEmail(info.Email)
 		if err != nil {
-			app.ErrorLog.Printf("HANDLERS: : %s", err.Error())
-			app.clientError(w, http.StatusNotFound)
+			w.WriteHeader(http.StatusUnauthorized)
+			app.render(w, r, "login.page.html", &templateData{
+				Error: "user doesn't exists",
+			})
 			return
 		}
 		if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(info.Password)); err != nil {

@@ -11,9 +11,8 @@
                             <i class="material-icons prefix">email</i>
                             <input name="email" id="email" type="email" class="validate">
                             <label for="email">Email</label>
-                            {{ if ne .Error ""}}
-                            <span class="helper-text" data-error="username or password is incorrect"
-                                data-success="right">{{.Error}}</span>
+                            {{ if .Error }}
+                            <span class="helper-text" data-error="{{ .Error}}" data-success="right"></span>
                             {{ end }}
                         </div>
                         <div class="input-field col s12">
@@ -35,7 +34,7 @@
                             Login with Google
                         </a>
                         <!-- TODO HERE WILL BE GITHUB AUTH BUTTON
-                            <a class="oauth-container btn darken-4 white black-text" href="/signin/github/auth"
+                        <a class="oauth-container btn darken-4 white black-text" href="/signin/github/auth"
                             style="text-transform:none">
                             <div class="left">
                                 <img width="20px" style="margin-top:7px; margin-right:8px" alt="Google sign-in"
