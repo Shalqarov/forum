@@ -32,13 +32,13 @@ func NewHandler(r *http.ServeMux, h *Handler) {
 	r.HandleFunc("/profile", h.profile)
 	r.HandleFunc("/post", h.postPage)
 	r.HandleFunc("/filter/category", h.postCategory)
-	r.HandleFunc("/createpost", h.createPost)
 
-	// r.Handle("/createpost", sessionChecker(h.createPost))
+	r.Handle("/createpost", middleware.SessionChecker(h.createPost))
 	r.Handle("/post/createcomment", middleware.SessionChecker(h.createComment))
 	r.Handle("/post/votecomment", middleware.SessionChecker(h.voteComment))
 	r.Handle("/post/vote", middleware.SessionChecker(h.votePost))
 	r.Handle("/profile/upload-avatar", middleware.SessionChecker(h.uploadAvatar))
+
 	fileServer := http.FileServer(http.Dir("./ui/static"))
 	r.Handle("/static", http.NotFoundHandler())
 	r.Handle("/static/", http.StripPrefix("/static", fileServer))

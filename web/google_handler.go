@@ -45,7 +45,6 @@ var (
 		AuthURL:  "https://accounts.google.com/o/oauth2/auth",
 		TokenURL: "https://oauth2.googleapis.com/token",
 	}
-	state = uuid.NewV4().String()
 )
 
 func (app *Handler) googleAuthSignIn(w http.ResponseWriter, r *http.Request) {

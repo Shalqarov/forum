@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 type Endpoint struct {
@@ -32,6 +34,8 @@ type Config struct {
 	RedirectURL  string
 	Scopes       []string
 }
+
+var state = uuid.NewV4().String()
 
 func (c *Config) AuthCodeURL(state string) string {
 	var buf bytes.Buffer
