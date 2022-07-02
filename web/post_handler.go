@@ -33,18 +33,11 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, 20<<20)
 
-	user, err := app.UserUsecase.GetUserByID(userID)
-	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
 	postInfo := &domain.Post{
 		Title:    r.FormValue("title"),
 		Content:  r.FormValue("content"),
 		UserID:   userID,
 		Category: r.FormValue("category"),
-		Author:   user.Username,
 	}
 	if strings.TrimSpace(postInfo.Title) == "" || strings.TrimSpace(postInfo.Content) == "" || strings.TrimSpace(postInfo.Category) == "" {
 		app.clientError(w, http.StatusBadRequest)
@@ -95,24 +88,19 @@ func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusInternalServerError)
 		return
 	}
+	tempUser := &domain.User{}
 	if session.IsSession(r) {
-		_, err := session.GetUserIDByCookie(r)
+		tempUser.ID, err = session.GetUserIDByCookie(r)
 		if err != nil {
 			log.Println("VotePost: GetUserIDByUsername: ", err)
 			app.clientError(w, http.StatusBadRequest)
 			return
 		}
 	}
-	user, err := app.UserUsecase.GetUserByID(post.UserID)
-	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: postPage(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
 
 	app.render(w, r, "post.page.html", &templateData{
 		IsSession: session.IsSession(r),
-		User:      user,
+		User:      tempUser,
 		Post:      post,
 		Comments:  comments,
 	})
@@ -230,23 +218,15 @@ func (app *Handler) createComment(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	user, err := app.UserUsecase.GetUserByID(userID)
-	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: createComment(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
 	comment := r.FormValue("comment")
 	if len(comment) > 255 {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 	comm := &domain.Comment{
-		UserID:     userID,
-		PostID:     postID,
-		Author:     user.Username,
-		Content:    comment,
-		UserAvatar: user.Avatar,
+		UserID:  userID,
+		PostID:  postID,
+		Content: comment,
 	}
 	app.CommentUsecase.CreateComment(comm)
 	http.Redirect(w, r, fmt.Sprintf("/post?id=%d", postID), http.StatusSeeOther)

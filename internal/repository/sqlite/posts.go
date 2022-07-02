@@ -15,14 +15,12 @@ const (
 	queryCreatePost = `
 	INSERT INTO "post"(
 	"user_id",
-	"author",
 	"title",
 	"content",
 	"category",
 	"date",
-	"image",
-	"user_avatar"
-	) VALUES(?,?,?,?,?,?,?,?)`
+	"image"
+	) VALUES(?,?,?,?,?,?)`
 
 	queryGetPostsByUserID = `
 	SELECT "id","user_id","title","category","date" 
@@ -31,9 +29,9 @@ const (
 	ORDER BY "id" DESC`
 
 	queryGetPostByID = `
-	SELECT * 
-	FROM "post" 
-	WHERE "id" = ?`
+	SELECT p.*, u.username, u.avatar FROM "post" AS p
+	INNER JOIN "user" AS u
+	ON u.ID = p.user_id`
 
 	queryGetPostsByCategory = `
 	SELECT "id","user_id","author","title","category","date" 
@@ -51,13 +49,11 @@ func (u *sqliteRepo) CreatePost(post *domain.Post) (int64, error) {
 	result, err := u.db.Exec(
 		queryCreatePost,
 		post.UserID,
-		post.Author,
 		post.Title,
 		post.Content,
 		post.Category,
 		time.Now().Format(time.RFC822),
 		post.Image,
-		post.UserAvatar,
 	)
 	if err != nil {
 		return 0, err
@@ -88,12 +84,12 @@ func (u *sqliteRepo) GetPostByID(id int64) (*domain.Post, error) {
 	err := u.db.QueryRow(queryGetPostByID, id).Scan(
 		&post.ID,
 		&post.UserID,
-		&post.Author,
 		&post.Title,
 		&post.Content,
 		&post.Category,
 		&post.CreatedAt,
 		&post.Image,
+		&post.Author,
 		&post.UserAvatar,
 	)
 	if err != nil {
