@@ -1,4 +1,4 @@
-package web
+package session
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 
 var cookie sync.Map
 
-const cookieName string = "forum_session"
+const CookieName string = "forum_session"
 
 type duration struct {
 	expiry map[interface{}]time.Time
@@ -20,7 +20,7 @@ type duration struct {
 
 var sessionDuration = duration{expiry: make(map[interface{}]time.Time)}
 
-func addCookie(w http.ResponseWriter, r *http.Request, id int64) {
+func AddCookie(w http.ResponseWriter, r *http.Request, id int64) {
 	sessionDuration.mu.Lock()
 	defer sessionDuration.mu.Unlock()
 
@@ -32,7 +32,7 @@ func addCookie(w http.ResponseWriter, r *http.Request, id int64) {
 	sessionDuration.expiry[u] = expire
 
 	session := &http.Cookie{
-		Name:     cookieName,
+		Name:     CookieName,
 		Value:    u,
 		Path:     "/",
 		HttpOnly: true,
@@ -41,10 +41,10 @@ func addCookie(w http.ResponseWriter, r *http.Request, id int64) {
 	http.SetCookie(w, session)
 }
 
-func deleteCookie(w http.ResponseWriter, r *http.Request) {
-	c, _ := r.Cookie(cookieName)
+func DeleteCookie(w http.ResponseWriter, r *http.Request) {
+	c, _ := r.Cookie(CookieName)
 	http.SetCookie(w, &http.Cookie{
-		Name:     cookieName,
+		Name:     CookieName,
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
@@ -62,8 +62,8 @@ func deleteExistingCookie(id int64, uuid string) {
 	})
 }
 
-func isSession(r *http.Request) bool {
-	c, err := r.Cookie(cookieName)
+func IsSession(r *http.Request) bool {
+	c, err := r.Cookie(CookieName)
 	var ok bool
 	if err == nil {
 		_, ok = cookie.Load(c.Value)
@@ -71,8 +71,8 @@ func isSession(r *http.Request) bool {
 	return ok
 }
 
-func getUserIDByCookie(r *http.Request) (int64, error) {
-	c, err := r.Cookie(cookieName)
+func GetUserIDByCookie(r *http.Request) (int64, error) {
+	c, err := r.Cookie(CookieName)
 	if err != nil {
 		return 0, err
 	}

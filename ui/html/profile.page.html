@@ -28,7 +28,7 @@
     }
 </style>
 <div class="row">
-    <div class="col s4">
+    <div class="col s12 m6 offset-m3 l4">
         <img style="width: 296px;height: 296px;" class="circle" src="{{.User.Avatar}}" alt="">
         <p>Username: {{.User.Username}}</p>
         <p>Email: {{.User.Email}}</p>
@@ -38,8 +38,8 @@
             <div class="modal-content">
                 <form action="/profile/upload-avatar" enctype="multipart/form-data" method="POST">
                     <h4>Change avatar</h4>
-                    <p>required 300pxX300px size</p>
-                    <input type="file" name="avatar" />
+                    <p>required 300pxX300px and less than 20mb size</p>
+                    <input type="file" required name="avatar" />
                     <button type="submit" class="btn">submit</button>
                 </form>
             </div>
@@ -49,7 +49,7 @@
         </div>
         {{end}}
     </div>
-    <div class="col s8">
+    <div class="col s12 l8">
         <ul class="tabs">
             <li class="tab col s6"><a href="#test1">Created posts</a></li>
             <li class="tab col s6"><a href="#test2">Liked Posts</a></li>
