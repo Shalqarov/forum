@@ -55,6 +55,7 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
+
 	user := &domain.User{}
 	if session.IsSession(r) {
 		userID, err := session.GetUserIDByCookie(r)
