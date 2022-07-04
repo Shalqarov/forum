@@ -71,8 +71,8 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 	}
 	posts, err := app.PostUsecase.GetAllPosts()
 	if err != nil {
-		if err != sql.ErrNoRows {
-			app.ErrorLog.Println(err)
+		if err == sql.ErrNoRows {
+			app.InfoLog.Println(err)
 		}
 		app.ErrorLog.Printf("HANDLERS: home(): %s", err.Error())
 		app.clientError(w, http.StatusInternalServerError)

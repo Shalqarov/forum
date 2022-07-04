@@ -59,20 +59,6 @@ func (u *sqliteRepo) GetVotedPostsByUserID(userID int64) ([]*domain.PostDTO, err
 	return posts, nil
 }
 
-func scanPostDTORows(rows *sql.Rows) ([]*domain.PostDTO, error) {
-	posts := []*domain.PostDTO{}
-	for rows.Next() {
-		post := domain.PostDTO{}
-		err := rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Category, &post.CreatedAt, &post.Author)
-		if err != nil {
-			return nil, err
-		}
-		posts = append(posts, &post)
-	}
-	rows.Close()
-	return posts, nil
-}
-
 func (u *sqliteRepo) VotePost(postID, userID int64, vote int) error {
 	var voteID int64
 	var voteInDB int
