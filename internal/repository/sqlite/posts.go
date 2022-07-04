@@ -40,8 +40,10 @@ const (
 	ORDER BY "id" DESC`
 
 	queryGetAllPosts = `
-	SELECT "id","user_id","author","title","category","date" 
-	FROM "post" 
+	SELECT p."id", p."user_id", p."title", p."category", p."date", u.username
+	FROM "post" AS p
+	INNER JOIN "user" AS u
+		ON p.user_id = u.id
 	ORDER BY "date" DESC`
 )
 
@@ -67,16 +69,7 @@ func (u *sqliteRepo) GetPostsByUserID(id int64) ([]*domain.PostDTO, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	posts := []*domain.PostDTO{}
-	for rows.Next() {
-		post := domain.PostDTO{}
-		err := rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Category, &post.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		posts = append(posts, &post)
-	}
-	return posts, nil
+	return scanPostDTORows(rows)
 }
 
 func (u *sqliteRepo) GetPostByID(id int64) (*domain.Post, error) {

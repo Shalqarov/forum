@@ -105,3 +105,20 @@ func (app *Handler) logout(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+// TODO
+// func (app *Handler) changePassword(w http.ResponseWriter, r *http.Request) {
+// 	switch r.Method {
+// 	case http.MethodGet:
+// 		w.WriteHeader(http.StatusMethodNotAllowed)
+// 		app.render(w, r, "changepass.page.html", &templateData{})
+// 		return
+// 	case http.MethodPost:
+// 		password := r.FormValue("password")
+// 		confirmPassword := r.FormValue("confirmPassword")
+
+// 	default:
+// 		app.clientError(w, http.StatusMethodNotAllowed)
+// 		return
+// 	}
+// }

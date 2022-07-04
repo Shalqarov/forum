@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	defaultAvatarPath = "/static/images/Blank-profile.jpg"
+	defaultAvatarPath = "/static/images/default-avatar.jpg"
 )
 
 func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
