@@ -41,3 +41,11 @@ func (u *userUsecase) GetUserIDByUsername(username string) (int64, error) {
 func (u *userUsecase) ChangeAvatarByUserID(userID int64, image string) error {
 	return u.repo.ChangeAvatarByUserID(userID, image)
 }
+
+func (u *userUsecase) ChangePassword(newPassword string, userID int64) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), 14)
+	if err != nil {
+		return err
+	}
+	return u.repo.ChangePassword(string(hashedPassword), userID)
+}

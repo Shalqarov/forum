@@ -33,6 +33,10 @@ const (
 	queryChangeAvatar = `
 	UPDATE "user" SET "avatar"=? WHERE "id" = ?
 	`
+
+	queryChangePassword = `
+	UPDATE "user" SET "password"=? WHERE "id"=?
+	`
 )
 
 type sqliteRepo struct {
@@ -93,4 +97,9 @@ func (u *sqliteRepo) GetUserByEmail(email string) (*domain.User, error) {
 	}
 
 	return &user, nil
+}
+
+func (u *sqliteRepo) ChangePassword(newPassword string, userID int64) error {
+	_, err := u.db.Exec(queryChangePassword, newPassword, userID)
+	return err
 }

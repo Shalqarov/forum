@@ -6,6 +6,7 @@ type UserUsecase interface {
 	GetUserByID(id int64) (*User, error)
 	GetUserByEmail(email string) (*User, error)
 	ChangeAvatarByUserID(userID int64, image string) error
+	ChangePassword(newPassword string, userID int64) error
 }
 
 type UserRepo interface {
@@ -14,4 +15,5 @@ type UserRepo interface {
 	GetUserByID(id int64) (*User, error)
 	GetUserByEmail(email string) (*User, error)
 	ChangeAvatarByUserID(userID int64, image string) error
+	ChangePassword(newPassword string, userID int64) error
 }

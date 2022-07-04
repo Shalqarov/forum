@@ -33,6 +33,7 @@ func NewHandler(r *http.ServeMux, h *Handler) {
 	r.HandleFunc("/post", h.postPage)
 	r.HandleFunc("/filter/category", h.postCategory)
 
+	r.Handle("/profile/changepassword", middleware.SessionChecker(h.changePassword))
 	r.Handle("/createpost", middleware.SessionChecker(h.createPost))
 	r.Handle("/post/createcomment", middleware.SessionChecker(h.createComment))
 	r.Handle("/post/votecomment", middleware.SessionChecker(h.voteComment))

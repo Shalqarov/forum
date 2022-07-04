@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -77,6 +78,5 @@ func (app *Handler) uploadAvatar(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	redirectID := strconv.Itoa(int(userID))
-	http.Redirect(w, r, "/profile?id="+redirectID, http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/profile?id=%d", userID), http.StatusSeeOther)
 }
