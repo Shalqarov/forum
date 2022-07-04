@@ -26,7 +26,7 @@ const (
 	SELECT p."id", p."user_id", p."title", p."category", p."date", u.username
 	FROM "post" AS p
 	INNER JOIN "user" AS u
-		ON p.user_id = u.id
+		ON p.id = v.post_id
 	INNER JOIN "post_votes" AS v
 		ON v."user_id" = u.id AND v.post_id = p.id
 	WHERE u.id=? AND v."vote"=1

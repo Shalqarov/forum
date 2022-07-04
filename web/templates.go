@@ -12,6 +12,7 @@ type templateData struct {
 	Error      string
 	IsSession  bool
 	Post       *models.Post
+	Profile    *models.User
 	Posts      []*models.PostDTO
 	Comments   []*models.Comment
 	LikedPosts []*models.PostDTO
