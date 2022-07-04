@@ -23,10 +23,15 @@ const (
 	WHERE "id" = ?`
 
 	queryGetVotedPostsByUserID = `
-	SELECT p."id",p."user_id","author","title","category","date" 
+	SELECT p."id", p."user_id", p."title", p."category", p."date", u.username
 	FROM "post" AS p
-	INNER JOIN "post_votes" AS v ON p."id"=v."post_id"	
-	WHERE p."user_id"=? AND v."vote"=1`
+	INNER JOIN "user" AS u
+		ON p.id = v.post_id
+	INNER JOIN "post_votes" AS v
+		ON v."user_id" = u.id AND v.post_id = p.id
+	WHERE u.id=? AND v."vote"=1
+	ORDER BY p."date" DESC
+	`
 
 	queryGetVotesCountByPostID = `
 	SELECT "vote", count("vote") 
@@ -35,6 +40,24 @@ const (
 	GROUP BY "vote"
 	ORDER BY "vote" desc`
 )
+
+func (u *sqliteRepo) GetVotedPostsByUserID(userID int64) ([]*domain.PostDTO, error) {
+	rows, err := u.db.Query(queryGetVotedPostsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	posts := []*domain.PostDTO{}
+	for rows.Next() {
+		post := &domain.PostDTO{}
+		err := rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Category, &post.CreatedAt, &post.Author)
+		if err != nil {
+			return nil, err
+		}
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
 
 func (u *sqliteRepo) VotePost(postID, userID int64, vote int) error {
 	var voteID int64
@@ -60,15 +83,6 @@ func (u *sqliteRepo) VotePost(postID, userID int64, vote int) error {
 		return err
 	}
 	return nil
-}
-
-func (u *sqliteRepo) GetVotedPostsByUserID(userID int64) ([]*domain.PostDTO, error) {
-	rows, err := u.db.Query(queryGetVotedPostsByUserID, userID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	return scanPostDTORows(rows)
 }
 
 func (u *sqliteRepo) GetVotesCountByPostID(postID int64) (*domain.Vote, error) {
@@ -97,17 +111,4 @@ func (u *sqliteRepo) GetVotesCountByPostID(postID int64) (*domain.Vote, error) {
 		}
 	}
 	return votes, nil
-}
-
-func scanPostDTORows(rows *sql.Rows) ([]*domain.PostDTO, error) {
-	posts := []*domain.PostDTO{}
-	for rows.Next() {
-		post := domain.PostDTO{}
-		err := rows.Scan(&post.ID, &post.UserID, &post.Author, &post.Title, &post.Category, &post.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		posts = append(posts, &post)
-	}
-	return posts, nil
 }

@@ -10,7 +10,7 @@
         <div class="divider"></div>
         <span>Created by: </span>
         <div class="chip">
-            <img src="{{.User.Avatar}}"
+            <img src="{{.Post.UserAvatar}}"
                 alt="">
                 <a href="/profile?id={{.Post.UserID}}">{{.Post.Author}}</a>
         </div>
@@ -63,6 +63,8 @@
 <div class="row z-depth-1" >
     <div class="col col s12 grey lighten-3">
         <div class="chip">
+            <img src="{{.UserAvatar}}"
+                alt="">
                 <a href="/profile?id={{.UserID}}">{{.Author}}</a>
         </div>
         

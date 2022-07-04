@@ -1,14 +1,16 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/Shalqarov/forum/internal/domain"
 	"github.com/Shalqarov/forum/internal/session"
 )
 
 const (
-	defaultAvatarPath = "/static/images/Blank-profile.jpg"
+	defaultAvatarPath = "/static/images/default-avatar.jpg"
 )
 
 func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
@@ -17,12 +19,12 @@ func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
-	userID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
-	if err != nil || userID < 1 {
+	id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	if err != nil || id < 1 {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	user, err := app.UserUsecase.GetUserByID(userID)
+	user, err := app.UserUsecase.GetUserByID(id)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: profile()1: %s", err.Error())
 		app.clientError(w, http.StatusBadRequest)
@@ -40,9 +42,18 @@ func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
+	userID, err := session.GetUserIDByCookie(r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		app.render(w, r, "login.page.html", &templateData{})
+		return
+	}
 	app.render(w, r, "profile.page.html", &templateData{
-		IsSession:  session.IsSession(r),
-		User:       user,
+		IsSession: session.IsSession(r),
+		User: &domain.User{
+			ID: userID,
+		},
+		Profile:    user,
 		Posts:      posts,
 		LikedPosts: likedPosts,
 	})
@@ -77,6 +88,5 @@ func (app *Handler) uploadAvatar(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	redirectID := strconv.Itoa(int(userID))
-	http.Redirect(w, r, "/profile?id="+redirectID, http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/profile?id=%d", userID), http.StatusSeeOther)
 }

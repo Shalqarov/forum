@@ -15,35 +15,39 @@ const (
 	queryCreatePost = `
 	INSERT INTO "post"(
 	"user_id",
-	"author",
 	"title",
 	"content",
 	"category",
 	"date",
-	"image",
-	"user_avatar"
-	) VALUES(?,?,?,?,?,?,?,?)`
+	"image"
+	) VALUES(?,?,?,?,?,?)`
 
 	queryGetPostsByUserID = `
-	SELECT "id","user_id","title","category","date" 
-	FROM "post" 
-	WHERE "user_id" = ? 
-	ORDER BY "id" DESC`
+	SELECT p."id", p."user_id", p."title", p."category", p."date", u.username
+	FROM "post" AS p
+	INNER JOIN "user" AS u
+		ON p.user_id = u.id
+	WHERE u.id=?
+	ORDER BY "date" DESC`
 
 	queryGetPostByID = `
-	SELECT * 
-	FROM "post" 
-	WHERE "id" = ?`
+	SELECT p.*, u.username, u.avatar FROM "post" AS p
+	INNER JOIN "user" AS u
+	ON u.ID = p.user_id`
 
 	queryGetPostsByCategory = `
-	SELECT "id","user_id","author","title","category","date" 
-	FROM "post" 
-	WHERE "category"=? 
-	ORDER BY "id" DESC`
+	SELECT p."id", p."user_id", p."title", p."category", p."date", u.username
+	FROM "post" AS p
+	INNER JOIN "user" AS u
+		ON p.user_id = u.id
+	WHERE p.category=?
+	ORDER BY "date" DESC`
 
 	queryGetAllPosts = `
-	SELECT "id","user_id","author","title","category","date" 
-	FROM "post" 
+	SELECT p."id", p."user_id", p."title", p."category", p."date", u.username
+	FROM "post" AS p
+	INNER JOIN "user" AS u
+		ON p.user_id = u.id
 	ORDER BY "date" DESC`
 )
 
@@ -51,13 +55,11 @@ func (u *sqliteRepo) CreatePost(post *domain.Post) (int64, error) {
 	result, err := u.db.Exec(
 		queryCreatePost,
 		post.UserID,
-		post.Author,
 		post.Title,
 		post.Content,
 		post.Category,
 		time.Now().Format(time.RFC822),
 		post.Image,
-		post.UserAvatar,
 	)
 	if err != nil {
 		return 0, err
@@ -71,16 +73,7 @@ func (u *sqliteRepo) GetPostsByUserID(id int64) ([]*domain.PostDTO, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	posts := []*domain.PostDTO{}
-	for rows.Next() {
-		post := domain.PostDTO{}
-		err := rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Category, &post.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		posts = append(posts, &post)
-	}
-	return posts, nil
+	return scanPostDTORows(rows)
 }
 
 func (u *sqliteRepo) GetPostByID(id int64) (*domain.Post, error) {
@@ -88,12 +81,12 @@ func (u *sqliteRepo) GetPostByID(id int64) (*domain.Post, error) {
 	err := u.db.QueryRow(queryGetPostByID, id).Scan(
 		&post.ID,
 		&post.UserID,
-		&post.Author,
 		&post.Title,
 		&post.Content,
 		&post.Category,
 		&post.CreatedAt,
 		&post.Image,
+		&post.Author,
 		&post.UserAvatar,
 	)
 	if err != nil {
@@ -118,4 +111,18 @@ func (u *sqliteRepo) GetAllPosts() ([]*domain.PostDTO, error) {
 	}
 	defer rows.Close()
 	return scanPostDTORows(rows)
+}
+
+func scanPostDTORows(rows *sql.Rows) ([]*domain.PostDTO, error) {
+	posts := []*domain.PostDTO{}
+	for rows.Next() {
+		post := domain.PostDTO{}
+		err := rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Category, &post.CreatedAt, &post.Author)
+		if err != nil {
+			return nil, err
+		}
+		posts = append(posts, &post)
+	}
+	rows.Close()
+	return posts, nil
 }

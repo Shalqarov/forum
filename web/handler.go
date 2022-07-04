@@ -33,6 +33,7 @@ func NewHandler(r *http.ServeMux, h *Handler) {
 	r.HandleFunc("/post", h.postPage)
 	r.HandleFunc("/filter/category", h.postCategory)
 
+	r.Handle("/profile/changepassword", middleware.SessionChecker(h.changePassword))
 	r.Handle("/createpost", middleware.SessionChecker(h.createPost))
 	r.Handle("/post/createcomment", middleware.SessionChecker(h.createComment))
 	r.Handle("/post/votecomment", middleware.SessionChecker(h.voteComment))
@@ -49,11 +50,13 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+
 	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", http.MethodGet)
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
+
 	user := &domain.User{}
 	if session.IsSession(r) {
 		userID, err := session.GetUserIDByCookie(r)
@@ -70,8 +73,8 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 	}
 	posts, err := app.PostUsecase.GetAllPosts()
 	if err != nil {
-		if err != sql.ErrNoRows {
-			app.ErrorLog.Println(err)
+		if err == sql.ErrNoRows {
+			app.InfoLog.Println(err)
 		}
 		app.ErrorLog.Printf("HANDLERS: home(): %s", err.Error())
 		app.clientError(w, http.StatusInternalServerError)

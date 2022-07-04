@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -104,4 +105,43 @@ func (app *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	session.DeleteCookie(w, r)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *Handler) changePassword(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		app.render(w, r, "changepass.page.html", &templateData{})
+		return
+	case http.MethodPost:
+		password := r.FormValue("password")
+		confirmPassword := r.FormValue("confirmPassword")
+		if strings.TrimSpace(password) == "" || strings.TrimSpace(confirmPassword) == "" {
+			app.clientError(w, http.StatusBadRequest)
+			return
+		}
+		if password != confirmPassword {
+			w.WriteHeader(http.StatusBadRequest)
+			app.render(w, r, "changepass.page.html", &templateData{
+				Error: "passwords not similar",
+			})
+			return
+		}
+		userID, err := session.GetUserIDByCookie(r)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			app.render(w, r, "login.page.html", &templateData{})
+			return
+		}
+		err = app.UserUsecase.ChangePassword(password, userID)
+		if err != nil {
+			app.ErrorLog.Printf("HANDLERS: changePass(): %s", err.Error())
+			app.clientError(w, http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(w, r, fmt.Sprintf("/profile?id=%d", userID), http.StatusSeeOther)
+	default:
+		app.clientError(w, http.StatusMethodNotAllowed)
+		return
+	}
 }
