@@ -92,8 +92,7 @@ func (app *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	_, err := r.Cookie(session.CookieName)
 	if err != nil {
 		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
-			app.render(w, r, "login.page.html", &templateData{})
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
 		app.clientError(w, http.StatusBadRequest)
