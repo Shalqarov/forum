@@ -2,6 +2,8 @@ package sqlite
 
 import (
 	"database/sql"
+	"os"
+	"strings"
 
 	"github.com/Shalqarov/forum/internal/domain"
 )
@@ -61,7 +63,18 @@ func (u *sqliteRepo) CreateUser(user *domain.User) (int64, error) {
 }
 
 func (u *sqliteRepo) ChangeAvatarByUserID(userID int64, image string) error {
-	_, err := u.db.Exec(queryChangeAvatar, image, userID)
+	imagePath := ""
+	err := u.db.QueryRow(`SELECT "avatar" FROM user WHERE "id" = ?`, userID).Scan(&imagePath)
+	if err != nil {
+		return err
+	}
+	if !strings.Contains(imagePath, "default-avatar.jpg") {
+		err = os.Remove("ui" + imagePath)
+		if err != nil {
+			return err
+		}
+	}
+	_, err = u.db.Exec(queryChangeAvatar, image, userID)
 	if err != nil {
 		return err
 	}
