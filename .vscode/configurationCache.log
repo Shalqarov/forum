@@ -1,0 +1,1 @@
+{"buildTargets":["delete","docker-run","run","stop"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}

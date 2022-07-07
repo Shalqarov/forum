@@ -58,7 +58,6 @@ func (app *Handler) githubCallBackHandler(w http.ResponseWriter, r *http.Request
 		Email:    githubEmail,
 		Password: uuid.NewV4().String(),
 	}
-	fmt.Println(u.Email)
 	user, err := app.UserUsecase.GetUserByEmail(strings.ToLower(u.Email))
 	if err != nil {
 		if err == sql.ErrNoRows {
