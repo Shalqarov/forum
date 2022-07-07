@@ -1,5 +1,0 @@
-make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/home/student/forum'
-go run ./cmd/ 
-make: Leaving directory '/home/student/forum'
- 
