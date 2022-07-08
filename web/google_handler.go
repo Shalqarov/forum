@@ -20,33 +20,6 @@ const (
 	googleClientSecret = "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"
 )
 
-var (
-	googleConfigSignIn = &Config{
-		RedirectURL:  "http://localhost:5000/signin/google/callback",
-		ClientID:     googleClientID,
-		ClientSecret: googleClientSecret,
-		Scopes: []string{
-			"https://www.googleapis.com/auth/userinfo.email",
-			"https://www.googleapis.com/auth/userinfo.profile",
-		},
-		Endpoint: googleEndPoint,
-	}
-	googleConfigSignUp = &Config{
-		RedirectURL:  "http://localhost:5000/signup/google/callback",
-		ClientID:     googleClientID,
-		ClientSecret: googleClientSecret,
-		Scopes: []string{
-			"https://www.googleapis.com/auth/userinfo.email",
-			"https://www.googleapis.com/auth/userinfo.profile",
-		},
-		Endpoint: googleEndPoint,
-	}
-	googleEndPoint = Endpoint{
-		AuthURL:  "https://accounts.google.com/o/oauth2/auth",
-		TokenURL: "https://oauth2.googleapis.com/token",
-	}
-)
-
 func (app *Handler) googleLoginHandler(w http.ResponseWriter, r *http.Request) {
 	redirectURL := fmt.Sprintf(
 		"https://accounts.google.com/o/oauth2/auth?client_id=%s&redirect_uri=%s&scope=%s&response_type=%s",
@@ -130,12 +103,7 @@ func getGoogleAccessToken(code string) (string, error) {
 		return "", err
 	}
 
-	type googleAccesTokenResponse struct {
-		AccessToken string `json:"access_token"`
-		TokenType   string `json:"token_type"`
-		Scope       string `json:"scope"`
-	}
-	var ghresp googleAccesTokenResponse
+	var ghresp Token
 	err = json.Unmarshal(respbody, &ghresp)
 	if err != nil {
 		return "", err
@@ -163,17 +131,14 @@ func getGoogleData(accessToken string) (*domain.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	type Data struct {
-		Username string `json:"given_name"`
-		Email    string `json:"email"`
-	}
-	var data Data
+	var data UserInfo
 	json.Unmarshal(body, &data)
 
 	u := &domain.User{
@@ -181,129 +146,4 @@ func getGoogleData(accessToken string) (*domain.User, error) {
 		Email:    data.Email,
 	}
 	return u, nil
-}
-
-func (app *Handler) googleAuthSignIn(w http.ResponseWriter, r *http.Request) {
-	if session.IsSession(r) {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
-	}
-	url := googleConfigSignIn.AuthCodeURL(state)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
-}
-
-func (app *Handler) googleAuthSignUp(w http.ResponseWriter, r *http.Request) {
-	if session.IsSession(r) {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
-	}
-	url := googleConfigSignUp.AuthCodeURL(state)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
-}
-
-func (app *Handler) googleSignIn(w http.ResponseWriter, r *http.Request) {
-	if r.FormValue("state") != state {
-		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", errors.New("state is not valid"))
-		app.clientError(w, http.StatusUnauthorized)
-		return
-	}
-	token, err := googleConfigSignIn.GetTokenByCode(r.FormValue("code"))
-	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", err.Error())
-		app.clientError(w, http.StatusUnauthorized)
-		return
-	}
-
-	resp, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
-	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", err.Error())
-		app.clientError(w, http.StatusUnauthorized)
-		return
-	}
-
-	defer resp.Body.Close()
-
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Printf("could not parse response %s", err.Error())
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-		return
-	}
-	userInfo := &UserInfo{}
-	json.Unmarshal(content, &userInfo)
-	user, err := app.UserUsecase.GetUserByEmail(userInfo.Email)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			w.WriteHeader(http.StatusNotFound)
-			app.render(w, r, "login.page.html", &templateData{
-				Error: "User doesn't exists",
-			})
-			return
-		}
-		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-
-	session.AddCookie(w, r, user.ID)
-	http.Redirect(w, r, "/", http.StatusSeeOther)
-}
-
-func (app *Handler) googleSignUp(w http.ResponseWriter, r *http.Request) {
-	if r.FormValue("state") != state {
-		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", errors.New("state is not valid"))
-		app.clientError(w, http.StatusUnauthorized)
-		return
-	}
-	token, err := googleConfigSignUp.GetTokenByCode(r.FormValue("code"))
-	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", err.Error())
-		app.clientError(w, http.StatusUnauthorized)
-		return
-	}
-
-	resp, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
-	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", err.Error())
-		app.clientError(w, http.StatusUnauthorized)
-		return
-	}
-
-	defer resp.Body.Close()
-
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Printf("could not parse response %s", err.Error())
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-		return
-	}
-	userInfo := &UserInfo{}
-	json.Unmarshal(content, &userInfo)
-
-	_, err = app.UserUsecase.GetUserByEmail(userInfo.Email)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			u := domain.User{
-				Email:    userInfo.Email,
-				Username: userInfo.Username,
-				Password: uuid.NewV4().String(),
-				Avatar:   defaultAvatarPath,
-			}
-			userID, err := app.UserUsecase.CreateUser(&u)
-			if err != nil {
-				app.clientError(w, http.StatusBadRequest)
-				return
-			}
-			session.AddCookie(w, r, userID)
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-			return
-		}
-		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", err.Error())
-		app.clientError(w, http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(http.StatusUnauthorized)
-	app.render(w, r, "register.page.html", &templateData{
-		Error: "User already exists",
-	})
 }

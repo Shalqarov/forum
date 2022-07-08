@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -15,49 +16,118 @@ import (
 )
 
 const (
-	githubClientID     = "e6775f24b7ae5d23a9bf"
-	githubClientSecret = "9631fe307239dd7150112696a6aaf3557aac79c9"
+	githubLoginClientID     = "e6775f24b7ae5d23a9bf"
+	githubLoginClientSecret = "9631fe307239dd7150112696a6aaf3557aac79c9"
+
+	githubRegisterClientID     = "ad57429fdd16c9830c94"
+	githubRegisterClientSecret = "b31feac706a76b9e5a79de7515ce3d7a82f33aae"
 )
+
+type ghUserInfo struct {
+	Username string `json:"email"`
+	Email    string `json:"login"`
+}
 
 func (app *Handler) githubLoginHandler(w http.ResponseWriter, r *http.Request) {
 	redirectURL := fmt.Sprintf(
 		"https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&scope=user:email",
-		githubClientID,
+		githubLoginClientID,
 		"http://localhost:5000/signin/github/callback",
 	)
 	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
 
-func (app *Handler) githubCallBackHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Handler) githubRegisterHandler(w http.ResponseWriter, r *http.Request) {
+	redirectURL := fmt.Sprintf(
+		"https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&scope=user:email",
+		githubRegisterClientID,
+		"http://localhost:5000/signup/github/callback",
+	)
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
+}
+
+func (app *Handler) githubRegisterCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
-
-	githubAccessToken, err := getGithubAccesToken(code)
+	accessToken, err := getGithubAccesToken(code, githubRegisterClientID, githubRegisterClientSecret)
 	if err != nil {
-		app.clientError(w, 400)
+		app.ErrorLog.Println(err)
+		app.clientError(w, http.StatusUnauthorized)
 		return
 	}
-
-	githubLogin, err := getGithubData(githubAccessToken)
+	info, err := getGithubUserInfo(r, accessToken)
 	if err != nil {
-		app.clientError(w, 400)
+		app.ErrorLog.Println(err)
+		app.clientError(w, http.StatusUnauthorized)
 		return
 	}
-
-	githubEmail, err := getGithubEmail(githubAccessToken)
+	_, err = app.UserUsecase.GetUserByEmail(info.Email)
 	if err != nil {
-		app.clientError(w, 400)
+		if err == sql.ErrNoRows {
+			u := &models.User{
+				Username: info.Username,
+				Email:    info.Email,
+				Password: uuid.NewV4().String(),
+			}
+			userID, err := app.UserUsecase.CreateUser(u)
+			if err != nil {
+				app.clientError(w, http.StatusBadRequest)
+				return
+			}
+			session.AddCookie(w, r, userID)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", err.Error())
+		app.clientError(w, http.StatusInternalServerError)
 		return
 	}
+	w.WriteHeader(http.StatusUnauthorized)
+	app.render(w, r, "register.page.html", &templateData{
+		Error: "User already exists",
+	})
+}
 
-	if githubLogin == "" || githubEmail == "" {
-		app.ErrorLog.Fatal("getting empty login or email ")
+func getGithubUserInfo(r *http.Request, accessToken string) (*ghUserInfo, error) {
+	username, err := getGithubData(accessToken)
+	if err != nil {
+		return nil, err
 	}
+	email, err := getGithubEmail(accessToken)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("name:", username)
+	fmt.Println("email:", email)
+	userInfo := &ghUserInfo{
+		Username: username,
+		Email:    email,
+	}
+	if userInfo.Email == "" || userInfo.Username == "" {
+		return nil, errors.New("getting empty login or email")
+	}
+	return userInfo, nil
+}
 
+func (app *Handler) githubLoginCallBackHandler(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	accessToken, err := getGithubAccesToken(code, githubLoginClientID, githubLoginClientSecret)
+	if err != nil {
+		app.ErrorLog.Println(err)
+		app.clientError(w, http.StatusUnauthorized)
+		return
+	}
+	info, err := getGithubUserInfo(r, accessToken)
+	if err != nil {
+		app.ErrorLog.Println(err)
+		app.clientError(w, http.StatusUnauthorized)
+		return
+	}
 	u := &models.User{
-		Username: githubLogin,
-		Email:    githubEmail,
+		Username: info.Username,
+		Email:    info.Email,
 		Password: uuid.NewV4().String(),
 	}
+
 	user, err := app.UserUsecase.GetUserByEmail(strings.ToLower(u.Email))
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -75,10 +145,10 @@ func (app *Handler) githubCallBackHandler(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func getGithubAccesToken(code string) (string, error) {
+func getGithubAccesToken(code, clientID, clientSecret string) (string, error) {
 	requestBodyMap := map[string]string{
-		"client_id":     githubClientID,
-		"client_secret": githubClientSecret,
+		"client_id":     clientID,
+		"client_secret": clientSecret,
 		"code":          code,
 	}
 
@@ -106,12 +176,7 @@ func getGithubAccesToken(code string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	type githubAccessTokenResponse struct {
-		AccessToken string `json:"access_token"`
-		TokenType   string `json:"token_type"`
-		Scope       string `json:"scope"`
-	}
-	var ghresp githubAccessTokenResponse
+	var ghresp Token
 	err = json.Unmarshal(respBody, &ghresp)
 	if err != nil {
 		return "", err
@@ -137,6 +202,7 @@ func getGithubData(accessToken string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer resp.Body.Close()
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
