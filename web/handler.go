@@ -29,8 +29,11 @@ func NewHandler(r *http.ServeMux, h *Handler) {
 
 	r.Handle("/signup", middleware.Unauthorized(h.signup))
 	r.Handle("/signin", middleware.Unauthorized(h.signin))
+
 	r.Handle("/signin/google/auth", middleware.Unauthorized(h.googleLoginHandler))
-	r.Handle("/signin/google/callback", middleware.Unauthorized(h.googleCallbackHandler))
+	r.Handle("/signin/google/callback", middleware.Unauthorized(h.googleLoginCallbackHandler))
+	r.Handle("/signup/google/auth", middleware.Unauthorized(h.googleRegisterHandler))
+	r.Handle("/signup/google/callback", middleware.Unauthorized(h.googleRegisterCallbackHandler))
 
 	r.Handle("/signin/github/auth", middleware.Unauthorized(h.githubLoginHandler))
 	r.Handle("/signin/github/callback", middleware.Unauthorized(h.githubLoginCallBackHandler))
