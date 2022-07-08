@@ -1,6 +1,7 @@
 package web
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strings"
@@ -8,6 +9,10 @@ import (
 	"github.com/Shalqarov/forum/internal/domain"
 	"github.com/Shalqarov/forum/internal/session"
 	"golang.org/x/crypto/bcrypt"
+)
+
+const (
+	defaultAvatarPath = "/static/images/default-avatar.jpg"
 )
 
 func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
@@ -28,19 +33,7 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		userID, err := app.UserUsecase.CreateUser(&user)
-		if err != nil {
-			if strings.Contains(err.Error(), "UNIQUE") {
-				app.render(w, r, "register.page.html", &templateData{
-					Error: "User already exists",
-				})
-				return
-			}
-			app.clientError(w, http.StatusBadRequest)
-			return
-		}
-		session.AddCookie(w, r, userID)
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		app.setUser(w, r, &user)
 	default:
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
@@ -86,6 +79,29 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
+}
+
+func (app *Handler) setUser(w http.ResponseWriter, r *http.Request, u *domain.User) {
+	_, err := app.UserUsecase.GetUserByEmail(u.Email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			userID, err := app.UserUsecase.CreateUser(u)
+			if err != nil {
+				app.clientError(w, http.StatusBadRequest)
+				return
+			}
+			session.AddCookie(w, r, userID)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", err.Error())
+		app.clientError(w, http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusUnauthorized)
+	app.render(w, r, "register.page.html", &templateData{
+		Error: "User already exists",
+	})
 }
 
 func (app *Handler) logout(w http.ResponseWriter, r *http.Request) {
