@@ -22,23 +22,30 @@ type Handler struct {
 
 func NewHandler(r *http.ServeMux, h *Handler) {
 	r.HandleFunc("/", h.home)
-	r.HandleFunc("/signup", h.signup)
-	r.HandleFunc("/signin", h.signin)
-	r.HandleFunc("/signin/google/auth", h.googleAuthSignIn)
-	r.HandleFunc("/signin/google/callback", h.googleSignIn)
-	r.HandleFunc("/signup/google/auth", h.googleAuthSignUp)
-	r.HandleFunc("/signup/google/callback", h.googleSignUp)
 	r.HandleFunc("/logout", h.logout)
 	r.HandleFunc("/profile", h.profile)
 	r.HandleFunc("/post", h.postPage)
 	r.HandleFunc("/filter/category", h.postCategory)
 
-	r.Handle("/profile/changepassword", middleware.SessionChecker(h.changePassword))
-	r.Handle("/createpost", middleware.SessionChecker(h.createPost))
-	r.Handle("/post/createcomment", middleware.SessionChecker(h.createComment))
-	r.Handle("/post/votecomment", middleware.SessionChecker(h.voteComment))
-	r.Handle("/post/vote", middleware.SessionChecker(h.votePost))
-	r.Handle("/profile/upload-avatar", middleware.SessionChecker(h.uploadAvatar))
+	r.Handle("/signup", middleware.Unauthorized(h.signup))
+	r.Handle("/signin", middleware.Unauthorized(h.signin))
+
+	r.Handle("/signin/google/auth", middleware.Unauthorized(h.googleLoginHandler))
+	r.Handle("/signin/google/callback", middleware.Unauthorized(h.googleLoginCallbackHandler))
+	r.Handle("/signup/google/auth", middleware.Unauthorized(h.googleRegisterHandler))
+	r.Handle("/signup/google/callback", middleware.Unauthorized(h.googleRegisterCallbackHandler))
+
+	r.Handle("/signin/github/auth", middleware.Unauthorized(h.githubLoginHandler))
+	r.Handle("/signin/github/callback", middleware.Unauthorized(h.githubLoginCallBackHandler))
+	r.Handle("/signup/github/auth", middleware.Unauthorized(h.githubRegisterHandler))
+	r.Handle("/signup/github/callback", middleware.Unauthorized(h.githubRegisterCallbackHandler))
+
+	r.Handle("/post/vote", middleware.NeedToBeAuthorized(h.votePost))
+	r.Handle("/createpost", middleware.NeedToBeAuthorized(h.createPost))
+	r.Handle("/post/votecomment", middleware.NeedToBeAuthorized(h.voteComment))
+	r.Handle("/post/createcomment", middleware.NeedToBeAuthorized(h.createComment))
+	r.Handle("/profile/upload-avatar", middleware.NeedToBeAuthorized(h.uploadAvatar))
+	r.Handle("/profile/changepassword", middleware.NeedToBeAuthorized(h.changePassword))
 
 	fileServer := http.FileServer(http.Dir("./ui/static"))
 	r.Handle("/static", http.NotFoundHandler())
@@ -53,7 +60,7 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", http.MethodGet)
-		app.clientError(w, http.StatusMethodNotAllowed)
+		app.methodNotAllowed(w, r)
 		return
 	}
 
@@ -62,11 +69,11 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 		userID, err := session.GetUserIDByCookie(r)
 		if err != nil {
 			if err == http.ErrNoCookie {
-				app.clientError(w, http.StatusUnauthorized)
+				http.Redirect(w, r, "/signin", http.StatusUnauthorized)
 				return
 			}
 			app.ErrorLog.Printf("HANDLERS: home(): %s", err.Error())
-			app.clientError(w, http.StatusInternalServerError)
+			app.clientError(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 		user.ID = userID
@@ -77,7 +84,7 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 			app.InfoLog.Println(err)
 		}
 		app.ErrorLog.Printf("HANDLERS: home(): %s", err.Error())
-		app.clientError(w, http.StatusInternalServerError)
+		app.clientError(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 	app.render(w, r, "home.page.html", &templateData{

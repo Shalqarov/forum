@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"strings"
+
 	"github.com/Shalqarov/forum/internal/domain"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -20,6 +22,7 @@ func (u *userUsecase) CreateUser(user *domain.User) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	user.Email = strings.ToLower(user.Email)
 	user.Password = string(hashedPassword)
 	return u.repo.CreateUser(user)
 }

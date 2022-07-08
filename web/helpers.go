@@ -16,8 +16,12 @@ func (app *Handler) serverError(w http.ResponseWriter, err error) {
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
 
-func (app *Handler) clientError(w http.ResponseWriter, status int) {
-	http.Error(w, http.StatusText(status), status)
+func (app *Handler) clientError(w http.ResponseWriter, r *http.Request, status int, message string) {
+	app.render(w, r, "error.page.html", &templateData{Error: message, StatusCode: status})
+}
+
+func (app *Handler) methodNotAllowed(w http.ResponseWriter, r *http.Request) {
+	app.clientError(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
 }
 
 func (app *Handler) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {

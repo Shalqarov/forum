@@ -1,7 +1,6 @@
 package web
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"log"
@@ -17,11 +16,10 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 	userID, err := session.GetUserIDByCookie(r)
 	if err != nil {
 		if errors.Is(err, http.ErrNoCookie) {
-			app.clientError(w, http.StatusUnauthorized)
-			return
+			http.Redirect(w, r, "/signin", http.StatusSeeOther)
 		}
 		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
-		app.clientError(w, http.StatusInternalServerError)
+		app.clientError(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 	if r.Method != http.MethodPost {
@@ -40,19 +38,19 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		Category: r.FormValue("category"),
 	}
 	if strings.TrimSpace(postInfo.Title) == "" || strings.TrimSpace(postInfo.Content) == "" || strings.TrimSpace(postInfo.Category) == "" {
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, "Some of the fields are empty")
 		return
 	}
 	postInfo.Image, err = imageUpload(r)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, "Wrong image type")
 		return
 	}
 	_, err = app.PostUsecase.CreatePost(postInfo)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -61,39 +59,39 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", http.MethodGet)
-		app.clientError(w, http.StatusMethodNotAllowed)
+		app.methodNotAllowed(w, r)
 		return
 	}
 	postID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 	if err != nil || postID < 1 {
 		app.ErrorLog.Printf("HANDLERS: postPage(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	post, err := app.PostUsecase.GetPostByID(postID)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: postPage(): %s", err.Error())
-		app.clientError(w, http.StatusNotFound)
+		app.clientError(w, r, http.StatusNotFound, http.StatusText(http.StatusNotFound))
 		return
 	}
 
 	comments, err := app.CommentUsecase.GetCommentsByPostID(postID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			app.clientError(w, http.StatusBadRequest)
-			return
-		}
 		app.ErrorLog.Printf("HANDLERS: postPage(): %s", err.Error())
-		app.clientError(w, http.StatusInternalServerError)
+		app.clientError(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 	tempUser := &domain.User{}
 	if session.IsSession(r) {
 		tempUser.ID, err = session.GetUserIDByCookie(r)
 		if err != nil {
+			if err == http.ErrNoCookie {
+				http.Redirect(w, r, "/signin", http.StatusUnauthorized)
+				return
+			}
 			log.Println("VotePost: GetUserIDByUsername: ", err)
-			app.clientError(w, http.StatusBadRequest)
+			app.clientError(w, r, http.StatusBadRequest, err.Error())
 			return
 		}
 	}
@@ -111,8 +109,12 @@ func (app *Handler) postCategory(w http.ResponseWriter, r *http.Request) {
 	if session.IsSession(r) {
 		userID, err := session.GetUserIDByCookie(r)
 		if err != nil {
+			if err == http.ErrNoCookie {
+				http.Redirect(w, r, "/signin", http.StatusUnauthorized)
+				return
+			}
 			app.ErrorLog.Printf("postCategory: getUserIDByCookie: %s", err.Error())
-			app.clientError(w, http.StatusBadRequest)
+			app.clientError(w, r, http.StatusBadRequest, err.Error())
 			return
 		}
 		user.ID = userID
@@ -121,7 +123,7 @@ func (app *Handler) postCategory(w http.ResponseWriter, r *http.Request) {
 	posts, err := app.PostUsecase.GetPostsByCategory(category)
 	if err != nil {
 		app.ErrorLog.Printf("postCategory: GetPostsByCategory: %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	app.render(w, r, "home.page.html", &templateData{
@@ -134,31 +136,31 @@ func (app *Handler) postCategory(w http.ResponseWriter, r *http.Request) {
 func (app *Handler) votePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost)
-		app.clientError(w, http.StatusMethodNotAllowed)
+		app.methodNotAllowed(w, r)
 		return
 	}
 	postID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 	if err != nil || postID < 1 {
 		app.ErrorLog.Printf("HANDLERS: votePost(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	vote, err := strconv.ParseInt(r.URL.Query().Get("vote"), 10, 64)
 	if err != nil || vote != 1 && vote != -1 {
 		app.ErrorLog.Printf("HANDLERS: votePost(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	userID, err := session.GetUserIDByCookie(r)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: votePost(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	err = app.PostUsecase.VotePost(postID, userID, int(vote))
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: votePost(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/post?id=%d", postID), http.StatusSeeOther)
@@ -167,36 +169,36 @@ func (app *Handler) votePost(w http.ResponseWriter, r *http.Request) {
 func (app *Handler) voteComment(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost)
-		app.clientError(w, http.StatusMethodNotAllowed)
+		app.methodNotAllowed(w, r)
 		return
 	}
 	postID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: voteComment(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	vote, err := strconv.ParseInt(r.URL.Query().Get("vote"), 10, 64)
 	if err != nil || vote != 1 && vote != -1 {
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	commentID, err := strconv.ParseInt(r.URL.Query().Get("comm"), 10, 64)
 	if err != nil || vote != 1 && vote != -1 {
 		app.ErrorLog.Printf("HANDLERS: voteComment(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	userID, err := session.GetUserIDByCookie(r)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: voteComment(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	err = app.CommentUsecase.VoteComment(commentID, userID, int(vote))
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: voteComment(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/post?id=%d", postID), http.StatusSeeOther)
@@ -205,22 +207,22 @@ func (app *Handler) voteComment(w http.ResponseWriter, r *http.Request) {
 func (app *Handler) createComment(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost)
-		app.clientError(w, http.StatusMethodNotAllowed)
+		app.methodNotAllowed(w, r)
 		return
 	}
 	postID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 	if err != nil || postID < 1 {
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	userID, err := session.GetUserIDByCookie(r)
 	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	comment := r.FormValue("comment")
 	if len(comment) > 255 {
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	comm := &domain.Comment{
