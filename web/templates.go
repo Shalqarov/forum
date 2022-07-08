@@ -16,6 +16,7 @@ type templateData struct {
 	Posts      []*models.PostDTO
 	Comments   []*models.Comment
 	LikedPosts []*models.PostDTO
+	StatusCode int
 }
 
 func NewTemplateCache(dir string) (map[string]*template.Template, error) {

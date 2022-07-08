@@ -29,13 +29,15 @@ func (app *Handler) signup(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if strings.TrimSpace(user.Email) == "" || strings.TrimSpace(user.Password) == "" || strings.TrimSpace(user.Username) == "" {
-			app.clientError(w, http.StatusBadRequest)
+			w.WriteHeader(http.StatusUnauthorized)
+			app.render(w, r, "register.page.html", &templateData{
+				Error: "Credentials are empty",
+			})
 			return
 		}
-
 		app.setUser(w, r, &user)
 	default:
-		app.clientError(w, http.StatusMethodNotAllowed)
+		app.methodNotAllowed(w, r)
 		return
 	}
 }
@@ -52,7 +54,7 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if strings.TrimSpace(info.Email) == "" || strings.TrimSpace(info.Password) == "" {
-			app.clientError(w, http.StatusBadRequest)
+			app.clientError(w, r, http.StatusBadRequest, "Some of the credentials are empty")
 			return
 		}
 
@@ -76,7 +78,7 @@ func (app *Handler) signin(w http.ResponseWriter, r *http.Request) {
 		return
 
 	default:
-		app.clientError(w, http.StatusMethodNotAllowed)
+		app.methodNotAllowed(w, r)
 		return
 	}
 }
@@ -87,7 +89,6 @@ func (app *Handler) setUser(w http.ResponseWriter, r *http.Request, u *domain.Us
 		if err == sql.ErrNoRows {
 			userID, err := app.UserUsecase.CreateUser(u)
 			if err != nil {
-				fmt.Println(u.Email, u.Username)
 				app.ErrorLog.Println(err)
 				w.WriteHeader(http.StatusUnauthorized)
 				app.render(w, r, "register.page.html", &templateData{
@@ -100,7 +101,7 @@ func (app *Handler) setUser(w http.ResponseWriter, r *http.Request, u *domain.Us
 			return
 		}
 		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", err.Error())
-		app.clientError(w, http.StatusInternalServerError)
+		app.clientError(w, r, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
 	w.WriteHeader(http.StatusUnauthorized)
@@ -116,7 +117,7 @@ func (app *Handler) logout(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, http.StatusText(http.StatusBadRequest))
 		return
 	}
 	session.DeleteCookie(w, r)
@@ -127,14 +128,14 @@ func (app *Handler) logout(w http.ResponseWriter, r *http.Request) {
 func (app *Handler) changePassword(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		w.WriteHeader(http.StatusMethodNotAllowed)
 		app.render(w, r, "changepass.page.html", &templateData{})
 		return
 	case http.MethodPost:
 		password := r.FormValue("password")
 		confirmPassword := r.FormValue("confirmPassword")
 		if strings.TrimSpace(password) == "" || strings.TrimSpace(confirmPassword) == "" {
-			app.clientError(w, http.StatusBadRequest)
+			w.WriteHeader(http.StatusUnauthorized)
+			app.render(w, r, "changepass.page.html", &templateData{Error: "Some of the credentials are empty"})
 			return
 		}
 		if password != confirmPassword {
@@ -147,18 +148,20 @@ func (app *Handler) changePassword(w http.ResponseWriter, r *http.Request) {
 		userID, err := session.GetUserIDByCookie(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			app.render(w, r, "login.page.html", &templateData{})
+			app.render(w, r, "login.page.html", &templateData{
+				Error: "You must be logged in to change password",
+			})
 			return
 		}
 		err = app.UserUsecase.ChangePassword(password, userID)
 		if err != nil {
 			app.ErrorLog.Printf("HANDLERS: changePass(): %s", err.Error())
-			app.clientError(w, http.StatusInternalServerError)
+			app.clientError(w, r, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 			return
 		}
 		http.Redirect(w, r, fmt.Sprintf("/profile?id=%d", userID), http.StatusSeeOther)
 	default:
-		app.clientError(w, http.StatusMethodNotAllowed)
+		app.methodNotAllowed(w, r)
 		return
 	}
 }

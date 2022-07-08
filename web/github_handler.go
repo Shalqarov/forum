@@ -46,13 +46,13 @@ func (app *Handler) githubRegisterCallbackHandler(w http.ResponseWriter, r *http
 	accessToken, err := getGithubAccesToken(code, githubRegisterClientID, githubRegisterClientSecret)
 	if err != nil {
 		app.ErrorLog.Println(err)
-		app.clientError(w, http.StatusUnauthorized)
+		app.clientError(w, r, http.StatusUnauthorized, err.Error())
 		return
 	}
 	u, err := getGithubUserInfo(r, accessToken)
 	if err != nil {
 		app.ErrorLog.Println(err)
-		app.clientError(w, http.StatusUnauthorized)
+		app.clientError(w, r, http.StatusUnauthorized, err.Error())
 		return
 	}
 	u.Password = uuid.NewV4().String()
@@ -74,7 +74,7 @@ func (app *Handler) githubRegisterCallbackHandler(w http.ResponseWriter, r *http
 			return
 		}
 		app.ErrorLog.Printf("HANDLERS: github: %s", err.Error())
-		app.clientError(w, http.StatusInternalServerError)
+		app.clientError(w, r, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
 	w.WriteHeader(http.StatusUnauthorized)
@@ -88,13 +88,13 @@ func (app *Handler) githubLoginCallBackHandler(w http.ResponseWriter, r *http.Re
 	accessToken, err := getGithubAccesToken(code, githubLoginClientID, githubLoginClientSecret)
 	if err != nil {
 		app.ErrorLog.Println(err)
-		app.clientError(w, http.StatusUnauthorized)
+		app.clientError(w, r, http.StatusUnauthorized, err.Error())
 		return
 	}
 	info, err := getGithubUserInfo(r, accessToken)
 	if err != nil {
 		app.ErrorLog.Println(err)
-		app.clientError(w, http.StatusUnauthorized)
+		app.clientError(w, r, http.StatusUnauthorized, err.Error())
 		return
 	}
 	u := &models.User{
@@ -113,7 +113,7 @@ func (app *Handler) githubLoginCallBackHandler(w http.ResponseWriter, r *http.Re
 			return
 		}
 		app.ErrorLog.Printf("HANDLERS: githubCallback(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	session.AddCookie(w, r, user.ID)

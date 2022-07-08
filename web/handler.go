@@ -60,7 +60,7 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", http.MethodGet)
-		app.clientError(w, http.StatusMethodNotAllowed)
+		app.methodNotAllowed(w, r)
 		return
 	}
 
@@ -69,11 +69,11 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 		userID, err := session.GetUserIDByCookie(r)
 		if err != nil {
 			if err == http.ErrNoCookie {
-				app.clientError(w, http.StatusUnauthorized)
+				http.Redirect(w, r, "/signin", http.StatusUnauthorized)
 				return
 			}
 			app.ErrorLog.Printf("HANDLERS: home(): %s", err.Error())
-			app.clientError(w, http.StatusInternalServerError)
+			app.clientError(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 		user.ID = userID
@@ -84,7 +84,7 @@ func (app *Handler) home(w http.ResponseWriter, r *http.Request) {
 			app.InfoLog.Println(err)
 		}
 		app.ErrorLog.Printf("HANDLERS: home(): %s", err.Error())
-		app.clientError(w, http.StatusInternalServerError)
+		app.clientError(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 	app.render(w, r, "home.page.html", &templateData{

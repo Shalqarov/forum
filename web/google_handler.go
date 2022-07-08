@@ -65,7 +65,7 @@ func (app *Handler) googleLoginCallbackHandler(w http.ResponseWriter, r *http.Re
 	u, err := getGoogleUserInfo(r, &loginConfig)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", err.Error())
-		app.clientError(w, http.StatusUnauthorized)
+		app.clientError(w, r, http.StatusUnauthorized, err.Error())
 		return
 	}
 	user, err := app.UserUsecase.GetUserByEmail(strings.ToLower(u.Email))
@@ -78,7 +78,7 @@ func (app *Handler) googleLoginCallbackHandler(w http.ResponseWriter, r *http.Re
 			return
 		}
 		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", err.Error())
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 	session.AddCookie(w, r, user.ID)
@@ -89,7 +89,7 @@ func (app *Handler) googleRegisterCallbackHandler(w http.ResponseWriter, r *http
 	u, err := getGoogleUserInfo(r, &registerConfig)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", err.Error())
-		app.clientError(w, http.StatusUnauthorized)
+		app.clientError(w, r, http.StatusUnauthorized, err.Error())
 		return
 	}
 	app.setUser(w, r, u)

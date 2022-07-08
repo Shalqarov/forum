@@ -1,7 +1,7 @@
 -- users TABLE --
 CREATE TABLE IF NOT EXISTS "user" (
     "id" INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,
-    "username" TEXT NOT NULL UNIQUE,
+    "username" TEXT NOT NULL,
     "email" TEXT NOT NULL UNIQUE,
     "password" TEXT NOT NULL,
     "avatar" TEXT NOT NULL
