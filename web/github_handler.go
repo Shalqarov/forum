@@ -87,27 +87,6 @@ func (app *Handler) githubRegisterCallbackHandler(w http.ResponseWriter, r *http
 	})
 }
 
-func getGithubUserInfo(r *http.Request, accessToken string) (*ghUserInfo, error) {
-	username, err := getGithubData(accessToken)
-	if err != nil {
-		return nil, err
-	}
-	email, err := getGithubEmail(accessToken)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("name:", username)
-	fmt.Println("email:", email)
-	userInfo := &ghUserInfo{
-		Username: username,
-		Email:    email,
-	}
-	if userInfo.Email == "" || userInfo.Username == "" {
-		return nil, errors.New("getting empty login or email")
-	}
-	return userInfo, nil
-}
-
 func (app *Handler) githubLoginCallBackHandler(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	accessToken, err := getGithubAccesToken(code, githubLoginClientID, githubLoginClientSecret)
@@ -143,6 +122,25 @@ func (app *Handler) githubLoginCallBackHandler(w http.ResponseWriter, r *http.Re
 	}
 	session.AddCookie(w, r, user.ID)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func getGithubUserInfo(r *http.Request, accessToken string) (*ghUserInfo, error) {
+	username, err := getGithubData(accessToken)
+	if err != nil {
+		return nil, err
+	}
+	email, err := getGithubEmail(accessToken)
+	if err != nil {
+		return nil, err
+	}
+	userInfo := &ghUserInfo{
+		Username: username,
+		Email:    email,
+	}
+	if userInfo.Email == "" || userInfo.Username == "" {
+		return nil, errors.New("getting empty login or email")
+	}
+	return userInfo, nil
 }
 
 func getGithubAccesToken(code, clientID, clientSecret string) (string, error) {

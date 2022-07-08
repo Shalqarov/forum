@@ -1,6 +1,7 @@
 package web
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -26,13 +27,18 @@ func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := app.UserUsecase.GetUserByID(id)
 	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: profile()1: %s", err.Error())
+		if err == sql.ErrNoRows {
+			app.ErrorLog.Printf("HANDLERS: profile(): %s", err.Error())
+			app.clientError(w, http.StatusNotFound)
+			return
+		}
+		app.ErrorLog.Printf("HANDLERS: profile(): %s", err.Error())
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 	posts, err := app.PostUsecase.GetPostsByUserID(user.ID)
 	if err != nil {
-		app.ErrorLog.Printf("HANDLERS: profile()2: %s", err.Error())
+		app.ErrorLog.Printf("HANDLERS: profile(): %s", err.Error())
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
