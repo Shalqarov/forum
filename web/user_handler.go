@@ -10,10 +10,6 @@ import (
 	"github.com/Shalqarov/forum/internal/session"
 )
 
-const (
-	defaultAvatarPath = "/static/images/default-avatar.jpg"
-)
-
 func (app *Handler) profile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", http.MethodGet)
