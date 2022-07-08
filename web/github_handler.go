@@ -23,11 +23,6 @@ const (
 	githubRegisterClientSecret = "b31feac706a76b9e5a79de7515ce3d7a82f33aae"
 )
 
-type ghUserInfo struct {
-	Username string `json:"email"`
-	Email    string `json:"login"`
-}
-
 func (app *Handler) githubLoginHandler(w http.ResponseWriter, r *http.Request) {
 	redirectURL := fmt.Sprintf(
 		"https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&scope=user:email",
@@ -54,37 +49,15 @@ func (app *Handler) githubRegisterCallbackHandler(w http.ResponseWriter, r *http
 		app.clientError(w, http.StatusUnauthorized)
 		return
 	}
-	info, err := getGithubUserInfo(r, accessToken)
+	u, err := getGithubUserInfo(r, accessToken)
 	if err != nil {
 		app.ErrorLog.Println(err)
 		app.clientError(w, http.StatusUnauthorized)
 		return
 	}
-	_, err = app.UserUsecase.GetUserByEmail(info.Email)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			u := &models.User{
-				Username: info.Username,
-				Email:    info.Email,
-				Password: uuid.NewV4().String(),
-			}
-			userID, err := app.UserUsecase.CreateUser(u)
-			if err != nil {
-				app.clientError(w, http.StatusBadRequest)
-				return
-			}
-			session.AddCookie(w, r, userID)
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-			return
-		}
-		app.ErrorLog.Printf("HANDLERS: googleCallback(): %s", err.Error())
-		app.clientError(w, http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(http.StatusUnauthorized)
-	app.render(w, r, "register.page.html", &templateData{
-		Error: "User already exists",
-	})
+	u.Password = uuid.NewV4().String()
+	u.Avatar = defaultAvatarPath
+	app.setUser(w, r, u)
 }
 
 func (app *Handler) githubLoginCallBackHandler(w http.ResponseWriter, r *http.Request) {
@@ -124,7 +97,7 @@ func (app *Handler) githubLoginCallBackHandler(w http.ResponseWriter, r *http.Re
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func getGithubUserInfo(r *http.Request, accessToken string) (*ghUserInfo, error) {
+func getGithubUserInfo(r *http.Request, accessToken string) (*models.User, error) {
 	username, err := getGithubData(accessToken)
 	if err != nil {
 		return nil, err
@@ -133,7 +106,7 @@ func getGithubUserInfo(r *http.Request, accessToken string) (*ghUserInfo, error)
 	if err != nil {
 		return nil, err
 	}
-	userInfo := &ghUserInfo{
+	userInfo := &models.User{
 		Username: username,
 		Email:    email,
 	}
