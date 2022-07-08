@@ -8,5 +8,5 @@ type Token struct {
 
 type UserInfo struct {
 	Email    string `json:"email"`
-	Username string `json:"given_name"`
+	Username string `json:"name"`
 }

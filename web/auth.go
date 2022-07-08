@@ -87,7 +87,12 @@ func (app *Handler) setUser(w http.ResponseWriter, r *http.Request, u *domain.Us
 		if err == sql.ErrNoRows {
 			userID, err := app.UserUsecase.CreateUser(u)
 			if err != nil {
-				app.clientError(w, http.StatusBadRequest)
+				fmt.Println(u.Email, u.Username)
+				app.ErrorLog.Println(err)
+				w.WriteHeader(http.StatusUnauthorized)
+				app.render(w, r, "register.page.html", &templateData{
+					Error: "User already exists",
+				})
 				return
 			}
 			session.AddCookie(w, r, userID)

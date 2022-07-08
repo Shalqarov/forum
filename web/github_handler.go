@@ -57,7 +57,30 @@ func (app *Handler) githubRegisterCallbackHandler(w http.ResponseWriter, r *http
 	}
 	u.Password = uuid.NewV4().String()
 	u.Avatar = defaultAvatarPath
-	app.setUser(w, r, u)
+	_, err = app.UserUsecase.GetUserByEmail(u.Email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			userID, err := app.UserUsecase.CreateUser(u)
+			if err != nil {
+				w.WriteHeader(http.StatusUnauthorized)
+				app.ErrorLog.Println(err)
+				app.render(w, r, "register.page.html", &templateData{
+					Error: "User already exists",
+				})
+				return
+			}
+			session.AddCookie(w, r, userID)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+		app.ErrorLog.Printf("HANDLERS: github: %s", err.Error())
+		app.clientError(w, http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusUnauthorized)
+	app.render(w, r, "register.page.html", &templateData{
+		Error: "User already exists",
+	})
 }
 
 func (app *Handler) githubLoginCallBackHandler(w http.ResponseWriter, r *http.Request) {
@@ -213,7 +236,7 @@ func getGithubEmail(accessToken string) (string, error) {
 		return "", err
 	}
 	type Data struct {
-		Username string `json:"given_name"`
+		Username string `json:"login"`
 		Email    string `json:"email"`
 	}
 	var data []Data
