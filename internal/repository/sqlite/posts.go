@@ -33,7 +33,8 @@ const (
 	queryGetPostByID = `
 	SELECT p.*, u.username, u.avatar FROM "post" AS p
 	INNER JOIN "user" AS u
-	ON u.ID = p.user_id`
+	ON u.ID = p.user_id
+	WHERE p.id=?`
 
 	queryGetPostsByCategory = `
 	SELECT p."id", p."user_id", p."title", p."category", p."date", u.username
