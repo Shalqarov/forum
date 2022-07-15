@@ -7,10 +7,12 @@ import (
 	"os"
 	"time"
 
+	postgres "github.com/Shalqarov/forum/internal/repository/postgres"
 	repository "github.com/Shalqarov/forum/internal/repository/sqlite"
 	"github.com/Shalqarov/forum/internal/session"
 	"github.com/Shalqarov/forum/internal/usecase"
 	"github.com/Shalqarov/forum/web"
+	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -26,9 +28,15 @@ func main() {
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-	err = dbConn.Ping()
+	defer func() {
+		err := dbConn.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+	postgre, err := postgres.OpenDB(*dsn)
 	if err != nil {
-		log.Fatal(err)
+		errorLog.Fatal(err)
 	}
 	defer func() {
 		err := dbConn.Close()
@@ -38,7 +46,7 @@ func main() {
 	}()
 
 	router := http.NewServeMux()
-	userRepo := repository.NewSqliteUserRepo(dbConn)
+	userRepo := postgres.NewPostgresUserRepo(postgre)
 	postRepo := repository.NewSqlitePostRepo(dbConn)
 	commRepo := repository.NewSqliteCommentRepo(dbConn)
 	userUsecase := usecase.NewUserUsecase(userRepo)

@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS "user" (
+    "user_id" BIGSERIAL PRIMARY KEY,
+    "email" VARCHAR(320) NOT NULL UNIQUE,
+    "username" VARCHAR(20) NOT NULL,
+    "password" TEXT NOT NULL,
+    "avatar" TEXT NOT NULL
+)
+
+CREATE TABLE IF NOT EXISTS
