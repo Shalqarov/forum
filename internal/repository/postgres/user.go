@@ -15,7 +15,7 @@ const (
 		"email",
 		"password",
 		"avatar"
-	) VALUES ($1, $2, $3, $4, $5) RETURNING "user_id"`
+	) VALUES ($1, $2, $3, $4) RETURNING "user_id"`
 
 	queryGetUserIDByUsername = `
 	SELECT "user_id" 
