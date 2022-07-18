@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	host     = "localhost"
+	host     = "forumdb"
 	port     = ":5432"
 	user     = "forum"
 	password = "mangothebest"
@@ -15,6 +15,7 @@ const (
 )
 
 func OpenDB(dsn string) (*sql.DB, error) {
+	fmt.Println(host)
 	// dbinfo := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", DB_USER, DB_PASSWORD, DB_NAME)
 	psqlInfo := fmt.Sprintf("postgres://%s:%s@%s%s/%s?sslmode=disable",
 		user, password, host, port, dbname,

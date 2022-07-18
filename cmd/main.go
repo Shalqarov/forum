@@ -47,7 +47,7 @@ func main() {
 
 	router := http.NewServeMux()
 	userRepo := postgres.NewPostgresUserRepo(postgre)
-	postRepo := repository.NewSqlitePostRepo(dbConn)
+	postRepo := postgres.NewPostgresPostRepo(postgre)
 	commRepo := repository.NewSqliteCommentRepo(dbConn)
 	userUsecase := usecase.NewUserUsecase(userRepo)
 	postUsecase := usecase.NewPostUsecase(postRepo)

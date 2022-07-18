@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"database/sql"
+	"os"
+	"strings"
 
 	"github.com/Shalqarov/forum/internal/domain"
 )
@@ -16,14 +18,14 @@ const (
 	) VALUES ($1, $2, $3, $4, $5) RETURNING "user_id"`
 
 	queryGetUserIDByUsername = `
-	SELECT "id" 
+	SELECT "user_id" 
 	FROM "user" 
-	WHERE "username"=?`
+	WHERE "username"=$1`
 
 	queryGetUserByID = `
 	SELECT * 
 	FROM "user" 
-	WHERE "id"=$1`
+	WHERE "user_id"=$1`
 
 	queryGetUserByEmail = `
 	SELECT * 
@@ -31,12 +33,14 @@ const (
 	WHERE "email"=$1`
 
 	queryChangeAvatar = `
-	UPDATE "user" SET "avatar"=$1 WHERE "id" = $2
-	`
+	UPDATE "user" 
+	SET "avatar"=$1 
+	WHERE "user_id" = $2`
 
 	queryChangePassword = `
-	UPDATE "user" SET "password"=$1 WHERE "id"=$2
-	`
+	UPDATE "user" 
+	SET "password"=$1 
+	WHERE "user_id"=$2`
 )
 
 type repo struct {
@@ -62,6 +66,25 @@ func (u *repo) CreateUser(user *domain.User) (int64, error) {
 }
 
 func (u *repo) ChangeAvatarByUserID(userID int64, image string) error {
+	imagePath := ""
+	err := u.db.QueryRow(
+		`SELECT "avatar" 
+		FROM user 
+		WHERE "user_id" = $1`,
+		userID).Scan(&imagePath)
+	if err != nil {
+		return err
+	}
+	if !strings.Contains(imagePath, "default-avatar.jpg") {
+		err = os.Remove("ui" + imagePath)
+		if err != nil {
+			return err
+		}
+	}
+	_, err = u.db.Exec(queryChangeAvatar, image, userID)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -97,5 +120,6 @@ func (u *repo) GetUserByEmail(email string) (*domain.User, error) {
 }
 
 func (u *repo) ChangePassword(newPassword string, userID int64) error {
-	return nil
+	_, err := u.db.Exec(queryChangePassword, newPassword, userID)
+	return err
 }

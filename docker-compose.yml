@@ -1,8 +1,18 @@
 version: '3'
 services:
+  forum:
+    container_name: forum
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - forum:/app
+    depends_on:
+      - psql
+    restart: on-failure
   psql:
     image: postgres:14.1-alpine
-    container_name: forum-postgres
+    container_name: forumdb
     environment:
       POSTGRES_DB: forum
       POSTGRES_USER: forum
@@ -13,7 +23,6 @@ services:
     ports:
       - '5432:5432'
     restart: unless-stopped
-
 volumes:
   pg-data:
     driver: local
