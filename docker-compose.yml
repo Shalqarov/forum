@@ -1,15 +1,15 @@
 version: '3'
 services:
-  forum:
-    container_name: forum
-    build: .
-    ports:
-      - "5000:5000"
-    volumes:
-      - forum:/app
-    depends_on:
-      - psql
-    restart: on-failure
+  # forum:
+  #   container_name: forum
+  #   build: .
+  #   ports:
+  #     - "5000:5000"
+  #   volumes:
+  #     - forum:/app
+  #   depends_on:
+  #     - psql
+  #   restart: on-failure
   psql:
     image: postgres:14.1-alpine
     container_name: forumdb
@@ -26,4 +26,4 @@ services:
 volumes:
   pg-data:
     driver: local
-  forum:
+  # forum:
