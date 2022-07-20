@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 	"strings"
 
@@ -56,12 +57,14 @@ func (u *repo) CreateUser(user *domain.User) (int64, error) {
 	err := u.db.QueryRow(
 		queryCreateUser,
 		user.Username,
+		user.Email,
 		user.Password,
 		user.Avatar,
 	).Scan(&lastInsertId)
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
+	fmt.Println(lastInsertId)
 	return lastInsertId, nil
 }
 
