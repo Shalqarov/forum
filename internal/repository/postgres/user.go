@@ -45,13 +45,13 @@ const (
 	WHERE "user_id"=$2`
 
 	queryGetVotedPostsByUserID = `
-	SELECT p."post_id", p."user_id", p."title", p."category", p."date", u.username
+	SELECT p."post_id", p."user_id", p."title", p."category", p."date", u."username"
 	FROM "post" AS p
 	INNER JOIN "user" AS u
-		ON p.user_id = u.user_id
+		ON p."user_id" = u."user_id"
 	INNER JOIN "post_vote" AS v
-		ON v."user_id" = u.user_id AND v.post_id = p.post_id
-	WHERE u.user_id=$1 AND v."vote"=1
+		ON v."user_id" = u.user_id AND v."post_id" = p."post_id"
+	WHERE u."user_id"=$1 AND v."vote"=1
 	ORDER BY p."date" DESC
 	`
 )
@@ -97,6 +97,7 @@ func (u *repo) GetVotedPostsByUserID(userID int64) ([]*domain.PostDTO, error) {
 		post.CreatedAt = date.Format("01-02-2006 15:04:05")
 		posts = append(posts, post)
 	}
+	fmt.Println(posts)
 	return posts, nil
 }
 
@@ -104,7 +105,7 @@ func (u *repo) ChangeAvatarByUserID(userID int64, image string) error {
 	imagePath := ""
 	err := u.db.QueryRow(
 		`SELECT "avatar" 
-		FROM user 
+		FROM "user"
 		WHERE "user_id" = $1`,
 		userID).Scan(&imagePath)
 	if err != nil {
