@@ -12,31 +12,31 @@ func NewPostgresVoteRepo(db *sql.DB) domain.VoteRepo {
 
 const (
 	queryVotePostSelect = `
-	SELECT "id","vote" 
-	FROM "post_votes" 
+	SELECT "post_vote_id", "vote" 
+	FROM "post_vote" 
 	WHERE user_id = $1 AND post_id = $2`
 	queryVotePostExec = `
-	INSERT INTO "post_votes"(
+	INSERT INTO "post_vote"(
 		"user_id",
 		"post_id",
 		"vote")
-	VALUES ($1, $2, $3)`
+	VALUES ($1, $2, $3) RETURNING "post_vote_id"`
 	queryVotePostDelete = `
-	DELETE FROM "post_votes" 
-	WHERE "id" = $1`
+	DELETE FROM "post_vote" 
+	WHERE "post_vote_id" = $1`
 	queryVoteCommentSelect = `
-	SELECT "id","vote" 
-	FROM "comment_votes" 
+	SELECT "comment_vote_id", "vote" 
+	FROM "comment_vote" 
 	WHERE user_id = $1 AND comment_id = $2`
 	queryVoteCommentExec = `
-	INSERT INTO "comment_votes"(
+	INSERT INTO "comment_vote"(
 		"user_id",
 		"comment_id",
 		"vote")
-	VALUES ($1, $2, $3)`
+	VALUES ($1, $2, $3) RETURNING "comment_vote_id"`
 	queryVoteCommentDelete = `
-	DELETE FROM "comment_votes" 
-	WHERE "id" = $1`
+	DELETE FROM "comment_vote" 
+	WHERE "comment_vote_id" = $1`
 )
 
 func (u *repo) VotePost(postID, userID int64, vote int) error {

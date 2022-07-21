@@ -9,7 +9,7 @@ stop:
 
 delete:
 	docker-compose down
-	docker volume rm forum_forum 
+	docker volume rm forum_default
 	docker volume rm forum_pg-data 
 
 remove-images:
