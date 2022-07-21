@@ -81,7 +81,6 @@ For the forum project you must use Docker. You can read about docker basics in t
 
 ### Instructions
 
-- You must use **SQLite**.
 - You must handle website errors, HTTP status.
 - You must handle all sort of technical errors.
 - The code must respect the [**good practices**](../good-practices/README.md).
@@ -90,7 +89,6 @@ For the forum project you must use Docker. You can read about docker basics in t
 ### Allowed packages
 
 - All [standard Go](https://golang.org/pkg/) packages are allowed.
-- [sqlite3](https://github.com/mattn/go-sqlite3)
 - [bcrypt](https://pkg.go.dev/golang.org/x/crypto/bcrypt)
 - [UUID](https://github.com/satori/go.uuid)
 
