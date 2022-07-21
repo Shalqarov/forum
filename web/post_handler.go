@@ -157,7 +157,7 @@ func (app *Handler) votePost(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = app.PostUsecase.VotePost(postID, userID, int(vote))
+	err = app.VoteUsecase.VotePost(postID, userID, int(vote))
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: votePost(): %s", err.Error())
 		app.clientError(w, r, http.StatusBadRequest, err.Error())
@@ -195,7 +195,7 @@ func (app *Handler) voteComment(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = app.CommentUsecase.VoteComment(commentID, userID, int(vote))
+	err = app.VoteUsecase.VoteComment(commentID, userID, int(vote))
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: voteComment(): %s", err.Error())
 		app.clientError(w, r, http.StatusBadRequest, err.Error())

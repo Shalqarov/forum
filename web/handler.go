@@ -15,6 +15,7 @@ type Handler struct {
 	UserUsecase    domain.UserUsecase
 	PostUsecase    domain.PostUsecase
 	CommentUsecase domain.CommentUsecase
+	VoteUsecase    domain.VoteUsecase
 	TemplateCache  map[string]*template.Template
 	ErrorLog       *log.Logger
 	InfoLog        *log.Logger

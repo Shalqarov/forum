@@ -1,12 +1,29 @@
-version: "3"
+version: '3'
 services:
-  app:
-    container_name: web-app
+  forum:
+    container_name: forum
     build: .
     ports:
       - "5000:5000"
     volumes:
-      - web-app:/app/repository/sqlite
-
+      - forum:/app
+    depends_on:
+      - psql
+    restart: on-failure
+  psql:
+    image: postgres:14.1-alpine
+    container_name: forumdb
+    environment:
+      POSTGRES_DB: forum
+      POSTGRES_USER: forum
+      POSTGRES_PASSWORD: "mangothebest"
+      PGDATA: /data/postgres
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
 volumes:
-  web-app:
+  pg-data:
+    driver: local
+  forum:

@@ -61,13 +61,6 @@ func (u *postUsecase) GetAllPosts() ([]*domain.PostDTO, error) {
 	return u.repo.GetAllPosts()
 }
 
-func (u *postUsecase) VotePost(postID, userID int64, vote int) error {
-	if vote != -1 && vote != 1 {
-		return fmt.Errorf("VotePost: invalid voteType")
-	}
-	return u.repo.VotePost(postID, userID, vote)
-}
-
 func (u *postUsecase) GetVotedPostsByUserID(userID int64) ([]*domain.PostDTO, error) {
 	return u.repo.GetVotedPostsByUserID(userID)
 }

@@ -1,9 +1,5 @@
 run:
-	go run ./cmd/ 
-
-docker-run:
-	docker-compose up -d
-	docker image prune
+	docker-compose up 
 
 stop:
 	docker-compose stop
