@@ -43,13 +43,6 @@ func (u *commentUsecase) GetCommentsByPostID(id int64) ([]*domain.Comment, error
 	return comments, nil
 }
 
-func (u *commentUsecase) VoteComment(commentID, userID int64, vote int) error {
-	if vote != -1 && vote != 1 {
-		return fmt.Errorf("VoteComment: invalid voteType")
-	}
-	return u.repo.VoteComment(commentID, userID, vote)
-}
-
 func (u *commentUsecase) GetVotesCountByCommentID(commentID int64) (*domain.Vote, error) {
 	return u.repo.GetVotesCountByCommentID(commentID)
 }

@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS "user" (
-    "user_id" BIGSERIAL PRIMARY KEY,
+    "user_id" BIGSERIAL NOT NULL PRIMARY KEY,
     "email" VARCHAR(320) NOT NULL UNIQUE,
     "username" VARCHAR(20) NOT NULL,
     "password" TEXT NOT NULL,
@@ -15,11 +15,11 @@ CREATE TABLE IF NOT EXISTS "post" (
     "image" TEXT
 );
 CREATE TABLE IF NOT EXISTS "comment" (
-    "comment_id" BIGSERIAL PRIMARY KEY,
+    "comment_id" BIGSERIAL NOT NULL PRIMARY KEY,
     "user_id" BIGINT NOT NULL REFERENCES "user"("user_id"),
     "post_id" BIGINT NOT NULL REFERENCES "post"("post_id"),
     "content" VARCHAR(255) NOT NULL,
-    "created_at" DATE NOT NULL
+    "date" DATE NOT NULL
 );
 CREATE TABLE IF NOT EXISTS "post_vote" (
     "post_vote_id" BIGSERIAL NOT NULL PRIMARY KEY,

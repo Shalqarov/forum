@@ -2,8 +2,10 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/Shalqarov/forum/internal/domain"
 )
@@ -41,6 +43,17 @@ const (
 	UPDATE "user" 
 	SET "password"=$1 
 	WHERE "user_id"=$2`
+
+	queryGetVotedPostsByUserID = `
+	SELECT p."post_id", p."user_id", p."title", p."category", p."date", u.username
+	FROM "post" AS p
+	INNER JOIN "user" AS u
+		ON p.user_id = u.user_id
+	INNER JOIN "post_vote" AS v
+		ON v."user_id" = u.user_id AND v.post_id = p.post_id
+	WHERE u.user_id=$1 AND v."vote"=1
+	ORDER BY p."date" DESC
+	`
 )
 
 type repo struct {
@@ -56,13 +69,35 @@ func (u *repo) CreateUser(user *domain.User) (int64, error) {
 	err := u.db.QueryRow(
 		queryCreateUser,
 		user.Username,
+		user.Email,
 		user.Password,
 		user.Avatar,
 	).Scan(&lastInsertId)
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
+	fmt.Println(lastInsertId)
 	return lastInsertId, nil
+}
+
+func (u *repo) GetVotedPostsByUserID(userID int64) ([]*domain.PostDTO, error) {
+	rows, err := u.db.Query(queryGetVotedPostsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	posts := []*domain.PostDTO{}
+	for rows.Next() {
+		date := time.Time{}
+		post := &domain.PostDTO{}
+		err := rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Category, &date, &post.Author)
+		if err != nil {
+			return nil, err
+		}
+		post.CreatedAt = date.Format("01-02-2006 15:04:05")
+		posts = append(posts, post)
+	}
+	return posts, nil
 }
 
 func (u *repo) ChangeAvatarByUserID(userID int64, image string) error {

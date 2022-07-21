@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	host     = "forumdb"
+	// host     = "forumdb"
+	host     = "localhost"
 	port     = ":5432"
 	user     = "forum"
 	password = "mangothebest"
