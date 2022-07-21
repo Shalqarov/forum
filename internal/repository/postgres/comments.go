@@ -15,17 +15,18 @@ const (
 		"post_id",
 		"content",
 		"date"
-	) VALUES(?,?,?,?)`
+	) VALUES($1, $2, $3, $4)`
 
 	queryGetCommentsByPostID = `
 	SELECT c.*, u.username, u.avatar FROM "comment" AS c
 	INNER JOIN "user" AS u
-	ON u.ID = c.user_id
-	WHERE "post_id"=?
+		ON u.user_id = c.user_id
+	WHERE c."post_id"=$1
 	ORDER BY "date" DESC`
+
 	queryGetVotesCountByCommentID = `
 	SELECT "vote", count("vote") 
-	FROM "comment_votes"
+	FROM "comment_vote"
 	WHERE comment_id = $1 
 	GROUP BY "vote"
 	ORDER BY "vote" desc`
