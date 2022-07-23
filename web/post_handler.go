@@ -47,13 +47,54 @@ func (app *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, r, http.StatusBadRequest, "Wrong image type")
 		return
 	}
-	_, err = app.PostUsecase.CreatePost(postInfo)
+	id, err := app.PostUsecase.CreatePost(postInfo)
 	if err != nil {
 		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
 		app.clientError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/post?id=%d", id), http.StatusSeeOther)
+}
+
+func (app *Handler) editPost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		app.clientError(w, r, http.StatusMethodNotAllowed, "Method not allowed")
+		return
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, 20<<20)
+	postID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	if err != nil || postID < 1 {
+		app.ErrorLog.Printf("HANDLERS: postPage(): %s", err.Error())
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	postInfo := &domain.Post{
+		ID:       postID,
+		Title:    r.FormValue("title"),
+		Content:  r.FormValue("content"),
+		Category: r.FormValue("category"),
+	}
+	if strings.TrimSpace(postInfo.Title) == "" || strings.TrimSpace(postInfo.Content) == "" || strings.TrimSpace(postInfo.Category) == "" {
+		app.clientError(w, r, http.StatusBadRequest, "Some of the fields are empty")
+		return
+	}
+	img, err := imageUpload(r)
+	if err != nil {
+		if strings.Contains(err.Error(), "no such file") {
+			img = ""
+		}
+		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
+		app.clientError(w, r, http.StatusBadRequest, "Wrong image type")
+		return
+	}
+	postInfo.Image = img
+	err = app.PostUsecase.EditPost(postInfo)
+	if err != nil {
+		app.ErrorLog.Printf("HANDLERS: createPost(): %s", err.Error())
+		app.clientError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	http.Redirect(w, r, fmt.Sprintf("/post?id=%d", postID), http.StatusSeeOther)
 }
 
 func (app *Handler) postPage(w http.ResponseWriter, r *http.Request) {

@@ -58,6 +58,26 @@ const (
 	WHERE post_id = $1 
 	GROUP BY "vote"
 	ORDER BY "vote" desc`
+
+	queryEditPostWithImage = `
+	UPDATE "post"
+	SET 
+		"title"=$1,
+		"content"=$2,
+		"category"=$3,
+		"date"=$4,
+		"image"=$5
+	WHERE "post_id"=$6
+	`
+	queryEditPostNoImage = `
+	UPDATE "post"
+	SET 
+		"title"=$1,
+		"content"=$2,
+		"category"=$3,
+		"date"=$4
+	WHERE "post_id"=$5
+	`
 )
 
 func (r *repo) CreatePost(post *domain.Post) (int64, error) {
@@ -74,6 +94,30 @@ func (r *repo) CreatePost(post *domain.Post) (int64, error) {
 		return 0, err
 	}
 	return lastInsertId, nil
+}
+
+func (r *repo) EditPost(post *domain.Post) error {
+	if post.Image != "" {
+		_, err := r.db.Exec(
+			queryEditPostWithImage,
+			post.Title,
+			post.Content,
+			post.Category,
+			time.Now(),
+			post.Image,
+			post.ID,
+		)
+		return err
+	}
+	_, err := r.db.Exec(
+		queryEditPostNoImage,
+		post.Title,
+		post.Content,
+		post.Category,
+		time.Now(),
+		post.ID,
+	)
+	return err
 }
 
 func (u *repo) GetPostsByUserID(id int64) ([]*domain.PostDTO, error) {

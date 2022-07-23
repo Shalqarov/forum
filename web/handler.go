@@ -43,6 +43,7 @@ func NewHandler(r *http.ServeMux, h *Handler) {
 
 	r.Handle("/post/vote", middleware.NeedToBeAuthorized(h.votePost))
 	r.Handle("/post/create", middleware.NeedToBeAuthorized(h.createPost))
+	r.Handle("/post/edit", middleware.NeedToBeAuthorized(h.editPost))
 	r.Handle("/post/votecomment", middleware.NeedToBeAuthorized(h.voteComment))
 	r.Handle("/post/createcomment", middleware.NeedToBeAuthorized(h.createComment))
 	r.Handle("/profile/upload-avatar", middleware.NeedToBeAuthorized(h.uploadAvatar))

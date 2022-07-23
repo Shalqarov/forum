@@ -20,6 +20,51 @@
                     {{.Post.Category}}
             </button>
         </form>
+        {{ if .IsSession }}
+        {{ if eq .Post.UserID .User.ID }}
+        <a href="#modal2" class="modal-trigger btn waves-effect light-blue darken-4">Edit Post</a>
+        <div id="modal2" class="modal">
+            <div class="modal-content">
+                <form action="/post/edit?id={{ .Post.ID }}" enctype="multipart/form-data" method="POST">
+                    <div class="input-field col s12">
+                        <i class="material-icons prefix">title</i>
+                        <input name="title" id="title" type="text" maxlength="255" required value="{{ .Post.Title }}">
+                        <label for="title">Title</label>
+                        <span class="helper-text">maximum characters: 255</span>
+                    </div>
+                    <div class="input-field col s12">
+                        <i class="material-icons prefix">create</i>
+                        <textarea maxlength="2000" name="content" id="content" class="materialize-textarea" required>{{ .Post.Content }}</textarea>
+                        <label for="content">content</label>
+                        <span class="helper-text">maximum characters: 2000</span>
+                    </div>
+                    <div class="input-field col s12">
+                        <i class="material-icons prefix">format_list_bulleted</i>
+                        <select name="category">
+                            <option value="Offtop" selected>Choose category</option>
+                            <option value="alem">alem</option>
+                            <option value="Study">Study</option>
+                            <option value="Teamalem">Teamalem</option>
+                            <option value="Linkedin">Linkedin</option>
+                            <option value="Offtop">Offtop</option>
+                        </select>
+                        <label>Category select</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input type="file" name="myFile" value="{{ .Post.Image }}"/>
+                    </div>
+                    <div class="input-field col s12">
+                        <button class="btn waves-effect waves-light light-blue darken-4"
+                            type="submit">Create</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a class="modal-close waves-effect waves-green"><i class="material-icons">close</i></a>
+            </div>
+        </div>
+        {{ end }}
+        {{ end }}
         <div class="row">
             <div class="col">
                 <form action="/post/vote?id={{.Post.ID }}&vote=1" method="POST">

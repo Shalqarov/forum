@@ -20,6 +20,10 @@ func (u *postUsecase) CreatePost(post *domain.Post) (int64, error) {
 	return u.repo.CreatePost(post)
 }
 
+func (u *postUsecase) EditPost(post *domain.Post) error {
+	return u.repo.EditPost(post)
+}
+
 func (u *postUsecase) GetPostsByUserID(id int64) ([]*domain.PostDTO, error) {
 	return u.repo.GetPostsByUserID(id)
 }
