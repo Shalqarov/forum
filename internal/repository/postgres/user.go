@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -76,7 +75,6 @@ func (u *repo) CreateUser(user *domain.User) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	fmt.Println(lastInsertId)
 	return lastInsertId, nil
 }
 
@@ -97,7 +95,6 @@ func (u *repo) GetVotedPostsByUserID(userID int64) ([]*domain.PostDTO, error) {
 		post.CreatedAt = date.Format("01-02-2006 15:04:05")
 		posts = append(posts, post)
 	}
-	fmt.Println(posts)
 	return posts, nil
 }
 
